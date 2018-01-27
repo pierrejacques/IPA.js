@@ -1,0 +1,29 @@
+{
+  "name": "IPA",
+  "version": "1.0.0",
+  "description": "IPA interface manager",
+  "main": "lib/index.js",
+  "scripts": {
+    "start": "babel-node src/index.js",
+    "build": "babel src --out-dir dist"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/pierrejacques/IPA.js.git"
+  },
+  "author": "pierrejacques",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/pierrejacques/IPA.js/issues"
+  },
+  "homepage": "https://github.com/pierrejacques/IPA.js#readme",
+  "devDependencies": {
+    "babel-cli": "^6.26.0",
+    "babel-core": "^6.26.0",
+    "babel-plugin-transform-es2015-destructuring": "^6.23.0",
+    "babel-plugin-transform-es2015-modules-commonjs": "^6.26.0",
+    "babel-plugin-transform-es2015-parameters": "^6.24.1",
+    "babel-plugin-transform-es2015-spread": "^6.22.0",
+    "babel-plugin-transform-strict-mode": "^6.24.1"
+  }
+}
