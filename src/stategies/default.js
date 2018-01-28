@@ -1,15 +1,26 @@
-export default {
-    condition: template => {
-        const type = typeof template;
-        return type !== 'function' && type !== 'object' && type !== 'undefined';
-    },
-    check(data, template, cb) {
+const condition = template => {
+    const type = typeof template;
+    return type !== 'function' && type !== 'object' && type !== 'undefined' && type !== 'null';
+};
 
-    },
-    guarantee(data, template, cb) {
-
-    },
-    mock(template, cb) {
-
+const check = (data, template, cb) => {
+    if (typeof template !== typeof data) {
+        return false;
     }
+    return true;
+};
+
+const guarantee = (data, template, cb) => {
+
+};
+
+const mock = (config, template, cb) => {
+
+};
+
+export default {
+    condition,
+    check,
+    guarantee,
+    mock
 }

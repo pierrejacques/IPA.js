@@ -6,7 +6,7 @@ function getRecursion(method) {
         let ret;
         for (let i = 0; i < stategies.length; i++) {
             const stategy = stategies[i];
-            if (stategy.condition(template)) {
+            if (stategy.condition(params[1])) { // TODO: 参数管理
                 ret = stategy[method](...params, execute);
                 break;
             }
@@ -19,19 +19,29 @@ function getRecursion(method) {
 
 export default class IPA {
     constructor(template) {
-        checkTemplate(template);
         this.template = template;
     }
 
     check(data) {
-        return getRecursion('check')(data, this.template);
+        const check = getRecursion('check');
+        check.cache = {};
+        return check(data, this.template)
     }
 
     guarantee(data) {
-        return getRecursion('guarantee')(data, this.template);
+        return execute(data, this.template);
     }
 
     mock(config) {
         return getRecursion('mock')(config, this.template);
     }
 }
+
+const ipa = new IPA({
+    a: [Number, 'length'],
+    b: [String, 'length'],
+});
+console.log(ipa.check({
+    a: [1,2,3,4],
+    b: ['', '', '', '', ''],
+}));

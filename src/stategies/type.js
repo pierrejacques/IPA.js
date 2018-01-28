@@ -1,14 +1,22 @@
+const condition = template => (template === String || template === Number || template === Boolean);
+
+
+const check = (data, template, cb) => data.__proto__.constructor === template;
+
+
+const guarantee = (data, template, cb) => {
+
+};
+
+
+const mock = (template, cb) => {
+
+};
+
+
 export default {
-    condition: template => {
-        return template === String || template === Number || template === Boolean;
-    },
-    check(data, template, cb) {
-
-    },
-    guarantee(data, template, cb) {
-
-    },
-    mock(template, cb) {
-
-    }
+    condition,
+    check,
+    guarantee,
+    mock,
 }
