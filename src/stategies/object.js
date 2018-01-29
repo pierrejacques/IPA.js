@@ -16,6 +16,10 @@ export default {
 
     },
     mock(template, cb) {
-
+        const object = {};
+        Object.keys(template).forEach(key => {
+            object[key] = cb(template[key]);
+        });
+        return object;
     },
 }

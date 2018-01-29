@@ -1,3 +1,5 @@
+import generator from '../lib/generator.js';
+
 export default {
     condition(template) {
         const validConstructors = new Set([
@@ -19,6 +21,13 @@ export default {
 
     },
     mock(template, cb) {
-
+        const map = new Map([
+            [String, generator.getStr],
+            [Number, generator.getNum],
+            [Boolean, generator.getBool],
+            [Array, () => []],
+            [Object, () => ({})],
+        ]);
+        return map.get(template)();
     },
 };

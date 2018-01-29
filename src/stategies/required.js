@@ -17,6 +17,6 @@ export default {
 
     },
     mock(template, cb) {
-
+        return null;
     },
 }
