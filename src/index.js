@@ -2,12 +2,12 @@ import stategies from './stategies/index.js'
 
 
 function getRecursion(method) {
-    const execute = (...params) => {
+    const execute = (template, ...params) => {
         let ret;
         for (let i = 0; i < stategies.length; i++) {
             const stategy = stategies[i];
-            if (stategy.condition(params[1])) { // TODO: 参数管理
-                ret = stategy[method](...params, execute);
+            if (stategy.condition(template)) {
+                ret = stategy[method](template, ...params, execute);
                 break;
             }
         }
@@ -25,14 +25,16 @@ export default class IPA {
     check(data) {
         const check = getRecursion('check');
         check.cache = {};
-        return check(data, this.template)
+        return check(this.template, data);
     }
 
     guarantee(data) {
-        return execute(data, this.template);
+        return execute(this.template, data);
     }
 
-    mock(config) {
-        return getRecursion('mock')(config, this.template);
+    mock(config = {}) {
+        const mock = getRecursion('mock');
+        mock.cache = config;
+        return mock(this.template);
     }
 }

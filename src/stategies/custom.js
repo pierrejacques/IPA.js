@@ -1,15 +1,19 @@
-const condition = template =>
-    (typeof template === 'function' && template !== String && template !== Number && template !== Boolean);
-
-const check = (data, template, cb) => template(data).isValid;
-
-const guarantee = (data, template, cb) => {};
-
-const mock = (config, template, cb) => {};
-
 export default {
-    condition,
-    check,
-    guarantee,
-    mock,
-}
+    condition(template) {
+        return typeof template === 'function' && template !== String && template !== Number && template !== Boolean;
+    },
+    check(template, data, cb) {
+        return template(data).isValid;
+    },
+    guarantee(template, data, cb) {
+
+    },
+    mock(template, cb) {
+        const value = cb(null);
+        if (!cb(value).isValid) {
+            throw new Error(`Mock failed, custom function illegal:
+                Custom function should always outputs valid value whatever the input is.`);
+        }
+        return value;
+    },
+};

@@ -1,7 +1,3 @@
-const condition = template => template === null;
-
-const check = (data, template, cb) => data !== undefined;
-
 const guarantee = (data, template, cb) => {
 
 };
@@ -11,8 +7,16 @@ const mock = (template, cb) => {
 };
 
 export default {
-    condition,
-    check,
-    guarantee,
-    mock,
+    condition(template) {
+        return template === null;
+    },
+    check(template, data, cb) {
+        return data !== undefined;
+    },
+    guarantee(template, data, cb) {
+
+    },
+    mock(template, cb) {
+
+    },
 }

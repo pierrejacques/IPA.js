@@ -1,6 +1,6 @@
-const condition = template => Object.prototype.toString.call(template) === '[object Array]';
+import generator from '../lib/generator.js';
 
-const checkLength = (data, para, cache) => {
+const checkLength = (para, data, cache) => {
     if (typeof para === 'number' && data.length !== para) {
         return false;
     }
@@ -14,37 +14,46 @@ const checkLength = (data, para, cache) => {
     return true;
 };
 
-const check = (data, template, cb) => {
-    if (Object.prototype.toString.call(data) !== '[object Array]') {
-        return false;
-    }
-    if (template[1] && !checkLength(data, template[1], cb.cache)) {
-        return false;
-    }
-    if (data.length === 0) {
-        return true;
-    }
-    let ret = true;
-    data.forEach(item => {
-        ret = ret && cb(item, template[0]);
-    });
-    return ret;
-};
-
-
-const guarantee = (data, template, cb) => {
-
-};
-
-
-const mock = (config, template, cb) => {
-
-};
-
-
 export default {
-    condition,
-    check,
-    guarantee,
-    mock,
+    condition(template) {
+        return Object.prototype.toString.call(template) === '[object Array]';
+    },
+    check(template, data, cb) {
+        if (Object.prototype.toString.call(data) !== '[object Array]') {
+            return false;
+        }
+        if (template[1] && !checkLength(template[1], data, cb.cache)) {
+            return false;
+        }
+        if (data.length === 0) {
+            return true;
+        }
+        let ret = true;
+        data.forEach(item => {
+            ret = ret && cb(template[0], item);
+        });
+        return ret;
+    },
+    guarantee(template, data, cb) {
+
+
+    },
+    mock(template, cb) {
+        const array = [];
+        let len = generator.getNum() + 1;
+        if (typeof template[1] === 'number') {
+            len = template[1];
+        }
+        if (typeof template[1] === 'string') {
+            if (cb.cache[template[1]]) {
+                len = cb.cache[template[1]];
+            } else {
+                cb.cache[template[1]] = len;
+            }
+        }
+        for (let i = 0; i < len; i++) {
+            array.push(cb(template[0]));
+        }
+        return array;
+    },
 };
