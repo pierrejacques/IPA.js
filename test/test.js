@@ -2,10 +2,14 @@
 
 const assert = require('assert');
 const IPA = require('../dist/index.js').default;
+
+// cases
 const singleCheckCases = require('./cases/check.single.js');
+const arrayCheckCases = require('./cases/check.array.js');
 
 const allCases = [
     singleCheckCases,
+    arrayCheckCases,
 ];
 
 allCases.forEach(cases => {
@@ -14,7 +18,7 @@ allCases.forEach(cases => {
             const instance = new IPA(caseGroup.template);
             caseGroup.cases.forEach(item => {
                 describe(item.name, () => {
-                    it(`should ${item.method} check without error`, () => {
+                    it(`should ${item.method} without error`, () => {
                         assert.equal(instance[item.method](item.data), item.result);
                     });
                 });
