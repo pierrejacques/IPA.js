@@ -1,9 +1,9 @@
 const condition = template => template === null;
 
-const check = (data, template, cb) => data === undefined;
+const check = (data, template, cb) => data !== undefined;
 
 const guarantee = (data, template, cb) => {
-    
+
 };
 
 const mock = (template, cb) => {

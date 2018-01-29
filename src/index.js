@@ -36,12 +36,3 @@ export default class IPA {
         return getRecursion('mock')(config, this.template);
     }
 }
-
-const ipa = new IPA({
-    a: [Number, 'length'],
-    b: [String, 'length'],
-});
-console.log(ipa.check({
-    a: [1,2,3,4],
-    b: ['', '', '', '', ''],
-}));
