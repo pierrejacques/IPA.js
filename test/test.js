@@ -6,10 +6,12 @@ const IPA = require('../dist/index.js').default;
 // cases
 const singleCheckCases = require('./cases/check.single.js');
 const arrayCheckCases = require('./cases/check.array.js');
+const objectCheckCases = require('./cases/check.object.js');
 
 const allCases = [
     singleCheckCases,
     arrayCheckCases,
+    objectCheckCases,
 ];
 
 allCases.forEach(cases => {
