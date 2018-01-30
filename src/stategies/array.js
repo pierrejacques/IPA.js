@@ -1,11 +1,19 @@
 import generator from '../lib/generator.js';
 
-const checkLength = (para, data, cache) => {
+function isArray(val) {
+    return Object.prototype.toString.call(val) === '[object Array]';
+}
+
+function isValidLength(template, data, cache) {
+    if (!template[1]) {
+        return true;
+    }
+    const para = template[1];
     if (typeof para === 'number' && data.length !== para) {
         return false;
     }
     if (typeof para === 'string') {
-        if (!cache[para]) {
+        if (cache[para] === undefined) {
             cache[para] = data.length;
         } else if (cache[para] !== data.length) {
             return false;
@@ -14,21 +22,26 @@ const checkLength = (para, data, cache) => {
     return true;
 };
 
+function isTemplateDefined(template) {
+    return template[0] !== undefined;
+}
+
+
 export default {
     condition(template) {
-        return Object.prototype.toString.call(template) === '[object Array]';
+        return isArray(template);
     },
     check(template, data, cb) {
-        if (Object.prototype.toString.call(data) !== '[object Array]') {
+        if (!isArray(data)) {
             return false;
         }
-        if (template[1] && !checkLength(template[1], data, cb.asset.cache)) {
+        if (!isValidLength(template, data, cb.asset.cache)) {
             return false;
         }
         if (data.length === 0) {
             return true;
         }
-        if (template[0] !== undefined) {
+        if (isTemplateDefined(template)) {
             let ret = true;
             data.forEach(item => {
                 ret = ret && cb(template[0], item);
@@ -38,23 +51,26 @@ export default {
         return true;
     },
     guarantee(template, data, cb) {
-        if (Object.prototype.toString.call(data) !== '[object Array]') {
-            return this.mock(template, cb);
+        const retData = data;
+        if (!isArray(retData)) {
+            return this.mock(template, cb.asset.mock);
         }
-        if (template[1] && !checkLength(template[1], data, cb.cache)) {
-            return false;
+        if (!isValidLength(template, retData, cb.asset.cache)) {
+            const target = cache[template[1]];
+            if (retData.length > target) {
+                retData.splice(target);
+            } else {
+                for (i = 0; i < target - retData.length; i++) {
+                    retData.push(this.mock(template[0], cb.asset.mock));
+                }
+            }
         }
-        if (data.length === 0) {
-            return true;
-        }
-        if (template[0] !== undefined) {
-            let ret = true;
-            data.forEach(item => {
-                ret = ret && cb(template[0], item);
+        if (retData.length !== 0 && isTemplateDefined(template)) {
+            retData.forEach((_, idx) => {
+                retData[idx] = cb(template[0]);
             });
-            return ret;
         }
-        return true;
+        return retData;
     },
     mock(template, cb) {
         const array = [];
@@ -69,7 +85,7 @@ export default {
                 cb.asset.cache[template[1]] = len;
             }
         }
-        if (template[0] !== undefined) {
+        if (isTemplateDefined(template)) {
             for (let i = 0; i < len; i++) {
                 array.push(cb(template[0]));
             }

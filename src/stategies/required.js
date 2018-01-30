@@ -1,22 +1,14 @@
-const guarantee = (data, template, cb) => {
-
-};
-
-const mock = (template, cb) => {
-
-};
-
 export default {
     condition(template) {
         return template === null;
     },
-    check(template, data, cb) {
+    check(template, data) {
         return data !== undefined;
     },
-    guarantee(template, data, cb) {
-
+    guarantee(template, data) {
+        return this.check(template, data) ? data : this.mock(template);
     },
-    mock(template, cb) {
+    mock(template) {
         return null;
     },
 }

@@ -11,16 +11,16 @@ export default {
         ]);
         return validConstructors.has(template);
     },
-    check(template, data, cb)  {
+    check(template, data)  {
         if (data === null || data === undefined) {
             return false;
         }
         return data.__proto__ === template.prototype
     },
-    guarantee(template, data, cb) {
-
+    guarantee(template, data) {
+        return this.check(template, data) ? data : this.mock(template);
     },
-    mock(template, cb) {
+    mock(template) {
         const map = new Map([
             [String, generator.getStr],
             [Number, generator.getNum],

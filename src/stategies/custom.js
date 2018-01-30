@@ -2,13 +2,13 @@ export default {
     condition(template) {
         return typeof template === 'function' && template !== String && template !== Number && template !== Boolean;
     },
-    check(template, data, cb) {
+    check(template, data) {
         return template(data).isValid;
     },
-    guarantee(template, data, cb) {
-
+    guarantee(template, data) {
+        return this.check(template, data) ? data : this.mock(template);
     },
-    mock(template, cb) {
+    mock(template) {
         const value = template(null).value;
         if (!template(value).isValid) {
             throw new Error(`Mock failed, custom function illegal:

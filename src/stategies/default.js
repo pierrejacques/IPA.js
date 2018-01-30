@@ -5,16 +5,16 @@ export default {
         const type = typeof template;
         return type !== 'function' && type !== 'object' && type !== 'undefined' && type !== 'null';
     },
-    check(template, data, cb) {
+    check(template, data) {
         if (typeof template !== typeof data) {
             return false;
         }
         return true;
     },
-    guarantee(template, data, cb) {
-
+    guarantee(template, data) {
+        return this.check(template, data) ? data : template; 
     },
-    mock(template, cb) {
+    mock(template) {
         if (typeof template === 'number') {
             return generator.getNum();
         }

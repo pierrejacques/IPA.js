@@ -20,9 +20,11 @@ const core = {
     guarantee: getRecursion('guarantee'),
     mock: getRecursion('mock'),
     cache: {},
-    init(key, cache = {}) {
+    init(cache = {}) {
         this.cache = cache;
-        this[key].asset = this;
+        this.check.asset = this;
+        this.guarantee.asset = this;
+        this.mock.asset = this;
     },
 };
 
@@ -32,17 +34,19 @@ export default class IPA {
     }
 
     check(data) {
-        core.init('check');
+        core.init();
         return core.check(this.template, data);
     }
 
     guarantee(data) {
-        core.init('guarantee');
-        return core.guarantee(this.template, data);
+        let dataCopy;
+        dataCopy = obj => JSON.parse(JSON.stringify(obj));
+        core.init();
+        return core.guarantee(this.template, dataCopy);
     }
 
     mock(config = {}) {
-        core.init('mock', config);
+        core.init(config);
         return core.mock(this.template);
     }
 }

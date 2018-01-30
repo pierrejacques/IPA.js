@@ -1,9 +1,13 @@
+function isObject(val) {
+    return Object.prototype.toString.call(val) === '[object Object]';
+}
+
 export default {
     condition(template) {
-        return Object.prototype.toString.call(template) === '[object Object]'
+        return isObject(template);
     },
     check(template, data, cb) {
-        if (Object.prototype.toString.call(data) !== '[object Object]') {
+        if (!isObject(data)) {
             return false;
         }
         let ret = true;
@@ -13,7 +17,14 @@ export default {
         return ret;
     },
     guarantee(template, data, cb) {
-
+        if (!isObject(data)) {
+            return this.mock(template, cb.asset.mock);
+        }
+        const retData = data;
+        Object.keys(template).forEach(key => {
+            retData[key] = cb(template[key], data[key]);
+        });
+        return retData;
     },
     mock(template, cb) {
         const object = {};
