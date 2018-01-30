@@ -39,8 +39,7 @@ export default class IPA {
     }
 
     guarantee(data) {
-        let dataCopy;
-        dataCopy = obj => JSON.parse(JSON.stringify(obj));
+        const dataCopy = JSON.parse(JSON.stringify(data));
         core.init();
         return core.guarantee(this.template, dataCopy);
     }

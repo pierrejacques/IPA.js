@@ -57,18 +57,18 @@ export default {
         }
         if (!isValidLength(template, retData, cb.asset.cache)) {
             // 一种更好的算法是记录下所有的位点，最后在cache中遍历修正，不然会出现遗少改多的情况， 对check而言同样如此
-            const target = cache[template[1]];
+            const target = cb.asset.cache[template[1]];
             if (retData.length > target) {
                 retData.splice(target);
             } else {
-                for (i = 0; i < target - retData.length; i++) {
+                for (let i = 0; i < target - retData.length; i++) {
                     retData.push(this.mock(template[0], cb.asset.mock));
                 }
             }
         }
         if (retData.length !== 0 && isTemplateDefined(template)) {
             retData.forEach((_, idx) => {
-                retData[idx] = cb(template[0]);
+                retData[idx] = cb(template[0], retData[idx]);
             });
         }
         return retData;

@@ -6,13 +6,10 @@ export default {
         return type !== 'function' && type !== 'object' && type !== 'undefined' && type !== 'null';
     },
     check(template, data) {
-        if (typeof template !== typeof data) {
-            return false;
-        }
-        return true;
+        return typeof template === typeof data;
     },
     guarantee(template, data) {
-        return this.check(template, data) ? data : template; 
+        return this.check(template, data) ? data : template;
     },
     mock(template) {
         if (typeof template === 'number') {

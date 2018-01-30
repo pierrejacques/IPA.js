@@ -4,6 +4,41 @@ Object.defineProperty(exports, "__esModule", {
 
 module.exports = [
     {
+        name: 'default String',
+        template: '',
+        cases: [{
+            name: 'string',
+            data: '',
+            result: true,
+            method: 'check',
+        }, {
+            name: 'string2',
+            data: '123',
+            result: true,
+            method: 'check',
+        }, {
+            name: 'number',
+            data: 1,
+            result: false,
+            method: 'check',
+        }, {
+            name: 'boolean',
+            data: true,
+            result: false,
+            method: 'check',
+        }, {
+            name: 'array',
+            data: [],
+            result: false,
+            method: 'check',
+        }, {
+            name: 'object',
+            data: {},
+            result: false,
+            method: 'check',
+        }]
+    },
+    {
         name: "single string",
         template: String,
         cases: [{
