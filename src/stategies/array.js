@@ -22,7 +22,7 @@ export default {
         if (Object.prototype.toString.call(data) !== '[object Array]') {
             return false;
         }
-        if (template[1] && !checkLength(template[1], data, cb.cache)) {
+        if (template[1] && !checkLength(template[1], data, cb.asset.cache)) {
             return false;
         }
         if (data.length === 0) {
@@ -38,8 +38,23 @@ export default {
         return true;
     },
     guarantee(template, data, cb) {
-
-
+        if (Object.prototype.toString.call(data) !== '[object Array]') {
+            return this.mock(template, cb);
+        }
+        if (template[1] && !checkLength(template[1], data, cb.cache)) {
+            return false;
+        }
+        if (data.length === 0) {
+            return true;
+        }
+        if (template[0] !== undefined) {
+            let ret = true;
+            data.forEach(item => {
+                ret = ret && cb(template[0], item);
+            });
+            return ret;
+        }
+        return true;
     },
     mock(template, cb) {
         const array = [];
@@ -48,10 +63,10 @@ export default {
             len = template[1];
         }
         if (typeof template[1] === 'string') {
-            if (cb.cache[template[1]]) {
-                len = cb.cache[template[1]];
+            if (cb.asset.cache[template[1]]) {
+                len = cb.asset.cache[template[1]];
             } else {
-                cb.cache[template[1]] = len;
+                cb.asset.cache[template[1]] = len;
             }
         }
         if (template[0] !== undefined) {

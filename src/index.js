@@ -1,21 +1,4 @@
-import stategies from './stategies/index.js'
-
-
-function getRecursion(method) {
-    const execute = (template, ...params) => {
-        let ret;
-        for (let i = 0; i < stategies.length; i++) {
-            const stategy = stategies[i];
-            if (stategy.condition(template)) {
-                ret = stategy[method](template, ...params, execute);
-                break;
-            }
-        }
-        return ret;
-    }
-    return execute;
-}
-
+import core from './core.js';
 
 export default class IPA {
     constructor(template) {
@@ -23,18 +6,17 @@ export default class IPA {
     }
 
     check(data) {
-        const check = getRecursion('check');
-        check.cache = {};
-        return check(this.template, data);
+        core.init('check');
+        return core.check(this.template, data);
     }
 
     guarantee(data) {
-        return execute(this.template, data);
+        core.init('guarantee');
+        return core.guarantee(this.template, data);
     }
 
     mock(config = {}) {
-        const mock = getRecursion('mock');
-        mock.cache = config;
-        return mock(this.template);
+        core.init('mock', config);
+        return core.mock(this.template);
     }
 }
