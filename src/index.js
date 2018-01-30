@@ -1,4 +1,4 @@
-import core from './core.js';
+import core from './recursionCore.js';
 
 export default class IPA {
     constructor(template) {

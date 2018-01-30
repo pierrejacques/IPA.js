@@ -15,19 +15,13 @@ function getRecursion(method) {
     return execute;
 }
 
-const check = getRecursion('check');
-const guarantee = getRecursion('guarantee');
-const mock = getRecursion('mock');
-
-const core = {
-    check,
-    guarantee,
-    mock,
+export default {
+    check: getRecursion('check'),
+    guarantee: getRecursion('guarantee'),
+    mock: getRecursion('mock'),
     cache: {},
     init(key, cache = {}) {
-        core.cache = cache;
-        core[key].asset = core;
+        this.cache = cache;
+        this[key].asset = this;
     },
 };
-
-export default core;

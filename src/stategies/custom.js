@@ -9,8 +9,8 @@ export default {
 
     },
     mock(template, cb) {
-        const value = cb(null);
-        if (!cb(value).isValid) {
+        const value = template(null).value;
+        if (!template(value).isValid) {
             throw new Error(`Mock failed, custom function illegal:
                 Custom function should always outputs valid value whatever the input is.`);
         }
