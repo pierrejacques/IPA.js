@@ -12,8 +12,18 @@ module.exports = [
                 result: true,
                 method: 'check',
             }, {
-                name: "number",
+                name: "number1",
                 data: 1,
+                result: false,
+                method: 'check',
+            }, {
+                name: "number2",
+                data: 0,
+                result: false,
+                method: 'check',
+            }, {
+                name: "number3",
+                data: 100,
                 result: false,
                 method: 'check',
             }, {
@@ -126,6 +136,12 @@ module.exports = [
             {
                 name: "boolean",
                 data: true,
+                result: true,
+                method: 'check',
+            },
+            {
+                name: "boolean",
+                data: false,
                 result: true,
                 method: 'check',
             },

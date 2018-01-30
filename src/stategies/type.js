@@ -12,7 +12,7 @@ export default {
         return validConstructors.has(template);
     },
     check(template, data, cb)  {
-        if (!data) {
+        if (data === null || data === undefined) {
             return false;
         }
         return data.__proto__ === template.prototype

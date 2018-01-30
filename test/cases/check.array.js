@@ -4,6 +4,26 @@ Object.defineProperty(exports, "__esModule", {
 
 module.exports = [
     {
+        name: 'empty array template',
+        template: [],
+        cases: [{
+            name: 'empty',
+            data: [],
+            method: 'check',
+            result: true,
+        }, {
+            name: 'not array',
+            data: {},
+            method: 'check',
+            result: false,
+        }, {
+            name: 'full array',
+            data: [1,2,3,4,''],
+            method: 'check',
+            result: true,
+        }]
+    },
+    {
         name: 'array with number',
         template: [Number],
         cases: [{

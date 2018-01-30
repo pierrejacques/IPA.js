@@ -28,11 +28,14 @@ export default {
         if (data.length === 0) {
             return true;
         }
-        let ret = true;
-        data.forEach(item => {
-            ret = ret && cb(template[0], item);
-        });
-        return ret;
+        if (template[0] !== undefined) {
+            let ret = true;
+            data.forEach(item => {
+                ret = ret && cb(template[0], item);
+            });
+            return ret;
+        }
+        return true;
     },
     guarantee(template, data, cb) {
 
@@ -51,8 +54,10 @@ export default {
                 cb.cache[template[1]] = len;
             }
         }
-        for (let i = 0; i < len; i++) {
-            array.push(cb(template[0]));
+        if (template[0] !== undefined) {
+            for (let i = 0; i < len; i++) {
+                array.push(cb(template[0]));
+            }
         }
         return array;
     },
