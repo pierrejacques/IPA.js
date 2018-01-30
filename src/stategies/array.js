@@ -56,6 +56,7 @@ export default {
             return this.mock(template, cb.asset.mock);
         }
         if (!isValidLength(template, retData, cb.asset.cache)) {
+            // 一种更好的算法是记录下所有的位点，最后在cache中遍历修正，不然会出现遗少改多的情况， 对check而言同样如此
             const target = cache[template[1]];
             if (retData.length > target) {
                 retData.splice(target);
