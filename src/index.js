@@ -35,7 +35,8 @@ export default class IPA {
 
     check(data) {
         core.init();
-        return core.check(this.template, data);
+        const structureCheck = core.check(this.template, data);
+        return structureCheck;
     }
 
     guarantee(data) {

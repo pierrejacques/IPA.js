@@ -104,5 +104,34 @@ module.exports = [
             },
             method: 'guarantee',
         }]
+    }, {
+        name: 'single boolean',
+        template: Boolean,
+        cases: [{
+            name: 'boolean postive',
+            valid: true,
+            data: new Boolean(true),
+            method: 'guarantee',
+        }, {
+            name: 'boolean postive',
+            valid: true,
+            data: false,
+            method: 'guarantee',
+        }, {
+            name: 'string',
+            valid: false,
+            data: 'false',
+            method: 'guarantee',
+        }, {
+            name: 'string2',
+            valid: false,
+            data: '',
+            method: 'guarantee',
+        }, {
+            name: 'number',
+            valid: false,
+            data: 0,
+            method: 'guarantee',
+        }]
     }
 ];
