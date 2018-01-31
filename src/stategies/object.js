@@ -6,30 +6,30 @@ export default {
     condition(template) {
         return isObject(template);
     },
-    check(template, data, cb) {
+    check(template, data, asset) {
         if (!isObject(data)) {
             return false;
         }
         let ret = true;
         Object.keys(template).forEach(key => {
-            ret = ret && cb(template[key], data[key]);
+            ret = ret && asset.recursions.check(template[key], data[key]);
         });
         return ret;
     },
-    guarantee(template, data, cb) {
+    guarantee(template, data, asset) {
         if (!isObject(data)) {
-            return this.mock(template, cb.asset.mock);
+            return this.mock(template, asset);
         }
         const retData = data;
         Object.keys(template).forEach(key => {
-            retData[key] = cb(template[key], data[key]);
+            retData[key] = asset.recursions.guarantee(template[key], data[key]);
         });
         return retData;
     },
-    mock(template, cb) {
+    mock(template, asset) {
         const object = {};
         Object.keys(template).forEach(key => {
-            object[key] = cb(template[key]);
+            object[key] = asset.recursions.mock(template[key]);
         });
         return object;
     },

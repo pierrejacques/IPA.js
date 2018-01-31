@@ -1,5 +1,3 @@
-import generator from '../lib/generator.js';
-
 export default {
     condition(template) {
         const validConstructors = new Set([
@@ -17,14 +15,14 @@ export default {
         }
         return data.__proto__ === template.prototype
     },
-    guarantee(template, data) {
-        return this.check(template, data) ? data : this.mock(template);
+    guarantee(template, data, asset) {
+        return this.check(template, data) ? data : this.mock(template, asset);
     },
-    mock(template) {
+    mock(template, asset) {
         const map = new Map([
-            [String, generator.getStr],
-            [Number, generator.getNum],
-            [Boolean, generator.getBool],
+            [String, asset.generators.getStr],
+            [Number, asset.generators.getNum],
+            [Boolean, asset.generators.getBool],
             [Array, () => []],
             [Object, () => ({})],
         ]);

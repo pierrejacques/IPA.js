@@ -1,5 +1,3 @@
-import generator from '../lib/generator.js';
-
 export default {
     condition(template) {
         const type = typeof template;
@@ -11,15 +9,15 @@ export default {
     guarantee(template, data) {
         return this.check(template, data) ? data : template;
     },
-    mock(template) {
+    mock(template, asset) {
         if (typeof template === 'number') {
-            return generator.getNum();
+            return asset.generators.getNum();
         }
         if (typeof template === 'string') {
-            return generator.getStr();
+            return asset.generators.getStr();
         }
         if (typeof template === 'boolean') {
-            return generator.getBool();
+            return asset.generators.getBool();
         }
         throw new Error(`Mock failed, unsupported type:
             Default value can only have typeof number, string and boolean.`)
