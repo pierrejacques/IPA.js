@@ -18,7 +18,7 @@ function isValidLength(template, data, cache) {
         }
     }
     return true;
-};
+}
 
 function isTemplateDefined(template) {
     return template[0] !== undefined;
@@ -41,7 +41,7 @@ export default {
         }
         if (isTemplateDefined(template)) {
             let ret = true;
-            data.forEach(item => {
+            data.forEach((item) => {
                 ret = ret && asset.recursions.check(template[0], item);
             });
             return ret;

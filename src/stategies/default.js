@@ -20,6 +20,6 @@ export default {
             return asset.generators.getBool();
         }
         throw new Error(`Mock failed, unsupported type:
-            Default value can only have typeof number, string and boolean.`)
+            Default value can only have typeof number, string and boolean.`);
     },
 };

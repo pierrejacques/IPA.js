@@ -3,7 +3,7 @@ let min = 0;
 let max = 0;
 
 function getNum(min, max) {
-    return min + Math.floor(Math.random() * (max - min))
+    return min + Math.floor(Math.random() * (max - min));
 }
 
 export default {
@@ -24,5 +24,5 @@ export default {
         min = config.min;
         max = config.max;
         dict = config.dict;
-    }
+    },
 };

@@ -11,4 +11,4 @@ export default {
     mock(template) {
         return null;
     },
-}
+};

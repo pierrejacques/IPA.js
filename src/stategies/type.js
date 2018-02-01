@@ -9,11 +9,11 @@ export default {
         ]);
         return validConstructors.has(template);
     },
-    check(template, data)  {
+    check(template, data) {
         if (data === null || data === undefined) {
             return false;
         }
-        return data.__proto__ === template.prototype
+        return data.__proto__ === template.prototype;
     },
     guarantee(template, data, asset) {
         return this.check(template, data) ? data : this.mock(template, asset);

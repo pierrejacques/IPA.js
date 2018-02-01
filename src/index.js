@@ -1,36 +1,10 @@
+// IPA is the index flyweight class to be called by clients
+// its instance only provides template, config and interfaces
+// its major functions mostly depend on outer singleton objects
+
 import defaultConfig from './lib/defaultConfig.js';
-import generators from './lib/generators.js'
-import genConfigChecker from './lib/genConfigChecker.js'
-import stategies from './stategies/index.js';
-
-const asset = {
-    generators,
-    recursions: {},
-    cache: {},
-    init(genConfig, mockConfig = {}) { // flyWeight拼接
-        this.generators.set(genConfig);
-        this.cache = mockConfig;
-    }
-};
-
-function getRecursion(method) {
-    const execute = (template, ...params) => {
-        let ret;
-        for (let i = 0; i < stategies.length; i++) {
-            const stategy = stategies[i];
-            if (stategy.condition(template)) {
-                ret = stategy[method](template, ...params, asset);
-                break;
-            }
-        }
-        return ret;
-    }
-    return execute;
-}
-
-asset.recursions.check = getRecursion('check');
-asset.recursions.guarantee = getRecursion('guarantee');
-asset.recursions.mock = getRecursion('mock');
+import genConfigChecker from './lib/genConfigChecker.js';
+import asset from './lib/asset.js';
 
 export default class IPA {
     constructor(template) {
@@ -52,7 +26,7 @@ export default class IPA {
 
     mock(mockConfig = {}) {
         if (typeof mockConfig !== 'object') {
-            throw new Error(`Config Object syntax Error`);
+            throw new Error('Config Object syntax Error');
         }
         asset.init(this.genConfig, mockConfig);
         return asset.recursions.mock(this.template);
@@ -71,7 +45,7 @@ export default class IPA {
         }
     }
 
-    getConfig() {
-        return this.genConfig;
+    showConfig() {
+        return JSON.stringify(this.genConfig);
     }
 }
