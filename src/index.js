@@ -43,14 +43,14 @@ export default class IPA {
         if (config.max !== undefined) {
             this.__config__.max = config.max === 'default' ? defaultConfig.max : config.max;
         }
+        if (config.dict !== undefined) {
+            this.__config__.dict = config.dict === 'default' ? defaultConfig.dict : config.dict;
+        }
         if (config.minLen !== undefined) {
             this.__config__.minLen = config.minLen === 'default' ? defaultConfig.minLen : config.minLen;
         }
         if (config.maxLen !== undefined) {
             this.__config__.maxLen = config.maxLen === 'default' ? defaultConfig.maxLen : config.maxLen;
-        }
-        if (config.dict !== undefined) {
-            this.__config__.dict = config.dict === 'default' ? defaultConfig.dict : config.dict;
         }
         this.__config__.strategy = config.strategy === 'default' ? defaultConfig.strategy : config.strategy;
     }

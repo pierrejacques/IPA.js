@@ -23,6 +23,6 @@ ipa.setConfig({
     ],
 });
 
-const out = ipa.mock({ l1: 5,  l2: 10 });
+const out = ipa.mock({ l1: 3,  l2: 10 });
 
-console.log(out);
+console.log(JSON.stringify(out));
