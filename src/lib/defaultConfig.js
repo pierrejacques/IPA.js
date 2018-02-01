@@ -1,6 +1,9 @@
 export default {
+    strategy: 'most', // 'shortest', 'longest', 'average'
     min: 0,
     max: 20,
+    minLen: 2,
+    maxLen: 20,
     dict: [
         'ad',
         'adipisicing',

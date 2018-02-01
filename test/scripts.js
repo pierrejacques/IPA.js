@@ -1,13 +1,28 @@
 const IPA = require('../dist/index.js').default;
 
 const ipa = new IPA({
-    x: [0, 10],
-    y: ['', 8],
+    legend: [String, 'l1'],
+    series: [{
+        x: [String, 'l2'],
+        y: [0, 'l2'],
+    }, 'l1']
 });
 
-const out = ipa.guarantee({
-    x: [1,2,3,4,5],
-    y: ['', '', '', '', '', ''],
+ipa.setConfig({
+    strategy: 'average',
+    min: 100,
+    max: 200,
+    minLen: 20,
+    maxLen: 30,
+    dict: [
+        '指标1',
+        '指标2',
+        '指标3',
+        '指标4',
+        '指标5',
+    ],
 });
+
+const out = ipa.mock({ l1: 5,  l2: 10 });
 
 console.log(out);

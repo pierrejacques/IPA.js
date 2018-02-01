@@ -1,4 +1,4 @@
-import fixLength from '../lib/fixLength.js';
+import { fixLength } from '../lib/fixers.js';
 
 function isArray(val) {
     return Object.prototype.toString.call(val) === '[object Array]';
@@ -59,7 +59,7 @@ export default {
                     itemTemplate: template[0],
                     targetLength: para,
                     array: retData,
-                    mocker: asset.recursions.mock,
+                    mocker: asset.recursions.guarantee,
                 });
             }
             if (para.__proto__ === String.prototype) {
@@ -82,7 +82,7 @@ export default {
     },
     mock(template, asset) {
         const array = [];
-        let len = asset.generators.getNum() + 1;
+        let len = asset.generators.getLength();
         if (typeof template[1] === 'number') {
             len = template[1];
         }
