@@ -6,7 +6,8 @@
   "scripts": {
     "start": "babel-node src/index.js",
     "build": "babel src --out-dir dist",
-    "test": "babel src --out-dir dist; mocha test/test.js"
+    "test": "babel src --quiet --out-dir dist; mocha test/test.js",
+    "try": "babel src --quiet --out-dir dist; node test/scripts.js"
   },
   "repository": {
     "type": "git",

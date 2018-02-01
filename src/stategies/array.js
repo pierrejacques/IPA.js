@@ -1,3 +1,5 @@
+import fixLength from '../lib/fixLength.js';
+
 function isArray(val) {
     return Object.prototype.toString.call(val) === '[object Array]';
 }
@@ -49,19 +51,26 @@ export default {
         return true;
     },
     guarantee(template, data, asset) {
-        const retData = data;
-        if (!isArray(retData)) {
-            return this.mock(template, asset);
-        }
-        if (!isValidLength(template, retData, asset.cache)) {
-            // 一种更好的算法是记录下所有的位点，最后在cache中遍历修正，不然会出现遗少改多的情况， 对check而言同样如此
-            const target = asset.cache[template[1]];
-            if (retData.length > target) {
-                retData.splice(target);
-            } else {
-                for (let i = 0; i < target - retData.length; i++) {
-                    retData.push(asset.recursions.mock(template[0]));
+        const retData = isArray(data) ? data : [];
+        const para = template[1];
+        if (para !== undefined) {
+            if (para.__proto__ === Number.prototype && retData.length !== para) {
+                fixLength({
+                    itemTemplate: template[0],
+                    targetLength: para,
+                    array: retData,
+                    mocker: asset.recursions.mock,
+                });
+            }
+            if (para.__proto__ === String.prototype) {
+                if (asset.cache[para] === undefined) {
+                    asset.cache[para] = [];
                 }
+                asset.cache[para].push({
+                    length: retData.length,
+                    itemTemplate: template[0],
+                    array: retData,
+                });
             }
         }
         if (retData.length !== 0 && isTemplateDefined(template)) {

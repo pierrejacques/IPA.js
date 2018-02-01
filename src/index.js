@@ -5,6 +5,7 @@
 import defaultConfig from './lib/defaultConfig.js';
 import genConfigChecker from './lib/genConfigChecker.js';
 import asset from './lib/asset.js';
+import fixArray from './lib/fixArray.js';
 
 export default class IPA {
     constructor(template) {
@@ -21,7 +22,9 @@ export default class IPA {
     guarantee(data) {
         const dataCopy = JSON.parse(JSON.stringify(data));
         asset.init(this.genConfig);
-        return asset.recursions.guarantee(this.template, dataCopy);
+        const output = asset.recursions.guarantee(this.template, dataCopy);
+        fixArray(asset);
+        return output;
     }
 
     mock(mockConfig = {}) {

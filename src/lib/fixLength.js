@@ -1,10 +1,9 @@
-export default (target, arrayIn, mocker) => {
-    const array = arrayIn;
-    if (array.length > target) {
-        array.splice(target);
+export default ({ itemTemplate, targetLength, array, mocker }) => {
+    if (array.length > targetLength) {
+        array.splice(targetLength);
     } else {
-        for (let i = 0; i < target - array.length; i++) {
-            array.push(mocker(template[0]));
+        for (let i = 0; i < targetLength - array.length; i++) {
+            array.push(mocker(itemTemplate));
         }
     }
 };
