@@ -2,7 +2,7 @@
 
 const assert = require('assert');
 const expect = require('chai').expect;
-const IPA = require('../dist/index.js').default;
+const IPA = require('../dist/bundle.js').default;
 
 // cases
 const singleCheckCases = require('./cases/check.single.js');
