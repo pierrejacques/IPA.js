@@ -1,7 +1,7 @@
 # IPA interface manager
 
 ```
-                 _____                      ___________                 ___________                              
+                 _____                      _____ _____                 _____ _____                              
                 /\    \                    /::::::\    \               /::::::\    \                
                /::\    \                  /::::::::\    \             /::::::::\    \              
               /:::/    /                 /:::/--\:::\    \           /:::/--\:::\    \              
@@ -25,9 +25,10 @@
 
 ```
 
-IPA,  
+IPA, name of an ale, is an API interface manager. With simply three major methods, it improves your dev efficiency, helps making code easier maintaining and most importantly, makes sure your apps running steadily by checking the received data from other applications or servers.
 
-## INITIALIZATION
+## GET STARTED
+IPA.js is both easy to install and get started.
 An IPA instance is initialized with a template object
 
 ``` javascript
