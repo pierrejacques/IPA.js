@@ -1,4 +1,4 @@
-const IPA = require('../dist/bundle.js').default;
+const IPA = require('../dist/ipa.min.js').default;
 
 const ipa = new IPA({
     legend: [String, 'l1'],
