@@ -2,7 +2,7 @@
   "name": "IPA",
   "version": "1.0.0",
   "description": "IPA interface manager",
-  "main": "lib/index.js",
+  "main": "dist/ipa.min.js",
   "scripts": {
     "build": "webpack",
     "test": "webpack; mocha test/test.js",
