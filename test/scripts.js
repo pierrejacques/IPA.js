@@ -1,28 +1,28 @@
 const IPA = require('../dist/ipa.min.js').default;
 
+const checkNum = val => !(val === undefined || val === null || val === '');
+
 const ipa = new IPA({
-    legend: [String, 'l1'],
-    series: [{
-        x: [String, 'l2'],
-        y: [0, 'l2'],
-    }, 'l1']
+    id: '',
+    name: '--',
+    dataType: 0,
+    desc: '-',
+    value(val) {
+        return {
+            isValid: true,
+            value: checkNum(val) ? val : '--',
+        }
+    },
+    info: [{
+        key: '',
+        value(val) {
+            return {
+                isValid: true,
+                value: checkNum(val) ? val : '--',
+            }
+        },
+    }, 3],
 });
 
-ipa.setConfig({
-    strategy: 'average',
-    min: 100,
-    max: 200,
-    minLen: 20,
-    maxLen: 30,
-    dict: [
-        '指标1',
-        '指标2',
-        '指标3',
-        '指标4',
-        '指标5',
-    ],
-});
-
-const out = ipa.mock({ l1: 3,  l2: 10 });
-
-console.log(JSON.stringify(out));
+console.log(ipa.mock());
+console.log(ipa.guarantee({}));
