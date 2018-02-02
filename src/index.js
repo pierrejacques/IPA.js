@@ -53,6 +53,7 @@ export default class IPA {
             this.__config__.maxLen = config.maxLen === 'default' ? defaultConfig.maxLen : config.maxLen;
         }
         this.__config__.strategy = config.strategy === 'default' ? defaultConfig.strategy : config.strategy;
+        this.__config__.seed = config.seed;
     }
 
     resetConfig() {

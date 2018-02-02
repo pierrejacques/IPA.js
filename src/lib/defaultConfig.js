@@ -4,6 +4,7 @@ export default {
     max: 20,
     minLen: 2,
     maxLen: 20,
+    seed: null,
     dict: [
         'ad',
         'adipisicing',

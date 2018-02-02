@@ -11,9 +11,11 @@ const asset = {
     generators,
     recursions: {},
     cache: {},
+    seed: null,
     init(genConfig, mockConfig = {}) { // flyWeight拼接
         this.generators.set(genConfig);
         this.cache = mockConfig;
+        this.seed = genConfig.seed;
     },
 };
 
