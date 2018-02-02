@@ -1,4 +1,4 @@
-# IPA interface manager
+# IPA.js -- your interface manager
 
 ```
                  _____                      _____ _____                 _____ _____                              
