@@ -13,7 +13,7 @@ module.exports = {
     entry: "./src/index.js",
     output: {
         path: resolve('dist'),
-        filename: `${name.toLowerCase()}.min.js`,
+        filename: `ipa.min.js`,
         libraryTarget: "umd", // 测试阶段打包选项
     },
     resolve: {
