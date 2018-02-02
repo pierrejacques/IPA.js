@@ -1,4 +1,5 @@
-# IPA.js -- your interface manager
+# IPA.js
+your interface butler
 
 ```
                  _____                      _____ _____                 _____ _____                              
@@ -25,14 +26,34 @@
 
 ```
 
-IPA, name of an ale, is an API interface manager. With simply three major methods, it improves your dev efficiency, helps making code easier maintaining and most importantly, makes sure your apps running steadily by checking the received data from other applications or servers.
+IPA, the name of a type of fragrant ale beer, is an API interface manager. 
+
+With simply three major methods, it improves your dev efficiency, helps making code easier maintaining and most importantly, makes sure your apps running steadily by checking the received data from other applications or servers.
 
 ## GET STARTED
-IPA.js is both easy to install and get started.
-An IPA instance is initialized with a template object
+_if you're familiar with javascript and npm, you can be an expert IPA user in 10 minutes!_
+### installation
+- install with npm
+``` shell
+$ npm install --save-dev ipa.js
+```
+
+- import in <script> tags by 'src'
+``` html
+  <script src="#/ipa.min.js" lang="javascript"></script>
+```
+
+### use in projects
+- IPA class and instances
+IPA.js provides a class named _IPA_ to realize its functions. Import it in and create instance using a _template object_.
+
+For example, the following code create an IPA instance that ensures:
+1. The data is an object who has properties named _**x**_ and _**y**_
+1. Both _**x**_ and _**y**_ are arrays while _**x**_ contains numbers and _**y**_ contains strings
+1. _**x**_ and _**y**_ should have same lengths, which is quite common in data-visualization scenerios
 
 ``` javascript
-import Ipa from 'Ipa'
+import IPA from 'ipa.js'
 
 const ipa = new Ipa({
     propertyRequired: null,
