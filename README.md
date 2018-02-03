@@ -1,4 +1,5 @@
 # IPA.js
+
 **fantastic ale beer**
 
 **fantastic API data manager**
@@ -51,7 +52,7 @@ import IPA from 'ipa.js'
 ```
 
 ### overview
-IPA.js provides an _**IPA class**_ to realize its functions. Its instances are created using _**template object**_ which describes the structure of the incoming data.
+IPA.js provides an _**IPA class**_ to realize its functions. Its instances are created using _**template object**_ which describes the valid structure of the incoming data.
 
 ``` javascript
 import IPA from 'ipa.js' // import class IPA
@@ -64,7 +65,7 @@ const weekDataTemplate = { // create a template object
 const weekDataIpa = new IPA(weekDataTemplate); // create an IPA instance
 ```
 
-Every instance provides three methods:
+Every instance have three major methods:  _check_, _guarantee_ and _mock_:
 - **check**: checks the validity of the incoming data:
 
 ``` javascript
@@ -105,6 +106,8 @@ weekDataIpa.mock() // {"x":[2,5,3,5,15,17],"y":["Thu","Tue","Tue","Thu","Fri","W
 weekDataIpa.mock({ l: 2 }); // {"x":[8,17],"y":["Fri","Mon"]}
 ```
 
+The behaviour of the instance can be set and get using methods _setConfig_ and _showConfig_.
+
 ### template object
 The _**template object**_ describes the structure of the data.
 
@@ -115,7 +118,8 @@ For example, the template object `{ x: [Number, 'l'], y: [String, 'l'] }` descri
 -  _**x**_ contains numbers while _**y**_ contains strings.
 -  _**x**_ and _**y**_ should have same lengths, which is quite common in data-visualization scenerios.
 
-To further explain how ....., JSON
+
+
 #### Required
 Use `null` to represent required property/data. The `.check` method returns _**false**_ when the property/data is `undefined`.
 
@@ -143,6 +147,7 @@ propertyRequired.check({}); // false;
 #### Custom
 
 
+
 ### check
 
 ### guarantee
@@ -150,6 +155,27 @@ propertyRequired.check({}); // false;
 ### mock
 
 ### setConfig
+
+### summary
+
+The following table shows a summary of all the syntax of the _**template object**_.
+
+ name | template | check  | guarantee  | mock  
+--|---|---|---|---
+_required_  |  `null` | invalid when undefined | mock when invalid  | return null   
+_type_ |   JSON-allowed constructors[^1] | invalid when wrong type | mock when invalid | return random valid value    
+_default_ |  JSON-allowed value** | invalid when wrong type  | return default when invalid  | return value with valid type    
+ _custom_ | `val => ({ isValid, value })` |judge by `.isValid` | return `.value` when invalid  | return `.value` by inputting **seed**
+_object_  |  `{ keys:subtemplates }`\*** | valid when object && keys all valid | return {} when not object && recursively guarantee its keys | return {} and recursively mock its keys  
+_array_ |  `[ subtemplate, param ]`\*** | valid when array && all items valid && length matches | return [] when not array && guarantee its items && fix the length by **strategy** | return [] && recursively mock its items && match its length by **strategy**
+
+[^1]:asdsad
+
+
+\* Number, String, Boolean, Array, Object
+
+\** other than null, {}, []
+
 
 ## IPA in Component-structure projects
 
