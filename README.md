@@ -36,22 +36,22 @@
 _IPA.js in 15 minutes!_
 
 ### why IPA.js?
-If you're working on an e2e project or a large-scale application which contains a lot of data flows between modules(e.g Components in MV* frameworks), you can't always be sure that the incoming data of a module/end is of a valid structure. Hand checking the structure is not only time-costing, but also tedious, messy and risk-taking. Thus skipping this checking is what people usually do, which may seriously threatens the robustness of your application. Even worse, the later maintainers have to check a bunch of files until having an idea on the data structure flowing into a single module.
+If you're working on an e2e project or a large-scale application which contains a lot of data flows between modules(e.g Components in MV* frameworks), you can't always be sure that the incoming data of a module/end is of a valid structure. Hand checking the data structure is often tedious, messy and risk-taking. Thus skipping this checking is what people usually do, which may seriously threaten the robustness of your application. Besides, the later maintainers have to check a bunch of files until having an idea on the data structure flowing into a single module.
 
-IPA helps to solve the problems above by managing the data structure with check, guarantee and mock methods. The descriptive object(named as _template object_) helps to explicitly state the incoming data so that the current developpers and future maintainers can quick get an idea of how the data look like.
+IPA helps to solve the problems above by managing the data structure with **check, guarantee** and **mock** methods. The descriptive object(named as _template object_) helps to explicitly state the incoming data so that the current developpers and future maintainers can quick get an idea on how the data look like.
 
 ### installation
-- install with npm
+
+install with npm
 ``` shell
 $ npm install --save-dev ipa.js
 ```
-
-- import in <script> tags by 'src'
-``` html
-<script type="text/javascript" src="#/ipa.min.js" ></script>
+import in your project files
+``` javascript
+import IPA from 'ipa.js'
 ```
 
-### how to use?
+### how it works?
 IPA.js provides an _**IPA class**_ to realize its functions. Its instances are created using _**template object**_ which describes the structure of the incoming data.
 
 ``` javascript
@@ -65,7 +65,8 @@ const weekDataTemplate = { // create a template object
 const weekDataIpa = new IPA(weekDataTemplate); // create an IPA instance
 ```
 
-The instance can then check the validity of the incoming data:
+The instance can then
+- **check** the validity of the incoming data:
 ``` javascript
 weekDataIpa.check({
     x: [0.1, 0.15, 0.07],
@@ -78,7 +79,7 @@ weekDataIpa.check({
 }); // false (length unmatched)
 ```
 
-It guarantees to return a valid version of the incoming data:
+- **guarantee** to return a valid version of the incoming data:
 ``` javascript
 // this configs the length strategy to be shortest (unnecessary)
 weekDataIpa.setConfig({ strategy: 'shortest' });
@@ -91,7 +92,7 @@ const incomingData = {
 weekDataIpa.guarantee(); // {"x":[0.1,0.15],"y":["Mon","Tue"]}
 ```
 
-Also, it mocks data while you're doing specified developing:
+- **mock** data while you're doing specified developing:
 ``` javascript
 // config the mocking dictionary (unnecessary)
 weekDataIpa.setConfig({ dict: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri'] });
