@@ -1,10 +1,5 @@
 # IPA.js
-<<<<<<< HEAD
-**fantastic ale beer
-fantastic API data manager.**
-=======
 **fantastic ale beer**
->>>>>>> 59a4ce4204ae661be45728429934af49931adec4
 
 **fantastic API data manager**
 
