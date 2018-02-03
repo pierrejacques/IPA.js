@@ -104,19 +104,25 @@ weekDataIpa.mock({ l: 2 }); // {"x":[8,17],"y":["Fri","Mon"]}
 ```
 
 ### template object
-The _**template object**_ describes the structure of the data. For example, the template object`{ x: [Number, 'l'], y: [String, 'l'] }`above described a data structure that:
-1.  should be a plain object who has properties named _**x**_ and _**y**_.
-1.  Both _**x**_ and _**y**_ are arrays.
-1.  _**x**_ contains numbers while _**y**_ contains strings.
-1.  _**x**_ and _**y**_ should have same lengths, which is quite common in data-visualization scenerios.
+The _**template object**_ describes the structure of the data.
 
-More examples of templates:
+For example, the template object `{ x: [Number, 'l'], y: [String, 'l'] }` described a data structure that:
+
+-  should be a plain object who has properties named _**x**_ and _**y**_.
+-  Both _**x**_ and _**y**_ are arrays.
+-  _**x**_ contains numbers while _**y**_ contains strings.
+-  _**x**_ and _**y**_ should have same lengths, which is quite common in data-visualization scenerios.
+
+#### Required
+Use `null` to represent required property/data. The **check** method would return false when the property/data is `undefined`.
+
+examples:
 ``` javascript
-const required = null; // single required
-const num = Number; // single Number
-const str = String; // single String
-const bool = Boolean; // single Boolean
-const 
+const singleRequired = new IPA(null);
+singleRequired.check(undefined); // false;
+
+const propertyRequired = new IPA({ x: null });
+propertyRequired.check({}); // false;
 ```
 You'll find it's quite similar to the actual data.
 
