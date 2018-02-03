@@ -66,6 +66,7 @@ const weekDataIpa = new IPA(weekDataTemplate); // create an IPA instance
 
 Every instance provides three methods:
 - **check**: checks the validity of the incoming data:
+
 ``` javascript
 weekDataIpa.check({
     x: [0.1, 0.15, 0.07],
@@ -79,6 +80,7 @@ weekDataIpa.check({
 ```
 
 - **guarantee**: guarantee to return a valid version of the incoming data:
+
 ``` javascript
 // this configs the length strategy to be shortest (unnecessary)
 weekDataIpa.setConfig({ strategy: 'shortest' });
@@ -92,6 +94,7 @@ weekDataIpa.guarantee(); // {"x":[0.1,0.15],"y":["Mon","Tue"]}
 ```
 
 - **mock**: mock data when developing:
+
 ``` javascript
 // config the mocking dictionary (unnecessary)
 weekDataIpa.setConfig({ dict: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri'] });
