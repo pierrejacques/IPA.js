@@ -1,5 +1,11 @@
 # IPA.js
-**fantastic ale beer, fantastic API data manager.**
+**fantastic ale beer**
+**fantastic API data manager**
+
+- faster developing
+- easier maintaining
+- robuster application
+
 
 ```
                  _____                      _____ _____                _____ _____                              
@@ -25,13 +31,8 @@
                     \/____/                    \/____/                    \/____/              
 
 ```
-
-- faster developing
-- easier maintaining
-- robuster application
-
 ## GET STARTED
-_if you're familiar with javascript and npm, you can be an expert IPA user in 10 minutes!_
+_IPA.js in 10 minutes!_
 
 ### installation
 - install with npm
@@ -44,7 +45,7 @@ $ npm install --save-dev ipa.js
 <script type="text/javascript" src="#/ipa.min.js" ></script>
 ```
 
-### create IPA instances using template object
+### IPA instances & template object
 IPA.js provides an _IPA class_ to realize its functions. Its instances are created using _template object_.
 
 ``` javascript
@@ -57,12 +58,11 @@ const template = { // create a template object
 
 const ipa = new IPA(template); // create an IPA instance
 ```
-The _template object_ describes the structure of the data, it looks pretty similar to the actual data passed by other modules through APIs.
 
-The above template describes a structure that ensures:
-1.  The data should be a plain object who has properties named _**x**_ and _**y**_.
+The _template object_ describes the structure of the data. The template above described a data structure that:
+1.  should be a plain object who has properties named _**x**_ and _**y**_.
 1.  Both _**x**_ and _**y**_ are arrays.
-1.  _**x**_ contains numbers and _**y**_ contains strings.
+1.  _**x**_ contains numbers while _**y**_ contains strings.
 1.  _**x**_ and _**y**_ should have same lengths, which is quite common in data-visualization scenerios.
 
 ``` javascript
