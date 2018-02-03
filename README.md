@@ -113,8 +113,9 @@ For example, the template object `{ x: [Number, 'l'], y: [String, 'l'] }` descri
 -  _**x**_ contains numbers while _**y**_ contains strings.
 -  _**x**_ and _**y**_ should have same lengths, which is quite common in data-visualization scenerios.
 
+To further explain how ....., JSON
 #### Required
-Use `null` to represent required property/data. The **check** method would return false when the property/data is `undefined`.
+Use `null` to represent required property/data. The `.check` method returns _**false**_ when the property/data is `undefined`.
 
 examples:
 ``` javascript
@@ -124,6 +125,23 @@ singleRequired.check(undefined); // false;
 const propertyRequired = new IPA({ x: null });
 propertyRequired.check({}); // false;
 ```
+
+#### Type
+
+
+#### Default
+
+
+#### Object
+
+
+#### Array
+
+
+#### Custom
+
+
+
 You'll find it's quite similar to the actual data.
 
 The IPA template usually has a same structure with the incoming data, see *TEMPLATE OBJECT* to learn more advanced usage.
