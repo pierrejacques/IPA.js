@@ -51,7 +51,7 @@ import in your project files
 import IPA from 'ipa.js'
 ```
 
-### how it works?
+### overview
 IPA.js provides an _**IPA class**_ to realize its functions. Its instances are created using _**template object**_ which describes the structure of the incoming data.
 
 ``` javascript
