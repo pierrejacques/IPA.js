@@ -1,5 +1,6 @@
 # IPA.js
-**fantastic ale beer, fantastic API data manager.**
+**fantastic ale beer
+fantastic API data manager.**
 
 ```
                  _____                      _____ _____                _____ _____                              

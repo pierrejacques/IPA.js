@@ -20,7 +20,7 @@ export default class IPA {
     }
 
     guarantee(data) {
-        const dataCopy = JSON.parse(JSON.stringify(data));
+        const dataCopy = data === undefined ? undefined : JSON.parse(JSON.stringify(data));
         asset.init(this.__config__);
         const output = asset.recursions.guarantee(this.template, dataCopy);
         fixArray(asset, this.__config__.strategy);

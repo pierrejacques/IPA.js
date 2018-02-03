@@ -17,12 +17,9 @@ export default {
         return ret;
     },
     guarantee(template, data, asset) {
-        if (!isObject(data)) {
-            return this.mock(template, asset);
-        }
-        const retData = data;
+        const retData = isObject(data) ? data : {};
         Object.keys(template).forEach((key) => {
-            retData[key] = asset.recursions.guarantee(template[key], data[key]);
+            retData[key] = asset.recursions.guarantee(template[key], retData[key]);
         });
         return retData;
     },

@@ -1,28 +1,17 @@
 const IPA = require('../dist/ipa.min.js').default;
 
-const checkNum = val => !(val === undefined || val === null || val === '');
+const weekDataTemplate = {
+    x: [Number, 'l'],
+    y: [String, 'l'],
+};
 
-const ipa = new IPA({
-    id: '',
-    name: '--',
-    dataType: 0,
-    desc: '-',
-    value(val) {
-        return {
-            isValid: true,
-            value: checkNum(val) ? val : '--',
-        }
-    },
-    info: [{
-        key: '',
-        value(val) {
-            return {
-                isValid: true,
-                value: checkNum(val) ? val : '--',
-            }
-        },
-    }, 3],
-});
+const ipa = new IPA(weekDataTemplate);
 
-console.log(ipa.mock());
-console.log(ipa.guarantee({}));
+ipa.setConfig({ strategy: 'shortest' });
+
+const incomingData = {
+    x: [0.1, 0.15, 0.07],
+    y: ['Mon', 'Tue'],
+};
+
+console.log(JSON.stringify(ipa.guarantee()));
