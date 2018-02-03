@@ -1,5 +1,5 @@
 # IPA.js
-your interface butler
+**fantastic ale beer, fantastic API data manager.**
 
 ```
                  _____                      _____ _____                _____ _____                              
@@ -26,9 +26,9 @@ your interface butler
 
 ```
 
-IPA, the name of a type of fragrant ale beer, is an API interface manager.
-
-With simply three major methods, it improves your dev efficiency, helps making code easier maintaining and most importantly, makes sure your apps running steadily by checking the received data from other applications or servers.
+- faster developing
+- easier maintaining
+- robuster application
 
 ## GET STARTED
 _if you're familiar with javascript and npm, you can be an expert IPA user in 10 minutes!_
