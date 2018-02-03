@@ -2,36 +2,37 @@
 your interface butler
 
 ```
-                 _____                      _____ _____                 _____ _____                              
-                /\    \                    /::::::\    \               /::::::\    \                
-               /::\    \                  /::::::::\    \             /::::::::\    \              
-              /:::/    /                 /:::/--\:::\    \           /:::/--\:::\    \              
-             /:::/    /                 /:::/   _\:::\    \         /:::/   _\:::\    \                  
-            /:::/____/                 /:::/   /  |:::|    |       /:::/   /  \:::\    \              
-           /::::\    \                /:::/   /   |:::| __ |      /:::/   /   /::::\    \          
-          /::::::\    \              /:::/   /   /:::/    /      /:::/   /   /::::::\    \            
-         /:::/\:::\    \            /:::/___/   /:::/    /       |:::|   |  /:::/\:::\    \          
-         \::/  \:::\    \           \:::\   \  /:::/    /        |:::|   | /:::/  \:::\____\             
-          \/___/\:::\    \ ____      \:::\   \/:::/    /         \:::\   \/:::/    \::/    /        
-                 \:::\    /\    \     \:::\  /:::/    /           \:::\  /:::/    / \/____/         
-                  \:::\  /::\ ___\     \:::\/:::/    /             \:::\/:::/    /              
-                   \:::\/:::/    /      \::::::/    /               \::::::/    /              
-                    \::::::/    /        \::::/____/                 \::::/____/              
-                     \::::/    /          \:::\    \                  \:::\    \              
-                     /:::/    /            \:::\    \                  \:::\    \              
-                    /:::/    /              \:::\    \                  \:::\    \              
-                   /:::/    /                \:::\____\                  \:::\____\                  
-                   \::/    /                  \::/    /                   \::/    /              
-                    \/____/                    \/____/                     \/____/              
+                 _____                      _____ _____                _____ _____                              
+                /\    \                    /::::::\    \              /::::::\    \                
+               /::\    \                  /::::::::\    \            /::::::::\    \              
+              /:::/    /                 /:::/--\:::\    \          /:::/--\:::\    \              
+             /:::/    /                 /:::/   _\:::\    \        /:::/   _\:::\    \                  
+            /:::/____/                 /:::/   /  |:::|    |      /:::/   /  \:::\    \              
+           /::::\    \                /:::/   /   |:::| __ |     /:::/   /   /::::\    \          
+          /::::::\    \              /:::/   /   /:::/    /     /:::/   /   /::::::\    \            
+         /:::/\:::\    \            /:::/___/   /:::/    /      |:::|   |  /:::/\:::\    \          
+         \::/  \:::\    \           \:::\   \  /:::/    /       |:::|   | /:::/  \:::\____\             
+          \/___/\:::\    \ ____      \:::\   \/:::/    /        \:::\   \/:::/    \::/    /        
+                 \:::\    /\    \     \:::\  /:::/    /          \:::\  /:::/    / \/____/         
+                  \:::\  /::\ ___\     \:::\/:::/    /            \:::\/:::/    /              
+                   \:::\/:::/    /      \::::::/    /              \::::::/    /              
+                    \::::::/    /        \::::/____/                \::::/____/              
+                     \::::/    /          \:::\    \                 \:::\    \              
+                     /:::/    /            \:::\    \                 \:::\    \              
+                    /:::/    /              \:::\    \                 \:::\    \              
+                   /:::/    /                \:::\____\                 \:::\____\                  
+                   \::/    /                  \::/    /                  \::/    /              
+                    \/____/                    \/____/                    \/____/              
 
 ```
 
-IPA, the name of a type of fragrant ale beer, is an API interface manager. 
+IPA, the name of a type of fragrant ale beer, is an API interface manager.
 
 With simply three major methods, it improves your dev efficiency, helps making code easier maintaining and most importantly, makes sure your apps running steadily by checking the received data from other applications or servers.
 
 ## GET STARTED
 _if you're familiar with javascript and npm, you can be an expert IPA user in 10 minutes!_
+
 ### installation
 - install with npm
 ``` shell
@@ -40,17 +41,29 @@ $ npm install --save-dev ipa.js
 
 - import in <script> tags by 'src'
 ``` html
-  <script src="#/ipa.min.js" lang="javascript"></script>
+<script type="text/javascript" src="#/ipa.min.js" ></script>
 ```
 
-### use in projects
-- IPA class and instances
-IPA.js provides a class named _IPA_ to realize its functions. Import it in and create instance using a _template object_.
+### create IPA instances using template object
+IPA.js provides an _IPA class_ to realize its functions. Its instances are created using _template object_.
 
-For example, the following code create an IPA instance that ensures:
-1. The data is an object who has properties named _**x**_ and _**y**_
-1. Both _**x**_ and _**y**_ are arrays while _**x**_ contains numbers and _**y**_ contains strings
-1. _**x**_ and _**y**_ should have same lengths, which is quite common in data-visualization scenerios
+``` javascript
+import IPA from 'ipa.js' // import the IPA class
+
+const template = { // create a template object
+    x: [Number, 'l'],
+    y: [String, 'l'],
+};
+
+const ipa = new IPA(template); // create an IPA instance
+```
+The _template object_ describes the structure of the data, it looks pretty similar to the actual data passed by other modules through APIs.
+
+The above template describes a structure that ensures:
+1.  The data should be a plain object who has properties named _**x**_ and _**y**_.
+1.  Both _**x**_ and _**y**_ are arrays.
+1.  _**x**_ contains numbers and _**y**_ contains strings.
+1.  _**x**_ and _**y**_ should have same lengths, which is quite common in data-visualization scenerios.
 
 ``` javascript
 import IPA from 'ipa.js'
