@@ -65,8 +65,8 @@ const weekDataTemplate = { // create a template object
 const weekDataIpa = new IPA(weekDataTemplate); // create an IPA instance
 ```
 
-This instance can then
-- **check** the validity of the incoming data:
+Every instance provides three methods:
+- **check**: checks the validity of the incoming data:
 ``` javascript
 weekDataIpa.check({
     x: [0.1, 0.15, 0.07],
@@ -79,7 +79,7 @@ weekDataIpa.check({
 }); // false (length unmatched)
 ```
 
-- **guarantee** to return a valid version of the incoming data:
+- **guarantee**: guarantee to return a valid version of the incoming data:
 ``` javascript
 // this configs the length strategy to be shortest (unnecessary)
 weekDataIpa.setConfig({ strategy: 'shortest' });
@@ -92,7 +92,7 @@ const incomingData = {
 weekDataIpa.guarantee(); // {"x":[0.1,0.15],"y":["Mon","Tue"]}
 ```
 
-- **mock** data when developing:
+- **mock**: mock data when developing:
 ``` javascript
 // config the mocking dictionary (unnecessary)
 weekDataIpa.setConfig({ dict: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri'] });
@@ -141,25 +141,18 @@ propertyRequired.check({}); // false;
 #### Custom
 
 
+### check
 
-You'll find it's quite similar to the actual data.
+### guarantee
 
-The IPA template usually has a same structure with the incoming data, see *TEMPLATE OBJECT* to learn more advanced usage.
+### mock
 
-## METHODS
-Ipa instances have the following simply and useful methods:
+### setConfig
 
-- check(data): check the incoming data, and return whether the data is isValid
-- guarantee(data): check the incoming data, and return a guaranteed valid data according to the template
-- mock(config): mock random valid data according to the template
+## IPA in Component-structure projects
 
+## mechanism & performance
 
-## TEMPLATE OBJECTS
+### flyweight instances with singleton asset
 
-1. usual checking and defaulting
-2. length checking for arrays
-3. checking unknown name properties for dicts
-4. mocking config
-
-
-## APPLY IPA FOR E2E DEV
+### strategies
