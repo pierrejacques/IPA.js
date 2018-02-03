@@ -1,5 +1,6 @@
 # IPA.js
 **fantastic ale beer**
+
 **fantastic API data manager**
 
 - faster developing
@@ -34,7 +35,12 @@
 ## GET STARTED
 _IPA.js in 15 minutes!_
 
-### what IPA does?
+### why IPA.js?
+If you're developing/maintaining an end-to-end application using javascript, you can't always be sure that the data from the other end is of a valid structure. Hand checking the structure is not only time-costing, but also tedious, messy and risk-taking. Thus skipping this checking is what people usually do, which may seriously threatens the robustness of your application.
+
+If you're working on a large-scale application which takes a lot of developpers working together for a long time. The data flow between different modules <span style="color:#aaa">(e.g Components in MV* frameworks)</span> can be quite complex, causing trust & robuestness problems similar to the e2e one. Even worse, the later maintainers have to check a bunch of files until having an idea on the data structure flowing into a single module.
+
+IPA helps to solve the problems above by managing the data structure with check, guarantee and mock methods. The descriptive object(named as _template object_) helps to explicitly state the incoming data so that the current developpers and future maintainers can quick get an idea of how the data look like.
 
 ### installation
 - install with npm
