@@ -5,8 +5,8 @@ export default {
     check(template, data) {
         return template(data).isValid;
     },
-    guarantee(template, data, asset) { // 无论如何都走mock
-        return this.mock(template, asset);
+    guarantee(template, data) {
+        return template(data).value;
     },
     mock(template, asset) {
         const value = template(asset.seed).value;
