@@ -111,40 +111,77 @@ The behaviour of the instance can be set and get using methods _setConfig_ and _
 ### template object
 The _**template object**_ describes the structure of the data.
 
-For example, the template object `{ x: [Number, 'l'], y: [String, 'l'] }` described a data structure that:
+For example:
+``` javascript
+{
+    x: [Number, 'l'],
+    y: [String, 'l'],
+}
+```
+describes a data structure that:
 
 -  should be a plain object who has properties named _**x**_ and _**y**_.
 -  Both _**x**_ and _**y**_ are arrays.
 -  _**x**_ contains numbers while _**y**_ contains strings.
 -  _**x**_ and _**y**_ should have same lengths, which is quite common in data-visualization scenerios.
 
+Initially designed for JSON data checking, IPA currently does **not** support data types that can't be present with JSON well _(e.g Symbol, Set, Map, RegExp etc.)_. The following introduces the six basic kinds of _template object_ syntax.
 
+**- required**
 
-#### Required
-Use `null` to represent required property/data. The `.check` method returns _**false**_ when the property/data is `undefined`.
+Use `null` to represent required data/property.
 
-examples:
 ``` javascript
-const singleRequired = new IPA(null);
-singleRequired.check(undefined); // false;
-
-const propertyRequired = new IPA({ x: null });
-propertyRequired.check({}); // false;
+const singleRequired = new IPA(null); // data
+const propertyRequired = new IPA({ x: null }); // property
 ```
 
-#### Type
+The `.check` method returns `false` when the data/property is `undefined`:
+
+``` javascript
+singleRequired.check(null); // true
+singleRequired.check(undefined); // false
+
+propertyRequired.check({}); // false
+propertyRequired.check({ x: null }); // true
+propertyRequired.check({ x: undefined }); // false
+```
+
+The `.guarantee` method returns `null` when the data/property is `undefined`. The `.mock` method also directly returns `null`:
+
+``` javascript
+singleRequired.guarantee(); // null
+singleRequired.mock(); // null
+
+propertyRequired.guarantee({ x: undefined }); // { x: null }
+propertyRequired.mock(); // { x: null }
+```
 
 
-#### Default
+
+**- type**
+
+Use a JSON-arrowed constructor to represent the valid type of the data/property.
+
+The `.check` method returns `false` when the data/property has wrong type.
+
+``` javascript
+const singleNumber = new IPA(Number);
+singleNumber.check(2); // true;
+singleNumber.check(new Number(2)); // true;
+singleNumber.check('2'); // false;
+```
+
+**- default**
 
 
-#### Object
+**- object**
 
 
-#### Array
+**- array**
 
 
-#### Custom
+**- custom**
 
 
 
@@ -163,14 +200,11 @@ The following table shows a summary of all the syntax of the _**template object*
  name | template | check  | guarantee  | mock  
 --|---|---|---|---
 _required_  |  `null` | invalid when undefined | mock when invalid  | return null   
-_type_ |   JSON-allowed constructors[^1] | invalid when wrong type | mock when invalid | return random valid value    
+_type_ |   JSON-allowed constructors\* | invalid when wrong type | mock when invalid | return random valid value    
 _default_ |  JSON-allowed value** | invalid when wrong type  | return default when invalid  | return value with valid type    
  _custom_ | `val => ({ isValid, value })` |judge by `.isValid` | return `.value` when invalid  | return `.value` by inputting **seed**
-_object_  |  `{ keys:subtemplates }`\*** | valid when object && keys all valid | return {} when not object && recursively guarantee its keys | return {} and recursively mock its keys  
-_array_ |  `[ subtemplate, param ]`\*** | valid when array && all items valid && length matches | return [] when not array && guarantee its items && fix the length by **strategy** | return [] && recursively mock its items && match its length by **strategy**
-
-[^1]:asdsad
-
+_object_  |  `{ keys:subtemplates }` | valid when object && keys all valid | return {} when not object && recursively guarantee its keys | return {} and recursively mock its keys  
+_array_ |  `[ subtemplate, param ]` | valid when array && all items valid && length matches | return [] when not array && guarantee its items && fix the length by **strategy** | return [] && recursively mock its items && match its length by **strategy**
 
 \* Number, String, Boolean, Array, Object
 

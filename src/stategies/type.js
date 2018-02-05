@@ -16,7 +16,14 @@ export default {
         return data.__proto__ === template.prototype;
     },
     guarantee(template, data, asset) {
-        return this.check(template, data) ? data : this.mock(template, asset);
+        const map = new Map([
+            [String, ''],
+            [Number, 0],
+            [Boolean, false],
+            [Array, []],
+            [Object, {}],
+        ]);
+        return this.check(template, data) ? data : map.get(template);
     },
     mock(template, asset) {
         const map = new Map([
