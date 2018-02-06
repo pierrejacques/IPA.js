@@ -35,17 +35,22 @@
 
 ## GET STARTED
 
-### what's IPA?
+### what IPA does
 IPA.js is an interface data manager. It helps you to check and guarantee your incoming data structure, and generate valid data when developing.
 
 IPA.js can deal with deep object structures:
 
+![deep-object structure-secure](https://github.com/pierrejacques/IPA.js/blob/master/img/deep-object.svg)
 
 as well as length-demanded array structures which is common in data visualization cases:
 
+![array-length secure](https://github.com/pierrejacques/IPA.js/blob/master/img/arr-length.svg)
 
+it can even generate data for you following the valid structure:
 
-### why IPA.js?
+![mocking valid data](https://github.com/pierrejacques/IPA.js/blob/master/img/mocking.svg)
+
+### why IPA.js
 If you're working on an e2e project or a large-scale application which contains a lot of data flows between modules(e.g Components in MV* frameworks), you can't always be sure that the incoming data of a module/end is of a valid structure. Hand checking the data structure is often tedious, messy and risk-taking. Thus skipping this checking is what people usually do, which may seriously threaten the robustness of your application. Besides, the later maintainers have to check a bunch of files until having an idea on the data structure flowing into a single module.
 
 IPA helps to solve the problems above by managing the data structure with **check, guarantee** and **mock** methods. The descriptive object(named as _template object_) helps to explicitly state the incoming data so that the current developpers and future maintainers can quick get an idea on how the data look like.
