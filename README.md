@@ -40,7 +40,7 @@ IPA.js is an interface data manager. It helps you to check and guarantee your in
 
 IPA.js can deal with deep object structures:
 
-![deep-object structure-secure](https://github.com/pierrejacques/IPA.js/blob/master/img/deep-object.png)
+<img src="https://github.com/pierrejacques/IPA.js/blob/master/img/deep-object.png" width="700"/>
 
 as well as length-demanded array structures which is common in data visualization cases:
 
