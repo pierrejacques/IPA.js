@@ -35,6 +35,16 @@
 
 ## GET STARTED
 
+### what's IPA?
+IPA.js is an interface data manager. It helps you to check and guarantee your incoming data structure, and generate valid data when developing.
+
+IPA.js can deal with deep object structures:
+
+
+as well as length-demanded array structures which is common in data visualization cases:
+
+
+
 ### why IPA.js?
 If you're working on an e2e project or a large-scale application which contains a lot of data flows between modules(e.g Components in MV* frameworks), you can't always be sure that the incoming data of a module/end is of a valid structure. Hand checking the data structure is often tedious, messy and risk-taking. Thus skipping this checking is what people usually do, which may seriously threaten the robustness of your application. Besides, the later maintainers have to check a bunch of files until having an idea on the data structure flowing into a single module.
 
@@ -125,7 +135,7 @@ describes a data structure that:
 -  _**x**_ contains numbers while _**y**_ contains strings.
 -  _**x**_ and _**y**_ should have same lengths, which is quite common in data-visualization scenerios.
 
-Initially designed for JSON data checking, IPA currently does **not** support data types that can't be present with JSON well _(e.g Symbol, Set, Map, RegExp etc.)_. The following introduces the six basic kinds of _template object_ syntax.
+Initially designed for JSON data checking, IPA currently does **not** support data types that can't be present with JSON well _(e.g Symbol, Set, Map, RegExp etc.)_. The following introduces the six basic strategies for _template object_.
 
 **- required**
 
@@ -161,25 +171,79 @@ propertyRequired.mock(); // { x: null }
 
 **- type**
 
-Use a JSON-arrowed constructor to represent the valid type of the data/property.
+Use a JSON-arrowed constructor to represent the valid type of the data/property, which iterally means `Number`, `String`, `Boolean`, `Object` and `Array`.
+``` javascript
+const num = new IPA(Number);
+const str = new IPA(String);
+const bool = new IPA(Boolean);
+const obj = new IPA(Object);
+const arr = new IPA(Array);
+```
 
-The `.check` method returns `false` when the data/property has wrong type.
+The `.check` method returns `wrong` when the data/property has wrong type.
 
 ``` javascript
-const singleNumber = new IPA(Number);
-singleNumber.check(2); // true;
-singleNumber.check(new Number(2)); // true;
-singleNumber.check('2'); // false;
+num.check(''); // false
+str.check({}); // false
+bool.check(1); // false
+obj.check([]); // false
+arr.check({}); // false
+```
+
+The `.guarantee` method returns a common valid value when invalid.
+
+``` javascript
+num.guarantee(null); // 0
+str.guarantee(null); // ''
+bool.guarantee(null); // false
+obj.guarantee([]); // {}
+arr.guarantee({}); // []
+```
+
+The `.mock` method returns a random valid value based on the _generating configs_.
+``` javascript
+num.mock(); // 12
+str.mock(); // 'ipsum'
+bool.mock(); // false
+obj.mock(); // {} (always)
+arr.mock(); // [] (always)
+```
+
+The related config keys are:
+- **min** (_Number_, default: 0): the lower bound of `Number` type
+- **max** (_Number_, default: 20): the upper bound of `Number` type
+- **dict** (_Array_, default: a group of Latin words): the dictionary from which the `String` type mocks its value.
+
+You may use `.setConfig` method to set those keys for your instance:
+``` javascript
+num.setConfig({ min: -100, max: 100 });
+num.mock(); // -23
+
+str.setConfig( dict: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun']);
+str.mock(); // 'Wed'
 ```
 
 **- default**
+Use a JSON-allowed non-object value(other than null) to set the default value of the data/property.
+``` javascript
+const dftNum = new IPA(100);
+const dftStr = new IPA('--');
+```
 
+The `.check` method returns `wrong` when the data/property has the different type from the default value, which works similar to the **type** strategy.
+``` javascript
+dftNum.check(''); // false
+dftStr.check(0); // false
+```
+
+The
 
 **- object**
 
 
 **- array**
 
+\* `null` in array
 
 **- custom**
 
