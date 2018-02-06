@@ -48,7 +48,7 @@ as well as length-demanded array structures which is common in data visualizatio
 
 it can even generate data for you following the valid structure:
 
-<img src="https://github.com/pierrejacques/IPA.js/blob/master/img/mocking.jpg" width="600" />
+<img src="https://github.com/pierrejacques/IPA.js/blob/master/img/mocking.jpg" width="700" />
 
 ### why IPA.js
 If you're working on an e2e project or a large-scale application which contains a lot of data flows between modules(e.g Components in MV* frameworks), you can't always be sure that the incoming data of a module/end is of a valid structure. Hand checking the data structure is often tedious, messy and risk-taking. Thus skipping this checking is what people usually do, which may seriously threaten the robustness of your application. Besides, the later maintainers have to check a bunch of files until having an idea on the data structure flowing into a single module.
