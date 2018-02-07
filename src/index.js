@@ -63,7 +63,11 @@ export default class IPA {
 
     getConfig(key = null) {
         if (key) {
-            return this.__config__[key] || dftConf[key];
+            const ret = this.__config__[key] || dftConf[key];
+            if (ret.join) { // duck
+                ret = Object.assign([], ret);
+            }
+            return ret;
         }
         const config = {};
         Object.keys(dftConf).forEach(key => {
