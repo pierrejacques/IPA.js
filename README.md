@@ -232,6 +232,7 @@ str.mock(); // 'Wed'
 ```
 
 **- default**
+
 Use a JSON-allowed non-object value(other than null) to set the default value of the data/property.
 
 ``` javascript
@@ -394,7 +395,7 @@ numArr.mock(); // [1, 3, 5, 10, 4, 7, 12, 4, 1, 5]
 
 >The length randomize method is separated from that of `Number`. You may config it using `.setConfig({ minLen: <minimum length}, maxLen: <maxinum length>)`. The minimum and maxinum lengths are set to 2 and 20 by default.
 
-**-array length**
+**- array length**
 
 One powerful function of IPA.js is its length-relationship management. The **array Length** strategy is actually a substrategy of the **array strategy**. We here discuss it separately so that you won't feel confused about it.
 
@@ -452,16 +453,13 @@ The `.mock` receives a _setting object_ input and returns a valid data according
 doubleRelated.mock({ len: 5, legends: 2 });
 // {
 //     x: ['ad', 'cillum', 'qui', 'ut', 'magna'],
-//     series: [
-//         {
-//             name: 'sunt',
-//             data: [2, 13, 8, 5, 1],
-//         },
-//         {
-//             name: 'laborum',
-//             data: [17, 5, 6, 12, 10],
-//         }
-//     ],
+//     series: [{
+//         name: 'sunt',
+//         data: [2, 13, 8, 5, 1],
+//     }, {
+//         name: 'laborum',
+//         data: [17, 5, 6, 12, 10],
+//     }],
 //     legends: ['proident', 'sint']
 // }
 
@@ -469,17 +467,35 @@ cube.mock({ size: 2 });
 // [ [ [ 16, 0 ], [ 1, 8 ] ], [ [ 7, 16 ], [ 13, 18 ] ] ]
 ```
 
+**- summary**
+
+The following table shows a summary of all the strategies of the _**template object**_.
+
+ name | template | check  | guarantee  | mock  
+--|---|---|---|---
+_required_  |  `null` | invalid when undefined | mock when invalid  | return null   
+_type_ |   JSON-allowed constructors\* | invalid when wrong type | mock when invalid | return random valid value    
+_default_ |  JSON-allowed value** | invalid when wrong type  | return default when invalid  | return value with valid type    
+ _custom_ | `val => ({ isValid, value })` |judge by `.isValid` | return `.value` when invalid  | return `.value` by inputting **seed**
+_object_  |  `{ keys:subtemplates }` | valid when object && keys all valid | return {} when not object && recursively guarantee its keys | return {} and recursively mock its keys  
+_array_ |  `[ subtemplate, length ]` | valid when array && all items valid && length matches | return [] when not array && guarantee its items && fix the length by **strategy** | return [] && recursively mock its items && match its length by **strategy**
+
+\* `Number`, `String`, `Boolean`, `Array`, `Object`.
+
+\** other than `null`, `{}`, `[]`.
+
+
 ### methods
 
 So far we've talked about all of the strategies available in _**template object**_ and cover most of the logic within the major methods: `check`, `guarantee` and `mock`.
 
 The following discusses a little details of the methods respectively.
 
-- **check**
+**- check**
 
 The `.check` method is a strict checking method which returns `true` when the incoming data is valid and `false` when not. It does not modify the original data. `.check` is better used when you have the most strict demand on your data structure and tolerate no slight misstakes.
 
-- **guarantee**
+**- guarantee**
 
 By default, the `.guarantee` method does **not** modify the original data. Instead, it creates a deep copy of the original data and validify the copy. By setting the second parameter of the input to `false`, you're able to validify on the original data _(if it's an object)_:
 
@@ -498,11 +514,12 @@ data === ipa.guarantee(data, false); // true
 
 However, this is strongly **not** recommended because it break the one-way data flow and may cause confusions in future maintaining, especially when you're using IPA between modules.
 
-- **mock**
+**- mock**
 
-Mocking is designed to be a developping tool not a production function. It helps you to speed up generating mocking data, however if you use `.mock` methods a lot when developping, you may very likely forget to replace them with the actual production method _(e.g. ajax etc.)_ . A better way to use it when you got a bunch of APIs to mock is to use a central mocking module, even establishing a mocking server to generate data so that your production can be separated from the developing environment. We'll take a further look into this in **'IPA in Component-structure projects'**.
+Mocking is designed to be a developping tool not a production function. It helps you to speed up generating mocking data, however if you use `.mock` methods a lot when developping, you may very likely forget to replace them with the actual production method _(e.g. ajax etc.)_ . A better way to use it when you got a bunch of APIs to mock is to use a central mocking module, even establishing a mocking server to generate data so that your production can be separated from the developing environment.
+<!-- We'll take a further look into this in **'IPA in Component-structure projects'**. -->
 
-- **setConfig**
+**- setConfig**
 
 `.setConfig` is used as `.setConfig({ <config_key>:<config_value> })`. The following enumerates all the configable keys and their default values:
 
@@ -519,39 +536,40 @@ If you want to set any _<config_key>_ _(expect for `seed`)_ back to the default 
 ipaInstance.setConfig({ dict: 'default' }); // set the dict back to default
 ```
 
-- **resetConfig**
+**- resetConfig**
 
 This resets all your config keys back to their default values, including `seed`.
 
-- **getConfig**
+**- getConfig**
 
 `.getConfig` returns you the certain _config_value_ according to the _config_key_ you provide. If nothing _(or `null`)_ is provided, it returns you the whole config object.
 
 Do notice that the value returned is always a deep copy of the origin value.
 
-### summary
+<!-- ## IPA in Component-structure projects
+guarantee tree -->
 
-The following table shows a summary of all the syntax of the _**template object**_.
+## MECHANISM
 
- name | template | check  | guarantee  | mock  
---|---|---|---|---
-_required_  |  `null` | invalid when undefined | mock when invalid  | return null   
-_type_ |   JSON-allowed constructors\* | invalid when wrong type | mock when invalid | return random valid value    
-_default_ |  JSON-allowed value** | invalid when wrong type  | return default when invalid  | return value with valid type    
- _custom_ | `val => ({ isValid, value })` |judge by `.isValid` | return `.value` when invalid  | return `.value` by inputting **seed**
-_object_  |  `{ keys:subtemplates }` | valid when object && keys all valid | return {} when not object && recursively guarantee its keys | return {} and recursively mock its keys  
-_array_ |  `[ subtemplate, param ]` | valid when array && all items valid && length matches | return [] when not array && guarantee its items && fix the length by **strategy** | return [] && recursively mock its items && match its length by **strategy**
+- Flyweight
+- Singleton
+- Strategy
 
-\* Number, String, Boolean, Array, Object
+The above are the three major design patterns implied in IPA. It doesn't matter if you don't have any idea of those words.
 
-\** other than null, {}, []
+### Flyweight
+Flyweight meaning very light instances. If you take a look, you'll find IPA instances are actually quite light objects. Only none-default configs, template objects and interfaces of `.check`, `.guarantee`, `.mock`, `.setConfig`, `.resetConfig` and `.getConfig`. Everything that's not specified for a single instance is put somewhere else so that the object can be as light as possible.
+
+This enables you to create lots of instances by only consume a little space.
 
 
-## IPA in Component-structure projects
-> guarantee tree
+### Singleton
+The single-thread property of javascript makes it possible for all the instances of IPA to depute a single core to do all the calculations. While calculation, the core, a singleton, is initiated by the instance and is injected through the calculation so that any part of the core is accessable to the whole core.
 
-## mechanism & performance
+### Strategy
+All `.check`, `.guarantee` and `.mock` methods are generated by one single recursion method. The recursion method only generates those three methods once to initiate the singleton core. The recursion collections a bunch of strategies and switch between them when doing the calculatings.
 
-### flyweight instances with singleton asset
+### Demostration
+It may be abstract to describe the mechanism by words, the following is a demo image showing how the IPA works inside:
 
-### strategies
+<img src="https://github.com/pierrejacques/IPA.js/blob/master/img/mechanism.jpg" width="800" style="margin: auto" />
