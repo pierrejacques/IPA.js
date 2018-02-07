@@ -1,8 +1,8 @@
 # IPA.js
 
-- faster developing
-- easier maintaining
-- robuster application
+- 更快开发
+- 更易维护
+- 更鲁棒
 
 
 ```
@@ -29,57 +29,65 @@
                   \/____/                    \/____/                    \/____/              
 ```
 
-## WHAT IPA DOES
-IPA.js is an interface data manager. It helps you to check and guarantee your incoming data structure, and generate valid data when developing.
+## IPA是什么
 
-It can deal with deep object structures:
+不难发现IPA是API的镜像，不过起这个名字很大程度上也是源于我对印度艾尔啤酒的热爱（IPA，Indian Pale Ale，一种英国啤酒）。
+
+IPA通俗地说是一个接口数据结构验证器，但远不止仅仅的校验，因而称之为管理器。
+
+它可以验证和保障深层的对象结构：
 
 <img src="https://github.com/pierrejacques/IPA.js/blob/master/img/deep-object.jpg" width="800" style="margin: auto" />
 
-as well as length-match-demanded structures which is common in data visualization cases:
+也可以验证对内部数组的长度关系有要求（这类需求在用于可视化的数据中常见）的数据结构：
 
 <img src="https://github.com/pierrejacques/IPA.js/blob/master/img/arr-length.jpg" width="850" style="margin: auto" />
 
-Following the valid structure, it can even generate mocking data during developing:
+依照对合法结构的认识，IPA可以自己生成mock数据，一方面方便开发，一方面也可以作为随机发生器：
 
 <img src="https://github.com/pierrejacques/IPA.js/blob/master/img/mocking.jpg" width="700" style="margin: auto" />
 
-## WHY NEEDED
-If you're working on an e2e project or large-scale application which contains a lot of data flows between modules/ends _(e.g Components in MV* frameworks)_, you can't always be sure that the incoming data is of a valid structure. Hand checking the data structure is often tedious, messy and risk-taking especially when the structure is 'deep'. Thus skipping this checking is what people usually do, which may seriously threaten the robustness. Besides, the later maintainers may have no idea on the structure if the incoming data until checking a bunch of codes.
+## 为什么需要IPA
 
-IPA.js helps to solve the problems above by managing the data structure with **check, guarantee** and **mock** methods. The _**template object**_ helps to explicitly state the incoming data so that the current developers and future maintainers can quick get an idea on how the data structure looks like.
+如果你在开发/维护一个端对端的项目或是一个具有复杂模块层级的大型应用，你无法保证流入一个模块/组件/端的数据总是具有合法结构的。对于较为复杂的数据结构，手动校验每个层次和类型往往费事、易错且会大大降低代码的可阅读性。因而很多时候人们干脆略过这道检查转而选择信任上游模块/组件，不用说这其实是很危险的。尤其对于一些对输入数据要求严格的可视化数据，可能直接会报错。
 
+除此之外，常规的js模块代码对传来的数据结构和类型往往没有显式的声明，这提高了后来的维护者理解和维护的成本和犯错的概率。
 
-## GET STARTED
+IPA.js通过提供check，guarantee，mock三种方法来帮助解决上述问题。而用于创建IPA实例的 _模板对象（template object）_ 显式地声明了传入的数据的结构类型，帮助开发者和未来维护者无需阅读上游模块的代码就能掌握数据结构的全部信息。
 
-### installation
+## 开始使用
 
-IPA.js is designed for node.js implementation, install with npm:
+### 安装
+
+IPA.js专为node工程设计，通过命令行用npm安装它：
 
 ``` shell
 $ npm install --save-dev ipa.js
 ```
-import in your project files
+
+在你的模块中引入它：
+
 ``` javascript
 import IPA from 'ipa.js'
 ```
 
-### overview
-IPA.js provides an _**IPA class**_ to realize its functions. Its instances are created using _**template object**_ which describes the valid structure of the incoming data.
+### 概览
+IPA.js通过提供一个IPA类来实现它的功能，通过一个描述数据结构的 _模板对象（template object）_ 来实例化这个类。
 
 ``` javascript
-import IPA from 'ipa.js' // import class IPA
+import IPA from 'ipa.js' // 引入IPA类
 
-const weekDataTemplate = { // create a template object
+const weekDataTemplate = { // 创建一个模板对象
     x: [Number, 'l'],
     y: [String, 'l'],
 };
 
-const weekDataIpa = new IPA(weekDataTemplate); // create an IPA instance
+const weekDataIpa = new IPA(weekDataTemplate); // 实例化
 ```
 
-Each instance has three major methods:  _check_, _guarantee_ and _mock_:
-- **check**: checks the validity of the incoming data:
+每个实例拥有 _check_, _guarantee_ 和 _mock_ 三个方法:
+
+- **check**: check方法验证传入数据的合法性:
 
 ``` javascript
 weekDataIpa.check({
@@ -90,13 +98,13 @@ weekDataIpa.check({
 weekDataIpa.check({
     x: [0.1, 0.15, 0.07],
     y: ['Mon'],
-}); // false (length unmatched)
+}); // false (长度不匹配)
 ```
 
-- **guarantee**: guarantee to return a valid version of the incoming data:
+- **guarantee**: guarantee方法保障传入的数据，并永远返回一个经过最小改动的合法数据结构:
 
 ``` javascript
-// this configs the length strategy to be 'shortest' (unnecessary)
+// 下行代码把长度策略配置为最短策略 'shortest' (不必须)
 weekDataIpa.setConfig({ strategy: 'shortest' });
 
 const incomingData = {
@@ -110,39 +118,38 @@ weekDataIpa.guarantee(); // {"x":[0.1,0.15],"y":["Mon","Tue"]}
 - **mock**: mock data when developing:
 
 ``` javascript
-// config the mocking dictionary (unnecessary)
+// 自定义字典 (不必须)
 weekDataIpa.setConfig({ dict: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri'] });
 
 weekDataIpa.mock() // {"x":[2,5,3,5,15,17],"y":["Thu","Tue","Tue","Thu","Fri","Wed"]}
 
-// fix the length param 'l' to constant 2
+// 把‘l’所指代的长度固定为2
 weekDataIpa.mock({ l: 2 }); // {"x":[8,17],"y":["Fri","Mon"]}
 ```
 
-The behaviour of the instance can be set and get using methods _setConfig_ and _showConfig_.
+实例的行为可以通过 _setConfig_ 和 _getConfig_ 方法来配置.
 
-### template object
-The _**template object**_ describes the structure of the data.
+### 模板对象 _（template object）_
+模板对象是掌握IPA用法的核心，它用于描述一个数据应有的结构，例如下面的模板：
 
-For example:
 ``` javascript
 {
     x: [Number, 'l'],
     y: [String, 'l'],
 }
 ```
-describes a data structure that:
+描述了符合如下几条规则的数据结构:
 
--  should be a plain object who has properties named _**x**_ and _**y**_.
--  Both _**x**_ and _**y**_ are arrays.
--  _**x**_ contains numbers while _**y**_ contains strings.
--  _**x**_ and _**y**_ should have same lengths, which is quite common in data-visualization scenerios.
+-  数据应该是一个常规对象，它应有名为 _**x**_ 和 _**y**_ 的两个属性.
+-  属性 _**x**_ 和 _**y**_ 都是数组.
+-  _**x**_ 是一个数字数组， _**y**_ 是一个字符串数组.
+-  _**x**_ 和 _**y**_ 应该总是具有相等的长度，这个长度用`'l'`标记.
 
-Initially designed for JSON structure checking, IPA currently does **not** well support data that can't be present in JSON form _(e.g Symbol, Set, Map, RegExp etc.)_. The following introduces the basic strategies for _template object_.
+由于IPA本意是为了验证JSON数据结构设计的，它目前对无法表示称JSON格式的数据类型的支持欠佳 _(例如 Symbol, Set, Map, RegExp 等.)_. 下面介绍模板对象的基本写法，这些x写法被分为几类，每类称为一个策略：
 
-**- required**
+**- 必填策略**
 
-Use `null` to represent required data/property.
+用 `null` 来表述一个必填的数据/字段.
 
 ``` javascript
 const singleRequired = new IPA(null); // data
@@ -297,9 +304,7 @@ custom.mock(); // 0
 
 >For instance, the following function is not allowed because it may return an invalid value such as `-0.5`:
 
->``` javascript
-    val => ({ isValid: val > 0, value: val > -1 ? val : 0 });
-```
+>`val => ({ isValid: val > 0, value: val > -1 ? val : 0 });`
 
 >IPA won't check the validity of the custom function until the `.mock` method is run and will abort the calculation and throw an error when invalid. So be careful using it.
 

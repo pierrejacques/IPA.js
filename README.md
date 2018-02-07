@@ -119,7 +119,7 @@ weekDataIpa.mock() // {"x":[2,5,3,5,15,17],"y":["Thu","Tue","Tue","Thu","Fri","W
 weekDataIpa.mock({ l: 2 }); // {"x":[8,17],"y":["Fri","Mon"]}
 ```
 
-The behaviour of the instance can be set and get using methods _setConfig_ and _showConfig_.
+The behaviour of the instance can be set and get using methods _setConfig_ and _getConfig_.
 
 ### template object
 The _**template object**_ describes the structure of the data.
