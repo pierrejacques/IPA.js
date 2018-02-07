@@ -293,15 +293,13 @@ custom.setConfig({ seed: '' });
 custom.mock(); // 0
 ```
 
->**Attention**: the custom function must be self-consistent. That means the output of the function should always be valid according to the function itself.
+> **Attention**: the custom function must be self-consistent. That means the output of the function should always be valid according to the function itself.
 
->For instance, the following function is not allowed because it may return an invalid value such as `-0.5`:
+> For instance, the following function is not allowed because it may return an invalid value such as `-0.5`:
 
->``` javascript
-    val => ({ isValid: val > 0, value: val > -1 ? val : 0 });
-```
+> `val => ({ isValid: val > 0, value: val > -1 ? val : 0 });`
 
->IPA won't check the validity of the custom function until the `.mock` method is run and will abort the calculation and throw an error when invalid. So be careful using it.
+> IPA won't check the validity of the custom function until the `.mock` method is run and will abort the calculation and throw an error when invalid. So be careful using it.
 
 **- object**
 
