@@ -1,9 +1,5 @@
 # IPA.js
 
-**fantastic ale beer**
-
-**fantastic API data manager**
-
 - faster developing
 - easier maintaining
 - robuster application
