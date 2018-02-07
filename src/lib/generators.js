@@ -1,3 +1,5 @@
+import dftConf from './defaultConfig.js';
+
 let dict = ['uninited'];
 let min = 0;
 let max = 0;
@@ -26,11 +28,11 @@ export default {
         return dict[getNum(0, dict.length)];
     },
 
-    set(config) {
-        min = config.min;
-        max = config.max;
-        minLen = config.minLen;
-        maxLen = config.maxLen;
-        dict = config.dict;
+    set(config = {}) {
+        min = config.min || dftConf.min;
+        max = config.max || dftConf.max;
+        minLen = config.minLen || dftConf.minLen;
+        maxLen = config.maxLen || dftConf.maxLen;
+        dict = config.dict || dftConf.dict;
     },
 };

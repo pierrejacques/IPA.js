@@ -7,4 +7,4 @@ a = {
 };
 
 console.log(ipa.getConfig(null));
-console.log(ipa)
+console.log(ipa);

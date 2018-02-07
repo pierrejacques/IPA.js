@@ -1,3 +1,5 @@
+import dftConf from './defaultConfig.js';
+
 const fixLength = ({ itemTemplate, targetLength, array, mocker }) => {
     if (array.length > targetLength) {
         array.splice(targetLength);
@@ -37,7 +39,8 @@ const strategies = {
     },
 };
 
-const fixArray = (asset, strategy) => {
+const fixArray = (asset, strategyIn) => {
+    const strategy = strategyIn || dftConf.strategy;
     const cache = asset.cache;
     Object.keys(cache).forEach(para => {
         const item = asset.cache[para]
