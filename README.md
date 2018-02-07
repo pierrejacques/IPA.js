@@ -551,12 +551,6 @@ guarantee tree -->
 
 ## MECHANISM
 
-- Flyweight
-- Singleton
-- Strategy
-
-The above are the three major design patterns implied in IPA. It doesn't matter if you don't have any idea of those words.
-
 ### Flyweight
 Flyweight meaning very light instances. If you take a look, you'll find IPA instances are actually quite light objects. Only none-default configs, template objects and interfaces of `.check`, `.guarantee`, `.mock`, `.setConfig`, `.resetConfig` and `.getConfig`. Everything that's not specified for a single instance is put somewhere else so that the object can be as light as possible.
 
