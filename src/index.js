@@ -19,8 +19,13 @@ export default class IPA {
         return asset.recursions.check(this.template, data);
     }
 
-    guarantee(data) {
-        const dataCopy = data === undefined ? undefined : JSON.parse(JSON.stringify(data));
+    guarantee(data, isDeepCopy = true) {
+        let dataCopy;
+        if (isDeepCopy) {
+            dataCopy = data === undefined ? undefined : JSON.parse(JSON.stringify(data));
+        } else {
+            dataCopy = data;
+        }
         asset.init(this.__config__);
         const output = asset.recursions.guarantee(this.template, dataCopy);
         fixArray(asset, this.__config__.strategy);
@@ -60,7 +65,13 @@ export default class IPA {
         this.__config__ = defaultConfig;
     }
 
-    showConfig() {
-        return JSON.stringify(this.__config__);
+    getConfig(key = null) {
+        if (key === null) {
+            return JSON.parse(JSON.stringify(this.__config__));
+        }
+        if (key === 'dict') {
+            return Object.assign([], this.__config__.dict);
+        }
+        return this.__config__[key];
     }
 }

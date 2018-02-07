@@ -1,3 +1,9 @@
 const IPA = require('../dist/ipa.min.js').default;
-const ipa = new IPA([undefined, 4]);
-console.log(ipa.guarantee([1,'2',{}, true]));
+const ipa = new IPA({ x: Number, y: String });
+
+a = {
+    x: '12',
+    y: 12,
+};
+
+console.log(ipa.getConfig(null));

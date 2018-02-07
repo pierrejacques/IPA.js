@@ -33,31 +33,33 @@
                   \/____/                    \/____/                    \/____/              
 ```
 
-## GET STARTED
-
-### what IPA does
+## WHAT IPA DOES
 IPA.js is an interface data manager. It helps you to check and guarantee your incoming data structure, and generate valid data when developing.
 
-IPA.js can deal with deep object structures:
+It can deal with deep object structures:
 
 <img src="https://github.com/pierrejacques/IPA.js/blob/master/img/deep-object.jpg" width="800" style="margin: auto" />
 
-as well as length-demanded array structures which is common in data visualization cases:
+as well as length-match-demanded structures which is common in data visualization cases:
 
 <img src="https://github.com/pierrejacques/IPA.js/blob/master/img/arr-length.jpg" width="850" style="margin: auto" />
 
-it can even generate data for you following the valid structure:
+Following the valid structure, it can even generate mocking data during developing:
 
 <img src="https://github.com/pierrejacques/IPA.js/blob/master/img/mocking.jpg" width="700" style="margin: auto" />
 
-### why IPA.js
-If you're working on an e2e project or a large-scale application which contains a lot of data flows between modules(e.g Components in MV* frameworks), you can't always be sure that the incoming data of a module/end is of a valid structure. Hand checking the data structure is often tedious, messy and risk-taking. Thus skipping this checking is what people usually do, which may seriously threaten the robustness of your application. Besides, the later maintainers have to check a bunch of files until having an idea on the data structure flowing into a single module.
+## WHY NEEDED
+If you're working on an e2e project or large-scale application which contains a lot of data flows between modules/ends _(e.g Components in MV* frameworks)_, you can't always be sure that the incoming data is of a valid structure. Hand checking the data structure is often tedious, messy and risk-taking especially when the structure is 'deep'. Thus skipping this checking is what people usually do, which may seriously threaten the robustness. Besides, the later maintainers may have no idea on the structure if the incoming data until checking a bunch of codes.
 
-IPA helps to solve the problems above by managing the data structure with **check, guarantee** and **mock** methods. The descriptive object(named as _template object_) helps to explicitly state the incoming data so that the current developpers and future maintainers can quick get an idea on how the data look like.
+IPA.js helps to solve the problems above by managing the data structure with **check, guarantee** and **mock** methods. The _**template object**_ helps to explicitly state the incoming data so that the current developers and future maintainers can quick get an idea on how the data structure looks like.
+
+
+## GET STARTED
 
 ### installation
 
-install with npm
+IPA.js is designed for node.js implementation, install with npm:
+
 ``` shell
 $ npm install --save-dev ipa.js
 ```
@@ -80,7 +82,7 @@ const weekDataTemplate = { // create a template object
 const weekDataIpa = new IPA(weekDataTemplate); // create an IPA instance
 ```
 
-Every instance have three major methods:  _check_, _guarantee_ and _mock_:
+Each instance has three major methods:  _check_, _guarantee_ and _mock_:
 - **check**: checks the validity of the incoming data:
 
 ``` javascript
@@ -98,7 +100,7 @@ weekDataIpa.check({
 - **guarantee**: guarantee to return a valid version of the incoming data:
 
 ``` javascript
-// this configs the length strategy to be shortest (unnecessary)
+// this configs the length strategy to be 'shortest' (unnecessary)
 weekDataIpa.setConfig({ strategy: 'shortest' });
 
 const incomingData = {
@@ -140,7 +142,7 @@ describes a data structure that:
 -  _**x**_ contains numbers while _**y**_ contains strings.
 -  _**x**_ and _**y**_ should have same lengths, which is quite common in data-visualization scenerios.
 
-Initially designed for JSON data checking, IPA currently does **not** support data types that can't be present with JSON well _(e.g Symbol, Set, Map, RegExp etc.)_. The following introduces the six basic strategies for _template object_.
+Initially designed for JSON structure checking, IPA currently does **not** well support data that can't be present in JSON form _(e.g Symbol, Set, Map, RegExp etc.)_. The following introduces the basic strategies for _template object_.
 
 **- required**
 
@@ -214,12 +216,13 @@ obj.mock(); // {} (always)
 arr.mock(); // [] (always)
 ```
 
-The related config keys are:
-- **min** (_Number_, default: 0): the lower bound of `Number` type
-- **max** (_Number_, default: 20): the upper bound of `Number` type
-- **dict** (_Array_, default: a group of Latin words): the dictionary from which the `String` type mocks its value.
+> The related config keys are:
+> - **min** (_Number_, default: 0): the lower bound of `Number` type
+> - **max** (_Number_, default: 20): the upper bound of `Number` type
+> - **dict** (_Array_, default: a group of Latin words): the dictionary from which the `String` type mocks its value.
 
 You may use `.setConfig` method to set those keys for your instance:
+
 ``` javascript
 num.setConfig({ min: -100, max: 100 });
 num.mock(); // -23
@@ -230,37 +233,301 @@ str.mock(); // 'Wed'
 
 **- default**
 Use a JSON-allowed non-object value(other than null) to set the default value of the data/property.
+
 ``` javascript
 const dftNum = new IPA(100);
 const dftStr = new IPA('--');
 ```
 
-The `.check` method returns `wrong` when the data/property has the different type from the default value, which works similar to the **type** strategy.
+The `.check` method returns `wrong` when the data/property has different type from the default value, similar to the **type** strategy.
+
 ``` javascript
 dftNum.check(''); // false
 dftStr.check(0); // false
 ```
 
-The
+The `.guarantee` method returns the default value when invalid. This is **different** from the **type** strategy.
+
+``` javascript
+dtfNum.guarantee(true); // 100
+dftStr.guarantee(0); // '--'
+```
+
+The `.mock` method generates a random value the same type as the default value, similar to the **type** strategy, it's also based on the _generating config_.
+
+``` javascript
+dtfNum.mock(); // 12
+dftStr.mock(); // 'anim'
+```
+**- custom**
+
+As requirements could be various in different situations, it's hard for IPA to cover all the possible strategies. Thus IPA allows users to defined their own strategies by a function which returns an object with two keys: `.isValid` and `.value`.
+
+``` javascript
+const custom = new IPA(val => {
+    const isValid = val >= 0;
+    return {
+        isValid,
+        value: isValid ? val : -val,
+    };
+});
+```
+
+The `.check` method returns the value of `.isValid`.
+
+``` javascript
+custom.check(-1); // false
+custom.check(1); // true
+```
+
+The `.guarantee` method returns the value of `.value` by inputting the original data to the function.
+
+``` javascript
+custom.guarantee(-15); // 15
+custom.guarantee(15); // 15
+```
+
+The `.mock` method returns the value of `.value` by inputting _seed_ to the function.
+
+The _seed_ is a default input for all custom strategies, it's set to `null` by default, you may change it by `.setConfig({ seed: <yourSeed> })`
+
+``` javascript
+custom.setConfig({ seed: '' });
+custom.mock(); // 0
+```
+
+>**Attention**: the custom function must be self-consistent. That means the output of the function should always be valid according to the function itself.
+
+>For instance, the following function is not allowed because it may return an invalid value such as `-0.5`:
+
+>``` javascript
+    val => ({ isValid: val > 0, value: val > -1 ? val : 0 });
+```
+
+>IPA won't check the validity of the custom function until the `.mock` method is run and will abort the calculation and throw an error when invalid. So be careful using it.
 
 **- object**
 
+Naturally use a common object structure to describe the data structure.
+
+``` javascript
+const obj = new IPA({
+    name: String,
+    id: Number,
+    children: {
+        name: String,
+        id: Number,
+    }
+});
+```
+
+The `.check` method will recursively check the object tree, only returns `true` when the whole structure is valid.
+
+``` javascript
+obj.check({
+    name: 'Jessie',
+    id: 1,
+    children: {
+        name: 'Peter',
+        id: '', // invalid
+    }
+}); // false
+```
+
+The `.guarantee` method will recursively guarantee the object tree, returning a valid data structure.
+
+``` javascript
+obj.guarantee({
+    name: 'Jessie',
+    id: 1,
+    children: {
+        name: 'Peter',
+        id: '', // invalid
+    }
+}); // { name: 'Jessie', id: 1, children: { name: 'Peter', id: 0 }}
+```
+
+The `.mock` method recursively mocks along the object tree.
+
+```javascript
+obj.setConfig({ dict: ['Antonius', 'Augustus', 'Marcus', 'Caesar', 'Julius'], min: 1, max: 10 });
+
+obj.mock(); // { name: 'Augustus', id: 3, children: { name: 'Julius', id: 7 }}
+```
+
+> The object strategy has the most obvious logic, it's the basis of the IPA class
 
 **- array**
 
-\* `null` in array
+If you are expecting an array whose items are of various structures _(e.g. `['Peter', 23, { id: 12, children: 'Mark' }]` )_, you have to use the _custom strategy_.
+However if the items of your array are of the same structure, which is a more common case, you may use the first item of the array to describe it.
 
-**- custom**
+``` javascript
+const numArr = new IPA([Number]); // array of numbers
+const strArr = new IPA(['']); // array of Strings
+const objArr = new IPA([Object]); // array of objects
+```
 
+The `.check` method only returns `true` if all the items of the array is valid, **or when the array is empty**.
+``` javascript
+numArr.check([14, 30, '12']); // false
+strArr.check(['Tomi', '']); // true
+objArr.check([{ id: 1 }, { name: 'Peter' }]); // true
 
+numArr.check([]); // true
+strArr.check([]); // true
+objArr.check([]); // true
+```
 
-### check
+The `.guarantee` method recursively guarantees all the items of the array. If the target is not an array, it simply returns `[]`.
+``` javascript
+numArr.guarantee({}); // []
+strArr.guarantee(['Tomi', 12, '']); // ['Tomi', '', '']
+objArr.guarantee([{ id: 1 }, 0]); // [{ id: 1 }, {}]
+```
 
-### guarantee
+The `mock` method mocks a valid-structure array of a random length.
 
-### mock
+``` javascript
+numArr.mock(); // [1, 3, 5, 10, 4, 7, 12, 4, 1, 5]
+```
 
-### setConfig
+>The length randomize method is separated from that of `Number`. You may config it using `.setConfig({ minLen: <minimum length}, maxLen: <maxinum length>)`. The minimum and maxinum lengths are set to 2 and 20 by default.
+
+**-array length**
+
+One powerful function of IPA.js is its length-relationship management. The **array Length** strategy is actually a substrategy of the **array strategy**. We here discuss it separately so that you won't feel confused about it.
+
+Use the second item of the _array template_ to describe the length information of an array. You may use a number to specify a certain length, or use a string to describe an equality relationship. If you don't have any demand on the item structure of the array, you may use either `null` or `undefined` as a placeholder, `null` does **not** represent **required** here.
+
+``` javascript
+const fixNumArr = new IPA([Number, 4]); // a number array of fix length four
+const fixArr = new IPA([null, 10]); // no item-structure demand
+const paraXY = new IPA({
+    x: [Number, 'l'],
+    y: [Number, 'l'],
+});
+const square = new IPA([[Number, 'size'], 'size']); // a square matrix
+const cube = new IPA([[[Number, 'size'], 'size'], 'size']); // a square matrix
+const doubleRelated = new IPA({
+    x: [String, 'len'],
+    series: [{
+        name: String,
+        data: [Number, 'len']
+    }, 'legends'],
+    legend: [String, 'legends']
+}); // meaning .x.length === .series[].data.length && .series.length === .legend.length
+```
+
+The `.check` method returns `true` when all the structure demands and length demands meet.
+
+``` javascript
+fixArr.check([1, 'asd', {}, 10]); // true
+paraXY.check({
+    x: [1,2,3],
+    y: [2,3],
+}); // false
+```
+
+The `.guarantee` method fix the lengths according to the _length strategy_.
+
+> The _length strategy_ defines the processing method when the lengths unmatch. There're 4 optional strategies:
+> - **most(default)**: match the lengths to the most high-frequency length
+> - **shortest**: match the lengths to the shortest length
+> - **longest**: match the lengths to the longest length
+> - **average**: match the lengths to the average length
+> you may use `.setConfig({ strategy: <strategy> })` to set the length matching strategy.
+
+``` javascript
+paraXY.setConfig({ strategy: 'shortest' });
+paraXY.guarantee({
+    x: [1, 2, 3],
+    y: [1, 2, 3, 4]
+}); // { x: [1, 2, 3], y: [1, 2, 3] }
+```
+
+The `.mock` receives a _setting object_ input and returns a valid data according to the _setting object_. The _length object_ has length-describing strings as keys and the corresponding length as values:
+
+``` javascript
+doubleRelated.mock({ len: 5, legends: 2 });
+// {
+//     x: ['ad', 'cillum', 'qui', 'ut', 'magna'],
+//     series: [
+//         {
+//             name: 'sunt',
+//             data: [2, 13, 8, 5, 1],
+//         },
+//         {
+//             name: 'laborum',
+//             data: [17, 5, 6, 12, 10],
+//         }
+//     ],
+//     legends: ['proident', 'sint']
+// }
+
+cube.mock({ size: 2 });
+// [ [ [ 16, 0 ], [ 1, 8 ] ], [ [ 7, 16 ], [ 13, 18 ] ] ]
+```
+
+### methods
+
+So far we've talked about all of the strategies available in _**template object**_ and cover most of the logic within the major methods: `check`, `guarantee` and `mock`.
+
+The following discusses a little details of the methods respectively.
+
+- **check**
+
+The `.check` method is a strict checking method which returns `true` when the incoming data is valid and `false` when not. It does not modify the original data. `.check` is better used when you have the most strict demand on your data structure and tolerate no slight misstakes.
+
+- **guarantee**
+
+By default, the `.guarantee` method does **not** modify the original data. Instead, it creates a deep copy of the original data and validify the copy. By setting the second parameter of the input to `false`, you're able to validify on the original data _(if it's an object)_:
+
+``` javascript
+const ipa = new IPA({
+    num: 12,
+});
+
+data = {
+    num: '12'
+};
+
+data === ipa.guarantee(data); // false
+data === ipa.guarantee(data, false); // true
+```
+
+However, this is strongly **not** recommended because it break the one-way data flow and may cause confusions in future maintaining, especially when you're using IPA between modules.
+
+- **mock**
+
+Mocking is designed to be a developping tool not a production function. It helps you to speed up generating mocking data, however if you use `.mock` methods a lot when developping, you may very likely forget to replace them with the actual production method _(e.g. ajax etc.)_ . A better way to use it when you got a bunch of APIs to mock is to use a central mocking module, even establishing a mocking server to generate data so that your production can be separated from the developing environment. We'll take a further look into this in **'IPA in Component-structure projects'**.
+
+- **setConfig**
+
+`.setConfig` is used as `.setConfig({ <config_key>:<config_value> })`. The following enumerates all the configable keys and their default values:
+
+- **dict**: a list of Latin words
+- **max**: `20`
+- **maxLen**: `20`
+- **min**: `0`
+- **minLen**: `20`
+- **seed:**: `null`
+- **strategy**: `'most'`
+
+If you want to set any _<config_key>_ _(expect for `seed`)_ back to the default value, just set the corresponding _<config_value>_ to be `'default'.`
+``` javascript
+ipaInstance.setConfig({ dict: 'default' }); // set the dict back to default
+```
+
+- **resetConfig**
+
+This resets all your config keys back to their default values, including `seed`.
+
+- **getConfig**
+
+`.getConfig` returns you the certain _config_value_ according to the _config_key_ you provide. If nothing _(or `null`)_ is provided, it returns you the whole config object.
+
+Do notice that the value returned is always a deep copy of the origin value.
 
 ### summary
 
@@ -281,6 +548,7 @@ _array_ |  `[ subtemplate, param ]` | valid when array && all items valid && len
 
 
 ## IPA in Component-structure projects
+> guarantee tree
 
 ## mechanism & performance
 
