@@ -59,20 +59,20 @@ IPA.js通过提供check，guarantee，mock三种方法来帮助解决上述问�
 
 ### 安装
 
-IPA.js专为node工程设计，通过命令行用npm安装它：
+IPA.js为node工程设计，通过命令行用npm安装它：
 
 ``` shell
 $ npm install --save-dev ipa.js
 ```
 
-在你的模块中引入它：
+在模块中引入它：
 
 ``` javascript
 import IPA from 'ipa.js'
 ```
 
 ### 概览
-IPA.js通过提供一个IPA类来实现它的功能，通过一个描述数据结构的 _模板对象（template object）_ 来实例化这个类。
+IPA.js提供一个IPA类来实现它的功能，通过一个描述数据结构的 _模板对象（template object）_ 来实例化这个类。
 
 ``` javascript
 import IPA from 'ipa.js' // 引入IPA类
@@ -101,7 +101,7 @@ weekDataIpa.check({
 }); // false (长度不匹配)
 ```
 
-- **guarantee**: guarantee方法保障传入的数据，并永远返回一个经过最小改动的合法数据结构:
+- **guarantee**: guarantee方法保障传入的数据，并保证返回一个经过最小改动的合法数据结构:
 
 ``` javascript
 // 下行代码把长度策略配置为最短策略 'shortest' (不必须)
