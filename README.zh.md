@@ -115,7 +115,7 @@ const incomingData = {
 weekDataIpa.guarantee(); // {"x":[0.1,0.15],"y":["Mon","Tue"]}
 ```
 
-- **mock**: mock data when developing:
+- **mock**: mock方法可以根据模板对象生成合法的mocking数据:
 
 ``` javascript
 // 自定义字典 (不必须)
@@ -156,7 +156,7 @@ const singleRequired = new IPA(null); // data
 const propertyRequired = new IPA({ x: null }); // property
 ```
 
-The `.check` method returns `false` when the data/property is `undefined`:
+`.check`方法在数据/字段缺失 _（或等于undefined）_ 时返回`false`:
 
 ``` javascript
 singleRequired.check(null); // true
@@ -167,7 +167,10 @@ propertyRequired.check({ x: null }); // true
 propertyRequired.check({ x: undefined }); // false
 ```
 
-The `.guarantee` method returns `null` when the data/property is `undefined`. The `.mock` method also directly returns `null`:
+`.guarantee`方法在数据/字段缺失时返回 _种子(seed)_ ，`.mock`也方法直接返回 _种子(seed)_ :
+
+_种子(seed)_ is a default input for all custom strategies, it's set to `null` by default, you may change it by `.setConfig({ seed: <yourSeed> })`
+
 
 ``` javascript
 singleRequired.guarantee(); // null
@@ -181,7 +184,8 @@ propertyRequired.mock(); // { x: null }
 
 **- type**
 
-Use a JSON-arrowed constructor to represent the valid type of the data/property, which iterally means `Number`, `String`, `Boolean`, `Object` and `Array`.
+用一个JSON合法的构造器来描述一个数据/字段的合法类型，具体来说就是`Number`, `String`, `Boolean`, `Object`和`Array`.
+
 ``` javascript
 const num = new IPA(Number);
 const str = new IPA(String);
@@ -292,8 +296,6 @@ custom.guarantee(15); // 15
 ```
 
 The `.mock` method returns the value of `.value` by inputting _seed_ to the function.
-
-The _seed_ is a default input for all custom strategies, it's set to `null` by default, you may change it by `.setConfig({ seed: <yourSeed> })`
 
 ``` javascript
 custom.setConfig({ seed: '' });

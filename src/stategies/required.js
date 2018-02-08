@@ -5,10 +5,10 @@ export default {
     check(template, data) {
         return data !== undefined;
     },
-    guarantee(template, data) {
-        return this.check(template, data) ? data : this.mock(template);
+    guarantee(template, data, asset) {
+        return this.check(template, data) ? data : asset.seed;
     },
-    mock(template) {
-        return null;
+    mock(template, asset) {
+        return asset.seed;
     },
 };

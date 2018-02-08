@@ -6,6 +6,7 @@
 
 import stategies from '../stategies/index.js';
 import generators from './generators.js';
+import dftConf from './defaultConfig.js';
 
 const asset = {
     generators,
@@ -15,7 +16,10 @@ const asset = {
     init(genConfig, mockConfig = {}) { // flyWeight拼接
         this.generators.set(genConfig);
         this.cache = mockConfig;
-        this.seed = genConfig.seed;
+        this.seed = dftConf.seed;
+        if (genConfig.hasOwnProperty('seed')) {
+            this.seed = genConfig.seed;
+        }
     },
 };
 

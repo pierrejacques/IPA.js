@@ -1,10 +1,9 @@
 const IPA = require('../dist/ipa.min.js').default;
-const ipa = new IPA({ x: Number, y: String });
 
-a = {
-    x: '12',
-    y: 12,
-};
-
-console.log(ipa.getConfig(null));
-console.log(ipa);
+const r = new IPA(val => ({
+    isValid: true,
+    value: val,
+}));
+r.setConfig({ seed: '123' })
+console.log(r.mock())
+console.log(r.guarantee())
