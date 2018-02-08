@@ -1,8 +1,8 @@
 # IPA.js
 
-- 更快开发
-- 更易维护
-- 更鲁棒
+- faster developing
+- easier maintaining
+- robuster application
 
 
 ```
@@ -29,65 +29,57 @@
                   \/____/                    \/____/                    \/____/              
 ```
 
-## IPA是什么
+## WHAT IPA DOES
+IPA.js is an interface data manager. It helps you to check and guarantee your incoming data structure, and generate valid data when developing.
 
-不难发现IPA是API的镜像，不过起这个名字很大程度上也是源于我对印度艾尔啤酒的热爱（IPA，Indian Pale Ale，一种英国啤酒）。
-
-IPA通俗地说是一个接口数据结构验证器，但远不止仅仅的校验，因而称之为管理器。
-
-它可以验证和保障深层的对象结构：
+It can deal with deep object structures:
 
 <img src="https://github.com/pierrejacques/IPA.js/blob/master/img/deep-object.jpg" width="800" style="margin: auto" />
 
-也可以验证对内部数组的长度关系有要求（这类需求在用于可视化的数据中常见）的数据结构：
+as well as length-match-demanded structures which is common in data visualization cases:
 
 <img src="https://github.com/pierrejacques/IPA.js/blob/master/img/arr-length.jpg" width="850" style="margin: auto" />
 
-依照对合法结构的认识，IPA可以自己生成mock数据，一方面方便开发，一方面也可以作为随机发生器：
+Following the valid structure, it can even generate mocking data during developing:
 
 <img src="https://github.com/pierrejacques/IPA.js/blob/master/img/mocking.jpg" width="700" style="margin: auto" />
 
-## 为什么需要IPA
+## WHY NEEDED
+If you're working on an e2e project or large-scale application which contains a lot of data flows between modules/ends _(e.g Components in MV* frameworks)_, you can't always be sure that the incoming data is of a valid structure. Hand checking the data structure is often tedious, messy and risk-taking especially when the structure is 'deep'. Thus skipping this checking is what people usually do, which may seriously threaten the robustness. Besides, the later maintainers may have no idea on the structure if the incoming data until checking a bunch of codes.
 
-如果你在开发/维护一个端对端的项目或是一个具有复杂模块层级的大型应用，你无法保证流入一个模块/组件/端的数据总是具有合法结构的。对于较为复杂的数据结构，手动校验每个层次和类型往往费事、易错且会大大降低代码的可阅读性。因而很多时候人们干脆略过这道检查转而选择信任上游模块/组件，不用说这其实是很危险的。尤其对于一些对输入数据要求严格的可视化数据，可能直接会报错。
+IPA.js helps to solve the problems above by managing the data structure with **check, guarantee** and **mock** methods. The _**template object**_ helps to explicitly state the incoming data so that the current developers and future maintainers can quick get an idea on how the data structure looks like.
 
-除此之外，常规的js模块代码对传来的数据结构和类型往往没有显式的声明，这提高了后来的维护者理解和维护的成本和犯错的概率。
 
-IPA.js通过提供check，guarantee，mock三种方法来帮助解决上述问题。而用于创建IPA实例的 _模板对象（template object）_ 显式地声明了传入的数据的结构类型，帮助开发者和未来维护者无需阅读上游模块的代码就能掌握数据结构的全部信息。
+## GET STARTED
 
-## 开始使用
+### installation
 
-### 安装
-
-IPA.js专为node工程设计，通过命令行用npm安装它：
+IPA.js is designed for node.js implementation, install with npm:
 
 ``` shell
 $ npm install --save-dev ipa.js
 ```
-
-在你的模块中引入它：
-
+import in your project files
 ``` javascript
 import IPA from 'ipa.js'
 ```
 
-### 概览
-IPA.js通过提供一个IPA类来实现它的功能，通过一个描述数据结构的 _模板对象（template object）_ 来实例化这个类。
+### overview
+IPA.js provides an _**IPA class**_ to realize its functions. Its instances are created using _**template object**_ which describes the valid structure of the incoming data.
 
 ``` javascript
-import IPA from 'ipa.js' // 引入IPA类
+import IPA from 'ipa.js' // import class IPA
 
-const weekDataTemplate = { // 创建一个模板对象
+const weekDataTemplate = { // create a template object
     x: [Number, 'l'],
     y: [String, 'l'],
 };
 
-const weekDataIpa = new IPA(weekDataTemplate); // 实例化
+const weekDataIpa = new IPA(weekDataTemplate); // create an IPA instance
 ```
 
-每个实例拥有 _check_, _guarantee_ 和 _mock_ 三个方法:
-
-- **check**: check方法验证传入数据的合法性:
+Each instance has three major methods:  _check_, _guarantee_ and _mock_:
+- **check**: checks the validity of the incoming data:
 
 ``` javascript
 weekDataIpa.check({
@@ -98,13 +90,13 @@ weekDataIpa.check({
 weekDataIpa.check({
     x: [0.1, 0.15, 0.07],
     y: ['Mon'],
-}); // false (长度不匹配)
+}); // false (length unmatched)
 ```
 
-- **guarantee**: guarantee方法保障传入的数据，并永远返回一个经过最小改动的合法数据结构:
+- **guarantee**: guarantee to return a valid version of the incoming data:
 
 ``` javascript
-// 下行代码把长度策略配置为最短策略 'shortest' (不必须)
+// this configs the length strategy to be 'shortest' (unnecessary)
 weekDataIpa.setConfig({ strategy: 'shortest' });
 
 const incomingData = {
@@ -115,48 +107,49 @@ const incomingData = {
 weekDataIpa.guarantee(); // {"x":[0.1,0.15],"y":["Mon","Tue"]}
 ```
 
-- **mock**: mock方法可以根据模板对象生成合法的mocking数据:
+- **mock**: mock data when developing:
 
 ``` javascript
-// 自定义字典 (不必须)
+// config the mocking dictionary (unnecessary)
 weekDataIpa.setConfig({ dict: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri'] });
 
 weekDataIpa.mock() // {"x":[2,5,3,5,15,17],"y":["Thu","Tue","Tue","Thu","Fri","Wed"]}
 
-// 把‘l’所指代的长度固定为2
+// fix the length param 'l' to constant 2
 weekDataIpa.mock({ l: 2 }); // {"x":[8,17],"y":["Fri","Mon"]}
 ```
 
-实例的行为可以通过 _setConfig_ 和 _getConfig_ 方法来配置.
+The behaviour of the instance can be set and get using methods _setConfig_ and _getConfig_.
 
-### 模板对象 _（template object）_
-模板对象是掌握IPA用法的核心，它用于描述一个数据应有的结构，例如下面的模板：
+### template object
+The _**template object**_ describes the structure of the data.
 
+For example:
 ``` javascript
 {
     x: [Number, 'l'],
     y: [String, 'l'],
 }
 ```
-描述了符合如下几条规则的数据结构:
+describes a data structure that:
 
--  数据应该是一个常规对象，它应有名为 _**x**_ 和 _**y**_ 的两个属性.
--  属性 _**x**_ 和 _**y**_ 都是数组.
--  _**x**_ 是一个数字数组， _**y**_ 是一个字符串数组.
--  _**x**_ 和 _**y**_ 应该总是具有相等的长度，这个长度用`'l'`标记.
+-  should be a plain object who has properties named _**x**_ and _**y**_.
+-  Both _**x**_ and _**y**_ are arrays.
+-  _**x**_ contains numbers while _**y**_ contains strings.
+-  _**x**_ and _**y**_ should have same lengths, which is quite common in data-visualization scenerios.
 
-由于IPA本意是为了验证JSON数据结构设计的，它目前对无法表示称JSON格式的数据类型的支持欠佳 _(例如 Symbol, Set, Map, RegExp 等.)_. 下面介绍模板对象的基本写法，这些x写法被分为几类，每类称为一个策略：
+Initially designed for JSON structure checking, IPA currently does **not** well support data that can't be present in JSON form _(e.g Symbol, Set, Map, RegExp etc.)_. The following introduces the basic strategies for _template object_.
 
-**- 必填策略**
+**- required**
 
-用 `null` 来表述一个必填的数据/字段.
+Use `null` to represent required data/property.
 
 ``` javascript
 const singleRequired = new IPA(null); // data
 const propertyRequired = new IPA({ x: null }); // property
 ```
 
-`.check`方法在数据/字段缺失 _（或等于undefined）_ 时返回`false`:
+The `.check` method returns `false` when the data/property is `undefined`:
 
 ``` javascript
 singleRequired.check(null); // true
@@ -167,10 +160,7 @@ propertyRequired.check({ x: null }); // true
 propertyRequired.check({ x: undefined }); // false
 ```
 
-`.guarantee`方法在数据/字段缺失时返回 _种子(seed)_ ，`.mock`也方法直接返回 _种子(seed)_ :
-
-_种子(seed)_ is a default input for all custom strategies, it's set to `null` by default, you may change it by `.setConfig({ seed: <yourSeed> })`
-
+The `.guarantee` method returns `null` when the data/property is `undefined`. The `.mock` method also directly returns `null`:
 
 ``` javascript
 singleRequired.guarantee(); // null
@@ -184,8 +174,7 @@ propertyRequired.mock(); // { x: null }
 
 **- type**
 
-用一个JSON合法的构造器来描述一个数据/字段的合法类型，具体来说就是`Number`, `String`, `Boolean`, `Object`和`Array`.
-
+Use a JSON-arrowed constructor to represent the valid type of the data/property, which iterally means `Number`, `String`, `Boolean`, `Object` and `Array`.
 ``` javascript
 const num = new IPA(Number);
 const str = new IPA(String);
@@ -194,7 +183,7 @@ const obj = new IPA(Object);
 const arr = new IPA(Array);
 ```
 
-The `.check` method returns `wrong` when the data/property has wrong type.
+The `.check` method returns `false` when the data/property has wrong type.
 
 ``` javascript
 num.check(''); // false
@@ -247,7 +236,7 @@ const dftNum = new IPA(100);
 const dftStr = new IPA('--');
 ```
 
-The `.check` method returns `wrong` when the data/property has different type from the default value, similar to the **type** strategy.
+The `.check` method returns `false` when the data/property has different type from the default value, similar to the **type** strategy.
 
 ``` javascript
 dftNum.check(''); // false
@@ -297,18 +286,20 @@ custom.guarantee(15); // 15
 
 The `.mock` method returns the value of `.value` by inputting _seed_ to the function.
 
+The _seed_ is a default input for all custom strategies, it's set to `null` by default, you may change it by `.setConfig({ seed: <yourSeed> })`
+
 ``` javascript
 custom.setConfig({ seed: '' });
 custom.mock(); // 0
 ```
 
->**Attention**: the custom function must be self-consistent. That means the output of the function should always be valid according to the function itself.
+> **Attention**: the custom function must be self-consistent. That means the output of the function should always be valid according to the function itself.
 
->For instance, the following function is not allowed because it may return an invalid value such as `-0.5`:
+> For instance, the following function is not allowed because it may return an invalid value such as `-0.5`:
 
->`val => ({ isValid: val > 0, value: val > -1 ? val : 0 });`
+> `val => ({ isValid: val > 0, value: val > -1 ? val : 0 });`
 
->IPA won't check the validity of the custom function until the `.mock` method is run and will abort the calculation and throw an error when invalid. So be careful using it.
+> IPA won't check the validity of the custom function until the `.mock` method is run and will abort the calculation and throw an error when invalid. So be careful using it.
 
 **- object**
 
@@ -396,7 +387,7 @@ The `mock` method mocks a valid-structure array of a random length.
 numArr.mock(); // [1, 3, 5, 10, 4, 7, 12, 4, 1, 5]
 ```
 
->The length randomize method is separated from that of `Number`. You may config it using `.setConfig({ minLen: <minimum length}, maxLen: <maxinum length>)`. The minimum and maxinum lengths are set to 2 and 20 by default.
+>The length randomize method is separated from that of `Number`. You may config it using `.setConfig({ minLen: <minimum length>}, maxLen: <maxinum length>)`. The minimum and maxinum lengths are set to 2 and 20 by default.
 
 **- array length**
 
@@ -410,9 +401,9 @@ const fixArr = new IPA([null, 10]); // no item-structure demand
 const paraXY = new IPA({
     x: [Number, 'l'],
     y: [Number, 'l'],
-});
+}); // an object with two same-length number arrays as properties
 const square = new IPA([[Number, 'size'], 'size']); // a square matrix
-const cube = new IPA([[[Number, 'size'], 'size'], 'size']); // a square matrix
+const cube = new IPA([[[Number, 'size'], 'size'], 'size']); // a cube
 const doubleRelated = new IPA({
     x: [String, 'len'],
     series: [{
@@ -433,7 +424,7 @@ paraXY.check({
 }); // false
 ```
 
-The `.guarantee` method fix the lengths according to the _length strategy_.
+The `.guarantee` method fix the lengths according to the _length strategy_. The `.pop` method is called if the length requires diminution. If the length requires enlargement the `.guarantee` method is recursively called on it's new items.
 
 > The _length strategy_ defines the processing method when the lengths unmatch. There're 4 optional strategies:
 > - **most(default)**: match the lengths to the most high-frequency length
@@ -476,12 +467,12 @@ The following table shows a summary of all the strategies of the _**template obj
 
  name | template | check  | guarantee  | mock  
 --|---|---|---|---
-_required_  |  `null` | invalid when undefined | mock when invalid  | return null   
-_type_ |   JSON-allowed constructors\* | invalid when wrong type | mock when invalid | return random valid value    
+_required_  |  `null` | invalid when undefined | return **seed**  | return **seed**
+_type_ |   JSON-allowed constructors\* | invalid when wrong type | return common value when valid | return random valid value    
 _default_ |  JSON-allowed value** | invalid when wrong type  | return default when invalid  | return value with valid type    
  _custom_ | `val => ({ isValid, value })` |judge by `.isValid` | return `.value` when invalid  | return `.value` by inputting **seed**
-_object_  |  `{ keys:subtemplates }` | valid when object && keys all valid | return {} when not object && recursively guarantee its keys | return {} and recursively mock its keys  
-_array_ |  `[ subtemplate, length ]` | valid when array && all items valid && length matches | return [] when not array && guarantee its items && fix the length by **strategy** | return [] && recursively mock its items && match its length by **strategy**
+_object_  |  `{ keys:subtemplates }` | valid when object && keys all valid | return `{}` when not object && recursively guarantee its keys | return `{}` and recursively mock its keys  
+_array_ |  `[ subtemplate, length ]` | valid when array && all items valid && length matches | return `[]` when not array && guarantee its items && fix the length by **strategy** | return `[]` && recursively mock its items && match its length by **strategy**
 
 \* `Number`, `String`, `Boolean`, `Array`, `Object`.
 
@@ -534,7 +525,7 @@ Mocking is designed to be a developping tool not a production function. It helps
 - **seed:**: `null`
 - **strategy**: `'most'`
 
-If you want to set any _<config_key>_ _(expect for `seed`)_ back to the default value, just set the corresponding _<config_value>_ to be `'default'.`
+If you want to set any _<config_key>_ _(expect for `seed`)_ back to the default value, just set the corresponding _<config_value>_ to be `'default'`.
 ``` javascript
 ipaInstance.setConfig({ dict: 'default' }); // set the dict back to default
 ```
@@ -545,7 +536,7 @@ This resets all your config keys back to their default values, including `seed`.
 
 **- getConfig**
 
-`.getConfig` returns you the certain _config_value_ according to the _config_key_ you provide. If nothing _(or `null`)_ is provided, it returns you the whole config object.
+`.getConfig` returns you the certain _config\_value_ according to the _config_key_ you provide. If nothing _(or `null`)_ is provided, it returns you the whole config object.
 
 Do notice that the value returned is always a deep copy of the origin value.
 
