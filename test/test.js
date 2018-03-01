@@ -31,14 +31,16 @@ const testers = {
         describe(testCase.name, () => {
             it(`should guarantee without error`, () => {
                 const data = testCase.data;
-                const output = instance.guarantee(data);
-                expect(instance.check(output)).to.be.equal(true);
+                let output;
                 if (testCase.valid === true) {
                     expect(instance.check(data)).to.be.equal(true);
+                    output = instance.guarantee(data);
                     expect(JSON.stringify(output)).to.be.equal(JSON.stringify(data));
                 } else {
                     expect(instance.check(data)).to.be.equal(false);
+                    output = instance.guarantee(data);
                 }
+                expect(instance.check(output)).to.be.equal(true);
             });
         })
     },

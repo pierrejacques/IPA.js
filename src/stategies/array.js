@@ -1,12 +1,12 @@
 import { fixLength } from '../lib/fixers.js';
-import { isArray } from '../type/index.js';
+import { isArray, isInteger } from '../type/index.js';
 
 function isValidLength(template, data, cache) {
     const para = template[1];
     if (para === undefined) {
         return true;
     }
-    if (typeof para === 'number' && data.length !== para) {
+    if (isInteger(para) && data.length !== para) {
         return false;
     }
     if (typeof para === 'string') {
@@ -51,7 +51,9 @@ export default {
         const retData = isArray(data) ? data : [];
         const para = template[1];
         if (para !== undefined) {
-            if (para.__proto__ === Number.prototype && retData.length !== para) {
+            console.log(para);
+            console.log(data);
+            if (isInteger(para) && retData.length !== para) {
                 fixLength({
                     itemTemplate: template[0],
                     targetLength: para,

@@ -1,4 +1,4 @@
-# IPA.js
+# IPA.js runtime interface checker
 
 - faster developing
 - easier maintaining

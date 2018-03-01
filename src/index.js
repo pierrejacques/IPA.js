@@ -20,7 +20,7 @@ export default class IPA {
         return asset.recursions.check(this.template, data);
     }
 
-    guarantee(data, copy = false) {
+    guarantee(data, copy = true) {
         let dataCopy = data;
         if (copy && isArray(data)) {
             dataCopy = data.slice();
