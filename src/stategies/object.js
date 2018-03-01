@@ -1,6 +1,4 @@
-function isObject(val) {
-    return Object.prototype.toString.call(val) === '[object Object]';
-}
+import { isObject } from '../type/index.js';
 
 export default {
     condition(template) {

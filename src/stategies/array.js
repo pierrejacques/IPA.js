@@ -1,8 +1,5 @@
 import { fixLength } from '../lib/fixers.js';
-
-function isArray(val) {
-    return Object.prototype.toString.call(val) === '[object Array]';
-}
+import { isArray } from '../type/index.js';
 
 function isValidLength(template, data, cache) {
     const para = template[1];

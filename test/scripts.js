@@ -1,4 +1,4 @@
-const IPA = require('../dist/ipa.min.js').default;
+const IPA = require('../dist/ipa.min.js');
 
 const r = new IPA(val => ({
     isValid: true,
