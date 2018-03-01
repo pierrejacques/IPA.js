@@ -6,6 +6,7 @@ import configChecker from './lib/configChecker.js';
 import asset from './lib/asset.js';
 import { fixArray } from './lib/fixers.js';
 import dftConf from './lib/defaultConfig.js';
+import { isArray, isObject } from './type/index.js';
 
 export default class IPA {
     constructor(template) {
@@ -19,12 +20,13 @@ export default class IPA {
         return asset.recursions.check(this.template, data);
     }
 
-    guarantee(data, isDeepCopy = true) {
-        let dataCopy;
-        if (isDeepCopy) {
-            dataCopy = data === undefined ? undefined : JSON.parse(JSON.stringify(data));
-        } else {
-            dataCopy = data;
+    guarantee(data, copy = false) {
+        let dataCopy = data;
+        if (copy && isArray(data)) {
+            dataCopy = data.slice();
+        }
+        if (copy && isObject(data)) {
+            dataCopy = Object.assign({}, data);
         }
         asset.init(this.__config__);
         const output = asset.recursions.guarantee(this.template, dataCopy);
