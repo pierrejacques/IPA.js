@@ -48,10 +48,10 @@ const testers = {
         const time = testCase.time || 1;
         describe(testCase.name, () => {
             it(`should mock without error`, () => {
-                for (let i = 0; i < time; i++) {
+                Array.apply(null, { length: time}).forEach((item, idx) => {
                     const mockData = instance.mock(testCase.data);
                     expect(instance.check(mockData)).to.be.equal(true);
-                }
+                });
             });
         });
     },

@@ -1,5 +1,5 @@
 import { fixLength } from '../lib/fixers.js';
-import { isArray, isInteger } from '../type/index.js';
+import { isArray, isInteger, isType } from '../type/index.js';
 
 function isValidLength(template, data, cache) {
     const para = template[1];
@@ -51,8 +51,6 @@ export default {
         const retData = isArray(data) ? data : [];
         const para = template[1];
         if (para !== undefined) {
-            console.log(para);
-            console.log(data);
             if (isInteger(para) && retData.length !== para) {
                 fixLength({
                     itemTemplate: template[0],
@@ -61,7 +59,7 @@ export default {
                     mocker: asset.recursions.guarantee,
                 });
             }
-            if (para.__proto__ === String.prototype) {
+            if (isType(para, String)) {
                 if (asset.cache[para] === undefined) {
                     asset.cache[para] = [];
                 }

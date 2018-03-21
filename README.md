@@ -266,7 +266,7 @@ dftStr.mock(); // 'anim'
 ```
 **- 自定义策略**
 
-由于实际应用中的需求多样性，IPA难以覆盖到所有的验证策略。故IPA允许用户通过一个函数自定义策略。该函数必须返回一个带有`.isValid`和`.value`的对象。
+由于实际应用中的需求多样性，IPA难以覆盖到所有的验证策略。故IPA允许用户通过一个函数自定义策略。该函数必须返回一个带有`isValid`和`value`属性的对象。
 
 ``` javascript
 const custom = new IPA(val => {
@@ -278,21 +278,21 @@ const custom = new IPA(val => {
 });
 ```
 
-`.check`方法返回自定义函数执行结果的`.isValid`字段.
+`.check`方法返回自定义函数执行结果的`isValid`字段.
 
 ``` javascript
 custom.check(-1); // false
 custom.check(1); // true
 ```
 
-`.guarantee`返回自定义函数执行结果的`.value`字段.
+`.guarantee`返回自定义函数执行结果的`value`字段.
 
 ``` javascript
 custom.guarantee(-15); // 15
 custom.guarantee(15); // 15
 ```
 
-`.mock`以 _种子_ 作为自定义函数的输入，返回结果`.value`字段。
+`.mock`以 _种子_ 作为自定义函数的输入，返回结果`value`字段。
 
 ``` javascript
 custom.setConfig({ seed: '' });
@@ -547,7 +547,7 @@ data === ipa.guarantee(data, false); // true
 - **maxLen**: `20`
 - **min**: `0`
 - **minLen**: `20`
-- **seed:**: `null`
+- **seed**: `null`
 - **strategy**: `'most'`
 
 如果你想把一个配置项的值恢复到默认值，只需输入`'default'`即可。

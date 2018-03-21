@@ -1,7 +1,7 @@
-import { isArray } from '../type/index.js';
+import { isArray, isType } from '../type/index.js';
 
 function isValidNumber(val) {
-    return val === undefined || val === 'default' || val.__proto__ === Number.prototype;
+    return val === undefined || val === 'default' || isType(val, Number);
 }
 
 function isValidDict(val) {
@@ -9,21 +9,20 @@ function isValidDict(val) {
     if (!isArray(val)) return false;
     let ret = true;
     val.forEach((item) => {
-        ret = ret && item.__proto__ === String.prototype;
+        ret = ret && isType(item, String);
     });
     return ret;
 }
 
 function isValidStrategy(val) {
-    const set = new Set([
+    return new Set([
         undefined,
         'default',
         'most',
         'shortest',
         'longest',
         'average',
-    ]);
-    return set.has(val);
+    ]).has(val);
 }
 
 export default (config) => {
