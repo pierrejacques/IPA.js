@@ -1,5 +1,6 @@
 import { 
-    isFunctionisString,
+    isFunction,
+    isString,
     isNumber,
     isBoolean,
     isArray,
@@ -43,7 +44,9 @@ export default {
         return isFunction(template);
     },
     execute(template) {
-        if (presetClasses.has(template)) return class2function(presetClasses.get(template));
+        if (presetClasses.has(template)) {
+            return class2function(presetClasses.get(template));
+        }
         return template;
     },
 };

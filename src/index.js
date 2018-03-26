@@ -14,9 +14,6 @@ export default class IPA {
         this.template = template;
         this.__config__ = {};
         asset.init(this.__config__);
-        if (compile.condition(template)) {
-            compile.compile();
-        }
     }
 
     check(data) {

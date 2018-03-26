@@ -4,3 +4,4 @@ img/
 *.jpg
 *.sketch
 bug.log.md
+yarn-error.log
