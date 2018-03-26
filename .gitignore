@@ -1,3 +1,6 @@
-node_modules/*
-dist/*
+node_modules/
+dist/
+img/
+*.jpg
 *.sketch
+bug.log.md
