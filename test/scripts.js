@@ -1,4 +1,4 @@
-const IPA = require('../dist/ipa.min.js');
+const IPA = require('../dist/ipa.js');
 
 // 先来个玩耍性质的
 const string = new IPA(String);

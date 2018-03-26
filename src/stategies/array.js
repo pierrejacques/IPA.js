@@ -1,12 +1,12 @@
 import { fixLength } from '../lib/fixers.js';
-import { isArray, isInteger, isType } from '../type/index.js';
+import { isArray, isLength, isString } from 'lodash';
 
 function isValidLength(template, data, cache) {
     const para = template[1];
     if (para === undefined) {
         return true;
     }
-    if (isInteger(para) && data.length !== para) {
+    if (isLength(para) && data.length !== para) {
         return false;
     }
     if (typeof para === 'string') {
@@ -51,7 +51,7 @@ export default {
         const retData = isArray(data) ? data : [];
         const para = template[1];
         if (para !== undefined) {
-            if (isInteger(para) && retData.length !== para) {
+            if (isLength(para) && retData.length !== para) {
                 fixLength({
                     itemTemplate: template[0],
                     targetLength: para,
@@ -59,7 +59,7 @@ export default {
                     mocker: asset.recursions.guarantee,
                 });
             }
-            if (isType(para, String)) {
+            if (isString(para)) {
                 if (asset.cache[para] === undefined) {
                     asset.cache[para] = [];
                 }

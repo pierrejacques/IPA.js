@@ -1,8 +1,12 @@
-import { isObject } from '../type/index.js';
+import { isPlainObject } from 'lodash';
 
 export default {
     condition(template) {
-        return typeof template === 'function' && template !== String && template !== Number && template !== Boolean && !isObject(template);
+        return typeof template === 'function' && 
+            template !== String && 
+            template !== Number && 
+            template !== Boolean && 
+            !isPlainObject(template);
     },
     check(template, data) {
         return template(data).isValid;

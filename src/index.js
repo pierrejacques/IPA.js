@@ -2,11 +2,11 @@
 // its instance only provides template, config and interfaces
 // its major functions mostly depend on outer singleton objects
 
+import { isArray, isPlainObject } from 'lodash';
 import configChecker from './lib/configChecker.js';
 import asset from './lib/asset.js';
 import { fixArray } from './lib/fixers.js';
 import dftConf from './lib/defaultConfig.js';
-import { isArray, isObject } from './type/index.js';
 
 export default class IPA {
     constructor(template) {
@@ -25,7 +25,7 @@ export default class IPA {
         if (copy && isArray(data)) {
             dataCopy = data.slice();
         }
-        if (copy && isObject(data)) {
+        if (copy && isPlainObject(data)) {
             dataCopy = Object.assign({}, data);
         }
         asset.init(this.__config__);

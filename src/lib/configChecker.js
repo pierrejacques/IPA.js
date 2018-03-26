@@ -1,7 +1,7 @@
-import { isArray, isType } from '../type/index.js';
+import { isArray, isNumber, isString } from 'lodash';
 
 function isValidNumber(val) {
-    return val === undefined || val === 'default' || isType(val, Number);
+    return val === undefined || val === 'default' || isNumber(val);
 }
 
 function isValidDict(val) {
@@ -9,7 +9,7 @@ function isValidDict(val) {
     if (!isArray(val)) return false;
     let ret = true;
     val.forEach((item) => {
-        ret = ret && isType(item, String);
+        ret = ret && isString(item);
     });
     return ret;
 }

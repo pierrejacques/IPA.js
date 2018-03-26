@@ -1,11 +1,11 @@
-import { isObject } from '../type/index.js';
+import { isPlainObject } from 'lodash';
 
 export default {
     condition(template) {
-        return isObject(template);
+        return isPlainObject(template);
     },
     check(template, data, asset) {
-        if (!isObject(data)) {
+        if (!isPlainObject(data)) {
             return false;
         }
         let ret = true;
@@ -15,7 +15,7 @@ export default {
         return ret;
     },
     guarantee(template, data, asset) {
-        const retData = isObject(data) ? data : {};
+        const retData = isPlainObject(data) ? data : {};
         Object.keys(template).forEach((key) => {
             retData[key] = asset.recursions.guarantee(template[key], retData[key]);
         });
