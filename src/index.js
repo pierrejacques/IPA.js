@@ -7,12 +7,16 @@ import configChecker from './lib/configChecker.js';
 import asset from './lib/asset.js';
 import { fixArray } from './lib/fixers.js';
 import dftConf from './lib/defaultConfig.js';
+import compile from './compile/function.js';
 
 export default class IPA {
     constructor(template) {
         this.template = template;
         this.__config__ = {};
         asset.init(this.__config__);
+        if (compile.condition(template)) {
+            compile.compile();
+        }
     }
 
     check(data) {
