@@ -1,12 +1,7 @@
-import { isInteger } from 'lodash';
+import { isInteger, random } from 'lodash';
 
-export default (val) => {
-    const isValid = isInteger(val);
-    return {
-        isValid,
-        value: isValid ? val : 0,
-        generator() {
-            return 0; // TODO: 整型构造器
-        },
-    }
-}
+export default () => ({
+    check: isInteger,
+    guarantee: val => isInteger ? val : 0,
+    mock: () => random(0, 1000),
+});

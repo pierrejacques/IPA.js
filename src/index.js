@@ -3,22 +3,24 @@
 // its major functions mostly depend on outer singleton objects
 
 import { isArray, isPlainObject } from 'lodash';
-import configChecker from './lib/configChecker.js';
-import asset from './lib/asset.js';
-import { fixArray } from './lib/fixers.js';
-import dftConf from './lib/defaultConfig.js';
-import compile from './compile/function.js';
+import configChecker from './lib/configChecker';
+import asset from './lib/asset';
+import { fixArray } from './lib/fixers';
+import dftConf from './lib/defaultConfig';
+import compile from './compile/index';
+import templateSymbol from './lib/symbol';
 
 export default class IPA {
     constructor(template) {
-        this.template = template;
+        this[templateSymbol] = compile(template);
         this.__config__ = {};
         asset.init(this.__config__);
     }
 
+
     check(data) {
         asset.init(this.__config__);
-        return asset.recursions.check(this.template, data);
+        return asset.recursions.check(this[templateSymbol], data);
     }
 
     guarantee(data, copy = true) {
@@ -30,7 +32,7 @@ export default class IPA {
             dataCopy = Object.assign({}, data);
         }
         asset.init(this.__config__);
-        const output = asset.recursions.guarantee(this.template, dataCopy);
+        const output = asset.recursions.guarantee(this[templateSymbol], dataCopy);
         fixArray(asset, this.__config__.strategy);
         return output;
     }
@@ -40,7 +42,7 @@ export default class IPA {
             throw new Error('Config Object syntax Error');
         }
         asset.init(this.__config__, paraSettings);
-        return asset.recursions.mock(this.template);
+        return asset.recursions.mock(this[templateSymbol]);
     }
 
     setConfig(config = {}) {
