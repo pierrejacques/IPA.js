@@ -19,6 +19,9 @@ export default {
                     val.forEach(item => {
                         result = result && compiled.check(item);
                     });
+                    if (l) {
+                        cache.push(l, val.length);
+                    }
                     return result;
                 },
                 guarantee(val_in) {
@@ -27,7 +30,7 @@ export default {
                         val[idx] = compiled.guarantee(item);
                     });
                     if (l) {
-                        cache.add(l, {
+                        cache.push(l, {
                             target: val,
                             mocker: compiled.mock,
                         });

@@ -2,6 +2,7 @@ import { isArray, isPlainObject, cloneDeep } from 'lodash';
 import cache from './lib/Cache';
 import templateSymbol from './lib/symbol';
 import fixArray from './lib/fixArray';
+import checkLength from './lib/checkLength';
 import compile from './compile/index';
 import publics from './public/index';
 
@@ -12,7 +13,9 @@ class IPA {
     }
 
     check(data) {
-        return this[templateSymbol].check(data);
+        const output = this[templateSymbol].check(data) && checkLength();
+        cache.reset();
+        return output;
     }
 
     guarantee(data, isCopy = true) {

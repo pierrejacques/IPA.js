@@ -19,13 +19,6 @@ const rowsIpa = new IPA([{
     }, 'c'],
 }, 'r']);
 
-rowsIpa.setConfig({
-    max: 4,
-    min: 1,
-    minLen: 1,
-    maxLen: 3,
-});
-
 console.log(rowsIpa)
 
 console.log(rowsIpa.mock());

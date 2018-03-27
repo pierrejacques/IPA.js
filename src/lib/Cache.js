@@ -7,12 +7,11 @@ class Cache {
         this[cacheSymbol] = new Map();
     }
 
-    add(name, item) {
+    push(name, item) {
         if (!isArray(this[cacheSymbol][name])) {
             this[cacheSymbol].set(name, []);
         }
         this[cacheSymbol].get(name).push(item);
-        console.log(this[cacheSymbol])
     }
 
     set(name, value) {

@@ -6,7 +6,7 @@ export default {
         return () => ({
             check: isBoolean,
             guarantee: v => isBoolean(v) ? v : template,
-            mock: !random(0, 1),
+            mock: () => !random(0, 1),
         })
     }
 }

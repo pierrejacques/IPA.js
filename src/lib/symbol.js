@@ -1,1 +1,1 @@
-export default Symbol('template');
+export default Symbol('IPA_core');
