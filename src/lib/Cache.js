@@ -29,6 +29,13 @@ class Cache {
     reset() {
         this[cacheSymbol].clear;
     }
+
+    digest(settings) {
+        this.reset();
+        Object.keys(settings).forEach(key => {
+            this.set(key, settings[key]);
+        });
+    }
 }
 
 export default new Cache();

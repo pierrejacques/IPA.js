@@ -8,6 +8,7 @@ import publics from './public/index';
 class IPA {
     constructor(template) {
         this[templateSymbol] = compile(template);
+        this.strategy = 'shortest';
     }
 
     check(data) {
@@ -26,9 +27,7 @@ class IPA {
         if (!isPlainObject(settings)) {
             throw new Error('mocking setting should be a plain object');
         }
-        Object.keys(settings).forEach(key => {
-            cache.set(key, settings[key]);
-        });
+        cache.digest(settings);
         const output = this[templateSymbol].mock();
         cache.reset();
         return output;
