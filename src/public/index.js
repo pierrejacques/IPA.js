@@ -4,6 +4,7 @@ import Integer from './Integer';
 import or from './or';
 import Range from './Range';
 import Each from './Each';
+import Enum from './Enum';
 
 export default {
     asClass,
@@ -12,4 +13,5 @@ export default {
     or,
     Range,
     Each,
+    Enum,
 };
