@@ -133,27 +133,5 @@ module.exports = [
             method: 'mock',
             time: 10,
         }]
-    },
-    {
-        name: 'valid custom mock',
-        template(value) {
-            if (value >= 1) {
-                return {
-                    isValid: true,
-                    value
-                };
-            }
-            return {
-                isValid: false,
-                value: 1,
-            }
-        },
-        cases: [{
-            name: 'should mock without error',
-            data: {},
-            method: 'mock',
-            time: 1,
-        }]
-    },
-    
+    }
 ];

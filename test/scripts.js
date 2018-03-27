@@ -1,18 +1,26 @@
 const IPA = require('../dist/ipa.js');
+const { Enum } = IPA;
 
-const ipa = new IPA({
-    x: [0, 'l'],
-    y: ['', 'l'],
-    z: Boolean,
-});
+// class Person {
+//     constructor(name) {
+//         if (name === undefined) {
+//             throw new Error('asd');
+//         }
+//         this.name = name;
+//     }
 
-console.log(ipa.guarantee({
-    x: [1, 2],
-    y: ['1', '2'],
-}));
+//     show() {
+//         console.log(this.name);
+//     }
+// }
 
-console.log(ipa.guarantee({
-    x: [],
-    y: [],
-    z: true,
-}));
+// const p1 = new Person('Jack');
+// const p2 = {
+//     name: 'Johnson',
+// };
+
+// const personChecker = new IPA(asClass(Person, 'John'));
+
+// console.log(personChecker.mock());
+
+const en = new IPA(Enum([123, 234, { a: 1 }]));

@@ -13,20 +13,6 @@ const presetClasses = new Map()
 .set(Object, objectStrat)
 
 export default {
-    condition(template) {
-        return isFunction(template);
-    },
-    execute(template) {
-        if (presetClasses.has(template)) {
-            return presetClasses.get(template);
-        }
-        return () => ({ // 向前兼容的做法
-            check: val => template(val).isValid,
-            guarantee: val => template(val).value,
-            mock: val => {
-                const result = template(val);
-                return result.hasOwnProperty('gen') ? result.gen : result.value;
-            },
-        });
-    },
+    condition: isFunction,
+    execute: template => presetClasses.has(template) ? presetClasses.get(template) : template,
 };

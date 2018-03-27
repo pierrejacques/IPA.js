@@ -1,5 +1,7 @@
 import { isArray, eq, cloneDeep, random } from 'lodash';
 
+// FIXME: eq not right for objects
+
 export default template => {
     if (!isArray(template)) throw new Error('function "Enum" only accepts array as parameter');
     const n = template.length;

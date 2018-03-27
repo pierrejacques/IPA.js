@@ -421,58 +421,5 @@ module.exports = [
                 method: 'check',
             },
         ]
-    },
-    {
-        name: 'single custom',
-        template: val => {
-            if (val && val.length === 10) {
-                return { isValid: true };
-            }
-            return { isValid: false };
-        },
-        cases: [
-            {
-                name: 'null',
-                data: null,
-                result: false,
-                method: 'check',
-            },
-            {
-                name: 'undefined',
-                data: undefined,
-                result: false,
-                method: 'check',
-            },
-            {
-                name: 'array false',
-                data: [],
-                result: false,
-                method: 'check',
-            },
-            {
-                name: 'array true',
-                data: [1,2,3,4,5,6,7,8,9,10],
-                result: true,
-                method: 'check',
-            },
-            {
-                name: 'string false',
-                data: 'asd',
-                result: false,
-                method: 'check',
-            },
-            {
-                name: 'string true',
-                data: 'asdfghjklq',
-                result: true,
-                method: 'check',
-            },
-            {
-                name: 'object true',
-                data: { length: 10 },
-                result: true,
-                method: 'check',
-            }
-        ]
     }
 ];

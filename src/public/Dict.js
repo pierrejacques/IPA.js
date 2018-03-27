@@ -1,8 +1,9 @@
-import { isPlainObject } from 'lodash';
+import { isPlainObject, range, random } from 'lodash';
+import randStr from '../lib/randStr';
 
-export default template => {
+export default (template) => {
     return compile => {
-        const compiled = compile(template); // 编译阶段，形成闭包
+        const compiled = compile(template);
         return {
             check(val) {
                 if (!isPlainObject(val)) return false;
@@ -15,12 +16,16 @@ export default template => {
             guarantee(val) {
                 if (!isPlainObject(val)) return {};
                 Object.keys(val).forEach(key => {
-                    val[key] = compiled.guarantee(val[key]); // FIXME: 传引用 || 传值
+                    val[key] = compiled.guarantee(val[key]);
                 });
                 return val;
             },
             mock() {
-                return {};
+                const output = {};
+                range(0, random(1, 10)).forEach(idx => {
+                    output[randStr()] = compiled.mock();
+                });
+                return output;
             },
         };
     };
