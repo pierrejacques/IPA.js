@@ -3,6 +3,7 @@ import Dict from './Dict';
 import Integer from './Integer';
 import or from './or';
 import Range from './Range';
+import Each from './Each';
 
 export default {
     asClass,
@@ -10,4 +11,5 @@ export default {
     Integer,
     or,
     Range,
+    Each,
 }

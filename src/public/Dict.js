@@ -1,12 +1,12 @@
 import { isPlainObject } from 'lodash';
 
-export default sub => {
+export default template => {
     return compile => {
-        const compiled = compile(sub); // 编译阶段，形成闭包
+        const compiled = compile(template); // 编译阶段，形成闭包
         return {
             check(val) {
                 if (!isPlainObject(val)) return false;
-                let result = false;
+                let result = true;
                 Object.values(val).forEach(value => {
                     result = result && compiled.check(value);
                 });
@@ -19,7 +19,7 @@ export default sub => {
                 });
                 return val;
             },
-            mock(val) {
+            mock() {
                 return {};
             },
         };
