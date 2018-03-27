@@ -1,5 +1,4 @@
-import { isNumber } from 'lodash';
-import { getMaxListeners } from 'cluster';
+import { isNumber, random } from 'lodash';
 
 export default (min, max) => {
     return () => ({

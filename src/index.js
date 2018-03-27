@@ -1,7 +1,7 @@
 import { isArray, isPlainObject, cloneDeep } from 'lodash';
 import cache from './lib/Cache';
 import templateSymbol from './lib/symbol';
-import { fixArray } from './lib/fixArray';
+import fixArray from './lib/fixArray';
 import compile from './compile/index';
 import publics from './public/index';
 
