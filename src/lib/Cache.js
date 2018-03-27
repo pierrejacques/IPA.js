@@ -9,9 +9,10 @@ class Cache {
 
     add(name, item) {
         if (!isArray(this[cacheSymbol][name])) {
-            this[cacheSymbol][name] = [];
+            this[cacheSymbol].set(name, []);
         }
-        this[cacheSymbol][name].push(item);
+        this[cacheSymbol].get(name).push(item);
+        console.log(this[cacheSymbol])
     }
 
     set(name, value) {
@@ -27,7 +28,7 @@ class Cache {
     }
 
     reset() {
-        this[cacheSymbol].clear;
+        this[cacheSymbol].clear();
     }
 
     digest(settings) {
