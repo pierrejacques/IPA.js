@@ -14,6 +14,7 @@ const compile = template => {
             break;
         }
     }
+    if (!strategy) throw new Error(`compile error: failed to recognize pattern ${JSON.stringify(template)}`);
     return strategy(compile);
 };
 

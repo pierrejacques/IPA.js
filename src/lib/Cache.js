@@ -4,7 +4,7 @@ const cacheSymbol = Symbol('cache');
 
 class Cache {
     constructor() {
-        this[cacheSymbol] = {};
+        this[cacheSymbol] = new Map();
     }
 
     add(name, item) {
@@ -15,7 +15,7 @@ class Cache {
     }
 
     set(name, value) {
-        this[cacheSymbol][name] = value;
+        this[cacheSymbol][name].set(name, value);
     }
 
     get(name) {
@@ -23,7 +23,7 @@ class Cache {
     }
 
     reset() {
-        this[cacheSymbol] = {};
+        this[cacheSymbol].clear;
     }
 }
 
