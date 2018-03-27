@@ -1,6 +1,6 @@
 export default {
     condition: t => t === undefined,
-    execute(template) {
+    execute() {
         return () => ({
             check: () => true,
             guarantee: v => v,

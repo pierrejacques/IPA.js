@@ -1,3 +1,5 @@
+import { random } from 'lodash';
+
 const dict = [
     'ad',
     'aliqua',

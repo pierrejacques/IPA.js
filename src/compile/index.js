@@ -1,4 +1,4 @@
-import funcCompiler from './func/index';
+import functionCompiler from './function/index';
 import ipaCompiler from './ipa';
 import arrayCompiler from './array';
 import booleanCompiler from './boolean';
@@ -9,7 +9,7 @@ import undefinedCompiler from './undefined';
 import stringCompiler from './string';
 
 const compilers = [
-    funcCompiler,
+    functionCompiler,
     ipaCompiler,
     arrayCompiler,
     booleanCompiler,
