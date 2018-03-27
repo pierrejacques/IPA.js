@@ -7,7 +7,7 @@ export default {
     },
     execute(template) {
         const l = template[1];
-        if (l && !isNumber(l) && !isString(l)) {
+        if (l !== undefined && !isNumber(l) && !isString(l)) {
             throw new Error('compile failed: the 2nd parameter for array can only be String or Number');
         }
         return (compile) => {
@@ -19,7 +19,7 @@ export default {
                     val.forEach(item => {
                         result = result && compiled.check(item);
                     });
-                    if (l) {
+                    if (l !== undefined) {
                         cache.push(l, val.length);
                     }
                     return result;
@@ -29,7 +29,7 @@ export default {
                     val.forEach((item, idx) => {
                         val[idx] = compiled.guarantee(item);
                     });
-                    if (l) {
+                    if (l !== undefined) {
                         cache.push(l, {
                             target: val,
                             mocker: compiled.mock,
@@ -40,9 +40,9 @@ export default {
                 mock() {
                     const output = [];
                     let length = random(0, 10);;
-                    if (l && isNumber(l)) length = l;
-                    if (l && isString(l)) {
-                        if (cache.get(l)) {
+                    if (isNumber(l)) length = l;
+                    if (isString(l)) {
+                        if (isNumber(cache.get(l))) {
                             length = cache.get(l);
                         } else {
                             cache.set(l, length);

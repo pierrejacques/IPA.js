@@ -21,9 +21,9 @@ export default {
                     return result;
                 },
                 guarantee(val_in) {
-                    const val = !isPlainObject(val_in) ? val_in : {};
+                    const val = isPlainObject(val_in) ? val_in : {};
                     Object.keys(compiled).forEach(key => {
-                        val[key] = compiled[key].guarantee(val[key]); // FIXME: 传引用 || 传值
+                        val[key] = compiled[key].guarantee(val[key]);
                     });
                     return val;
                 },

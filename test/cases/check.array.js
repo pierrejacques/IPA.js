@@ -168,7 +168,7 @@ module.exports = [
                 }
             },
             {
-                name: 'right object',
+                name: 'wrong object3',
                 method: 'check',
                 result: false,
                 data: {

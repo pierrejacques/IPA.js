@@ -8,7 +8,7 @@ class Cache {
     }
 
     push(name, item) {
-        if (!isArray(this[cacheSymbol][name])) {
+        if (!isArray(this[cacheSymbol].get(name))) {
             this[cacheSymbol].set(name, []);
         }
         this[cacheSymbol].get(name).push(item);
