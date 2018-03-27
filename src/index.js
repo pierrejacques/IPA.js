@@ -9,11 +9,9 @@ import asset from './lib/asset';
 import { fixArray } from './lib/fixers';
 import dftConf from './lib/defaultConfig';
 
-
-
 export default class IPA {
     constructor(template) {
-        this[templateSymbol] = compile(template);
+        this[templateSymbol] = template;
         this.__config__ = {};
         asset.init(this.__config__);
     }

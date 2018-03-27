@@ -16,3 +16,5 @@ const compile = template => {
     }
     return strategy(compile);
 };
+
+export default compile;
