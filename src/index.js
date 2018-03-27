@@ -37,6 +37,18 @@ class IPA {
     }
 }
 
+const instances = new Map();
+
+IPA.inject = (name, template) => {
+    instances.set(name, new IPA(template));
+};
+
+IPA.getInstance = instances.get;
+
+IPA.install = v => {
+    v.prototype.$ipa = IPA.getInstance;
+};
+
 Object.assign(IPA, publics);
 
 export default IPA;
