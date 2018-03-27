@@ -5,6 +5,6 @@ export default {
         return !!(template && template[templateSymbol]);
     },
     execute(template) {
-        return template[templateSymbol];
+        return () => template[templateSymbol];
     },
 };

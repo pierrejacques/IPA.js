@@ -1,14 +1,15 @@
-// IPA is the index flyweight class to be called by clients
-// its instance only provides template, config and interfaces
-// its major functions mostly depend on outer singleton objects
-
 import { isArray, isPlainObject } from 'lodash';
+import cache from './lib/Cache';
+import templateSymbol from './lib/symbol';
+import compile from './compile/index';
+
+// 改版前
 import configChecker from './lib/configChecker';
 import asset from './lib/asset';
 import { fixArray } from './lib/fixers';
 import dftConf from './lib/defaultConfig';
-import compile from './compile/index';
-import templateSymbol from './lib/symbol';
+
+
 
 export default class IPA {
     constructor(template) {
