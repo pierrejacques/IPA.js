@@ -22,6 +22,10 @@ class Cache {
         return this[cacheSymbol][name];
     }
 
+    forEach(cb) {
+        this[cacheSymbol].forEach(cb);
+    }
+
     reset() {
         this[cacheSymbol].clear;
     }

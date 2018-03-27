@@ -1,17 +1,21 @@
-const fixLength = ({ itemTemplate, targetLength, array, mocker }) => {
-    if (array.length > targetLength) {
-        array.splice(targetLength);
+import { isNumber, mean, range } from 'lodash';
+import cache from './Cache';
+
+const fixLength = (len, item) => {
+    const arr = item.target;
+    const mocker = item.mocker;
+    if (arr.length > len) {
+        arr.splice(len);
     } else {
-        const times = targetLength - array.length;
-        for (let i = 0; i < times; i++) {
-            array.push(mocker(itemTemplate, null));
-        }
+       range(0, len - arr.length).forEach(() => {
+            arr.push(mocker());
+        });
     }
 };
 
 const strategies = {
     most(val) {
-        const lengths = val.map(item => item.length);
+        const lengths = val.map(item => item.target.length);
         const freq = new Map();
         lengths.forEach(length => {
             if (freq.get(length) === undefined) {
@@ -23,38 +27,23 @@ const strategies = {
         return sorted[0];
     },
     shortest(val) {
-        return Math.min(...val.map(item => item.length));
+        return Math.min(...val.map(item => item.target.length));
     },
     longest(val) {
-        return Math.max(...val.map(item => item.length));
+        return Math.max(...val.map(item => item.target.length));
     },
     average(val) {
-        const lengths = val.map(item => item.length)
-        const average = lengths.reduce((val, item, index) => {
-            return (val * index + item) / (index + 1);
-        });
+        const average = mean(val.map(item => item.target.length));
         return Math.ceil(average);
     },
 };
 
-const fixArray = (asset, strategyIn) => {
-    const strategy = strategies[strategyIn] ? strategyIn : 'shortest';
-    const cache = asset.cache;
-    Object.keys(cache).forEach(para => {
-        const item = asset.cache[para]
-        const targetLength = strategies[strategy](item);
-        item.forEach(obj => {
-            fixLength({
-                itemTemplate: obj.itemTemplate,
-                targetLength,
-                array: obj.array,
-                mocker: asset.recursions.guarantee,
-            });
+export default (strategyIn) => {
+    const strategy = strategies[strategyIn] || strategies['shortest'];
+    cache.forEach((value, key) => {
+        const targetLen = isNumber(key) ? key : strategy(value);
+        value.forEach(item => {
+            fixLength(targetLen, item);
         });
     });
 };
-
-export {
-    fixLength,
-    fixArray,
-}
