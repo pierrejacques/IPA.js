@@ -1,10 +1,11 @@
 import { isArray, isPlainObject, cloneDeep } from 'lodash';
 import cache from './lib/Cache';
 import templateSymbol from './lib/symbol';
+import { fixArray } from './lib/fixArray';
 import compile from './compile/index';
-import { fixArray } from './lib/fixers';
+import publics from './public/index';
 
-export default class IPA {
+class IPA {
     constructor(template) {
         this[templateSymbol] = compile(template);
     }
@@ -33,3 +34,7 @@ export default class IPA {
         return output;
     }
 }
+
+Object.assign(IPA, publics);
+
+export default IPA;
