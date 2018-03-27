@@ -1,8 +1,8 @@
-import { isString, random } from 'lodash';
+import { isString, random, toString } from 'lodash';
 import randStr from '../../lib/randStr';
 
 export default () => ({
     check: isString,
-    guarantee: (val) => isString(val) ? val : '',
+    guarantee: v => toString(v),
     mock: randStr,
 });

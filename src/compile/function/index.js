@@ -14,5 +14,5 @@ const presetClasses = new Map()
 
 export default {
     condition: isFunction,
-    execute: template => presetClasses.has(template) ? presetClasses.get(template) : template,
+    execute: template => presetClasses.get(template) || template,
 };
