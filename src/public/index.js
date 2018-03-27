@@ -12,4 +12,4 @@ export default {
     or,
     Range,
     Each,
-}
+};

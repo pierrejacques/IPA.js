@@ -1,10 +1,24 @@
-import funcCompiler from './funcCompiler/index';
-import ipaCompiler from './ipaCompiler';
+import funcCompiler from './func/index';
+import ipaCompiler from './ipa';
+import arrayCompiler from './array';
+import booleanCompiler from './boolean';
+import nullCompiler from './null';
+import numberCompiler from './number';
+import objectCompiler from './object';
+import undefinedCompiler from './undefined';
+import stringCompiler from './string';
 
 const compilers = [
     funcCompiler,
     ipaCompiler,
-]
+    arrayCompiler,
+    booleanCompiler,
+    nullCompiler,
+    numberCompiler,
+    objectCompiler,
+    undefinedCompiler,
+    stringCompiler,
+];
 
 const compile = template => {
     let strategy;
