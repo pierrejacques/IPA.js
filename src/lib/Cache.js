@@ -15,11 +15,11 @@ class Cache {
     }
 
     set(name, value) {
-        this[cacheSymbol][name].set(name, value);
+        this[cacheSymbol].set(name, value);
     }
 
     get(name) {
-        return this[cacheSymbol][name];
+        return this[cacheSymbol].get(name);
     }
 
     forEach(cb) {
