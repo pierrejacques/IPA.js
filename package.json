@@ -1,6 +1,6 @@
 {
   "name": "ipa.js",
-  "version": "3.0.0 beta",
+  "version": "3.0.0-beta",
   "description": "IPA interface manager",
   "main": "dist/ipa.js",
   "scripts": {
@@ -24,10 +24,6 @@
     "mocha": "^5.0.0"
   },
   "dependencies": {
-    "@dp/bee-ui": "^1.0.0",
-    "@dp/eslint-config": "^2.0.7",
-    "element-ui": "^2.2.2",
-    "less-loader": "^4.1.0",
     "lodash": "^4.17.5",
     "rollup-plugin-babel": "^3.0.3"
   }
