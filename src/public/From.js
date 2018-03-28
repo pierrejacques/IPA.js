@@ -1,4 +1,4 @@
-import { isArray, eq, cloneDeep, random } from 'lodash';
+import { isArray, cloneDeep, random } from 'lodash';
 
 export default (template, isJSONcompare = false) => {
     let set = [];

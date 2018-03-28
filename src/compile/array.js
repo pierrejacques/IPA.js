@@ -1,4 +1,4 @@
-import { isArray, isNumber, isString, range, random } from 'lodash';
+import { isArray, isNumber, isString, times, random } from 'lodash';
 import cache from '../lib/Cache';
 
 export default {
@@ -38,7 +38,6 @@ export default {
                     return val;
                 },
                 mock() {
-                    const output = [];
                     let length = random(0, 10);;
                     if (isNumber(l)) length = l;
                     if (isString(l)) {
@@ -48,10 +47,7 @@ export default {
                             cache.set(l, length);
                         }
                     }
-                    range(0, length).forEach(idx => {
-                        output[idx] = compiled.mock();
-                    });
-                    return output;
+                    return times(length, compiled.mock);
                 }
             }
         }

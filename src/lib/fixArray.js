@@ -1,4 +1,4 @@
-import { isNumber, mean, range } from 'lodash';
+import { isNumber, mean, times } from 'lodash';
 import cache from './Cache';
 
 const fixLength = (len, item) => {
@@ -7,9 +7,7 @@ const fixLength = (len, item) => {
     if (arr.length > len) {
         arr.splice(len);
     } else {
-       range(0, len - arr.length).forEach(() => {
-            arr.push(mocker());
-        });
+        arr.push(...times(len - arr.length, mocker));
     }
 };
 
