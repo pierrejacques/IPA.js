@@ -1,7 +1,7 @@
-import { isInteger, random } from 'lodash';
+import { isInteger, random, toInteger } from 'lodash';
 
 export default () => ({
     check: isInteger,
-    guarantee: val => isInteger ? val : 0,
+    guarantee: toInteger,
     mock: () => random(0, 1000),
 });
