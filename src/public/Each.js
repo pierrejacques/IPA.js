@@ -1,17 +1,16 @@
 import { isArray } from 'lodash';
 
-export default template => {
+export default (template, strictLength = true) => {
     if (!isArray(template)) throw new Error('function "Each" only accepts array as parameter');
     return compile => {
         const compiled = template.map(item => compile(item));
         return {
             check(val) {
                 if (!isArray(val)) return false;
-                let result = val.length === template.length;
+                let result = strictLength ? val.length === template.length : true;
                 compiled.forEach((item, idx) => {
                     result = result && item.check(val[idx]);
                 });
-
                 return result;
             },
             guarantee(val_in) {
@@ -19,16 +18,12 @@ export default template => {
                 compiled.forEach((item, idx) => {
                     val[idx] = item.guarantee(val[idx]);
                 });
-                val.splice(compiled.length);
+                if (strictLength) {
+                    val.splice(compiled.length);
+                }
                 return val;
             },
-            mock() {
-                const output = [];
-                compiled.forEach((item, idx) => {
-                    output[idx] = item.mock();
-                });
-                return output;
-            },
+            mock: () => compiled.map(item => item.mock()),
         };
     };
 }
