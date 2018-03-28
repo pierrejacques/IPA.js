@@ -1,26 +1,17 @@
 const IPA = require('../dist/ipa.js');
-const { Enum } = IPA;
+const { From } = IPA;
 
-// class Person {
-//     constructor(name) {
-//         if (name === undefined) {
-//             throw new Error('asd');
-//         }
-//         this.name = name;
-//     }
+const a = {
+    type: 0,
+    name: '云店助手',
+};
 
-//     show() {
-//         console.log(this.name);
-//     }
-// }
+const ipa = new IPA(From(new Set([
+    a,
+    {
+        type: 1,
+        name: '字典表',
+    },
+])));
 
-// const p1 = new Person('Jack');
-// const p2 = {
-//     name: 'Johnson',
-// };
-
-// const personChecker = new IPA(asClass(Person, 'John'));
-
-// console.log(personChecker.mock());
-
-const en = new IPA(Enum([123, 234, { a: 1 }]));
+console.log(ipa.check(a));
