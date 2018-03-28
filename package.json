@@ -1,8 +1,8 @@
 {
   "name": "ipa.js",
-  "version": "2.0.0",
+  "version": "3.0.0",
   "description": "IPA interface manager",
-  "main": "dist/ipa.min.js",
+  "main": "dist/ipa.js",
   "scripts": {
     "build": "rollup -c",
     "test": "rollup -c; mocha test/test.js",
