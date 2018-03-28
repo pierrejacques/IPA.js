@@ -7,7 +7,9 @@ export default {
         file: 'dist/ipa.js'
     },
     plugins: [ 
-        babel(),
+        babel({
+            exclude: 'node_modules/**'
+        }),
     ],
     external: [
         'lodash',
