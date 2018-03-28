@@ -1,8 +1,8 @@
-import { isNumber, random, isBoolean } from 'lodash';
+import { isNumber, random } from 'lodash';
 
 export default (min, max, isFloat = false) => {
-    if (!isNumber(min) || !isNumber(max) || !isBoolean(isFloat)) {
-        throw new Error('function "Range" only accept Number as 1st & 2nd parameters and Boolean as 3rd parameter');
+    if (!isNumber(min) || !isNumber(max)) {
+        throw new Error('function "Range" only accept Number as 1st & 2nd parameters');
     }
     if (min > max) {
         throw new Error('in function "Range", min(1st param) must be no larger than max(2st param)');
