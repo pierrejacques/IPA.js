@@ -1,5 +1,5 @@
 Arguments: 
-  /Users/jinchenhao/.nvm/versions/node/v8.0.0/bin/node /Users/jinchenhao/.yarn/bin/yarn.js se
+  /Users/jinchenhao/.nvm/versions/node/v8.0.0/bin/node /Users/jinchenhao/.yarn/bin/yarn.js lint
 
 PATH: 
   /Users/jinchenhao/.yarn/bin:/Users/jinchenhao/.config/yarn/global/node_modules/.bin:/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin:/usr/local/go/bin:/usr/local/MacGPG2/bin:/Users/jinchenhao/.yarn/bin:/Users/jinchenhao/.config/yarn/global/node_modules/.bin:/Users/jinchenhao/.nvm/versions/node/v8.0.0/bin
@@ -16,9 +16,9 @@ Platform:
 npm manifest: 
   {
     "name": "ipa.js",
-    "version": "2.0.0",
+    "version": "3.0.0",
     "description": "IPA interface manager",
-    "main": "dist/ipa.min.js",
+    "main": "dist/ipa.js",
     "scripts": {
       "build": "rollup -c",
       "test": "rollup -c; mocha test/test.js",
@@ -40,6 +40,10 @@ npm manifest:
       "mocha": "^5.0.0"
     },
     "dependencies": {
+      "@dp/bee-ui": "^1.0.0",
+      "@dp/eslint-config": "^2.0.7",
+      "element-ui": "^2.2.2",
+      "less-loader": "^4.1.0",
       "lodash": "^4.17.5",
       "rollup-plugin-babel": "^3.0.3"
     }
@@ -53,6 +57,20 @@ Lockfile:
   # yarn lockfile v1
   
   
+  "@dp/bee-ui@^1.0.0":
+    version "1.0.0"
+    resolved "http://r.npm.sankuai.com/@dp/bee-ui/download/@dp/bee-ui-1.0.0.tgz#7b9bc904bba9e6389598b99211bce907e2486d4f"
+    dependencies:
+      axios "^0.15.3"
+      es6-promise "^4.1.0"
+      moment "^2.17.1"
+      vue "^2.4.4"
+      vue-router "^2.7.0"
+  
+  "@dp/eslint-config@^2.0.7":
+    version "2.0.7"
+    resolved "http://r.npm.sankuai.com/@dp/eslint-config/download/@dp/eslint-config-2.0.7.tgz#e9ec8ad5d7cd4096c93747608b860a455e03ae56"
+  
   ansi-regex@^2.0.0:
     version "2.1.1"
     resolved "http://r.cnpmjs.org/ansi-regex/download/ansi-regex-2.1.1.tgz#c3b33ab5ee360d86e0e628f0468ae7ef27d654df"
@@ -64,6 +82,18 @@ Lockfile:
   assertion-error@^1.0.1:
     version "1.1.0"
     resolved "http://r.cnpmjs.org/assertion-error/download/assertion-error-1.1.0.tgz#e60b6b0e8f301bd97e5375215bda406c85118c0b"
+  
+  async-validator@~1.8.1:
+    version "1.8.2"
+    resolved "http://r.npm.sankuai.com/async-validator/download/async-validator-1.8.2.tgz#b77597226e96242f8d531c0d46ae295f62422ba4"
+    dependencies:
+      babel-runtime "6.x"
+  
+  axios@^0.15.3:
+    version "0.15.3"
+    resolved "http://r.npm.sankuai.com/axios/download/axios-0.15.3.tgz#2c9d638b2e191a08ea1d6cc988eadd6ba5bdc053"
+    dependencies:
+      follow-redirects "1.0.0"
   
   babel-code-frame@^6.26.0:
     version "6.26.0"
@@ -110,6 +140,10 @@ Lockfile:
       source-map "^0.5.7"
       trim-right "^1.0.1"
   
+  babel-helper-vue-jsx-merge-props@^2.0.0:
+    version "2.0.3"
+    resolved "http://r.npm.sankuai.com/babel-helper-vue-jsx-merge-props/download/babel-helper-vue-jsx-merge-props-2.0.3.tgz#22aebd3b33902328e513293a8e4992b384f9f1b6"
+  
   babel-helpers@^6.24.1:
     version "6.24.1"
     resolved "http://r.cnpmjs.org/babel-helpers/download/babel-helpers-6.24.1.tgz#3471de9caec388e5c850e597e58a26ddf37602b2"
@@ -135,7 +169,7 @@ Lockfile:
       mkdirp "^0.5.1"
       source-map-support "^0.4.15"
   
-  babel-runtime@^6.22.0, babel-runtime@^6.26.0:
+  babel-runtime@6.x, babel-runtime@^6.22.0, babel-runtime@^6.26.0:
     version "6.26.0"
     resolved "http://r.cnpmjs.org/babel-runtime/download/babel-runtime-6.26.0.tgz#965c7058668e82b55d7bfe04ff2337bc8b5647fe"
     dependencies:
@@ -183,6 +217,10 @@ Lockfile:
     version "1.0.0"
     resolved "http://r.cnpmjs.org/balanced-match/download/balanced-match-1.0.0.tgz#89b4d199ab2bee49de164ea02b89ce462d71b767"
   
+  big.js@^3.1.3:
+    version "3.2.0"
+    resolved "http://r.npm.sankuai.com/big.js/download/big.js-3.2.0.tgz#a5fc298b81b9e0dca2e458824784b65c52ba588e"
+  
   brace-expansion@^1.1.7:
     version "1.1.8"
     resolved "http://r.cnpmjs.org/brace-expansion/download/brace-expansion-1.1.8.tgz#c07b211c7c952ec1f8efd51a77ef0d1d3990a292"
@@ -219,6 +257,10 @@ Lockfile:
     version "1.0.2"
     resolved "http://r.cnpmjs.org/check-error/download/check-error-1.0.2.tgz#574d312edd88bb5dd8912e9286dd6c0aed4aac82"
   
+  clone@^2.1.1:
+    version "2.1.2"
+    resolved "http://r.npm.sankuai.com/clone/download/clone-2.1.2.tgz#1b7f4b9f591f1e8f83670401600345a02887435f"
+  
   commander@2.11.0:
     version "2.11.0"
     resolved "http://r.cnpmjs.org/commander/download/commander-2.11.0.tgz#157152fd1e7a6c8d98a5b715cf376df928004563"
@@ -241,7 +283,7 @@ Lockfile:
     dependencies:
       ms "2.0.0"
   
-  debug@^2.6.8:
+  debug@^2.2.0, debug@^2.6.8:
     version "2.6.9"
     resolved "http://r.cnpmjs.org/debug/download/debug-2.6.9.tgz#5d128515df134ff327e90a4c93f4e077a536341f"
     dependencies:
@@ -253,6 +295,10 @@ Lockfile:
     dependencies:
       type-detect "^4.0.0"
   
+  deepmerge@^1.2.0:
+    version "1.5.2"
+    resolved "http://r.npm.sankuai.com/deepmerge/download/deepmerge-1.5.2.tgz#10499d868844cdad4fee0842df8c7f6f0c95a753"
+  
   detect-indent@^4.0.0:
     version "4.0.0"
     resolved "http://r.cnpmjs.org/detect-indent/download/detect-indent-4.0.0.tgz#f76d064352cdf43a1cb6ce619c4ee3a9475de208"
@@ -262,6 +308,24 @@ Lockfile:
   diff@3.3.1:
     version "3.3.1"
     resolved "http://r.cnpmjs.org/diff/download/diff-3.3.1.tgz#aa8567a6eed03c531fc89d3f711cd0e5259dec75"
+  
+  element-ui@^2.2.2:
+    version "2.2.2"
+    resolved "http://r.npm.sankuai.com/element-ui/download/element-ui-2.2.2.tgz#40935d55e2eb007e6a5d2e766fc4bcc2266eb571"
+    dependencies:
+      async-validator "~1.8.1"
+      babel-helper-vue-jsx-merge-props "^2.0.0"
+      deepmerge "^1.2.0"
+      normalize-wheel "^1.0.1"
+      throttle-debounce "^1.0.1"
+  
+  emojis-list@^2.0.0:
+    version "2.1.0"
+    resolved "http://r.npm.sankuai.com/emojis-list/download/emojis-list-2.1.0.tgz#4daa4d9db00f9819880c79fa457ae5b09a1fd389"
+  
+  es6-promise@^4.1.0:
+    version "4.2.4"
+    resolved "http://r.npm.sankuai.com/es6-promise/download/es6-promise-4.2.4.tgz#dc4221c2b16518760bd8c39a52d8f356fc00ed29"
   
   escape-string-regexp@1.0.5, escape-string-regexp@^1.0.2:
     version "1.0.5"
@@ -274,6 +338,12 @@ Lockfile:
   esutils@^2.0.2:
     version "2.0.2"
     resolved "http://r.cnpmjs.org/esutils/download/esutils-2.0.2.tgz#0abf4f1caa5bcb1f7a9d8acc6dea4faaa04bac9b"
+  
+  follow-redirects@1.0.0:
+    version "1.0.0"
+    resolved "http://r.npm.sankuai.com/follow-redirects/download/follow-redirects-1.0.0.tgz#8e34298cbd2e176f254effec75a1c78cc849fd37"
+    dependencies:
+      debug "^2.2.0"
   
   fs.realpath@^1.0.0:
     version "1.0.0"
@@ -354,15 +424,27 @@ Lockfile:
     version "1.3.0"
     resolved "http://r.cnpmjs.org/jsesc/download/jsesc-1.3.0.tgz#46c3fec8c1892b12b0833db9bc7622176dbab34b"
   
-  json5@^0.5.1:
+  json5@^0.5.0, json5@^0.5.1:
     version "0.5.1"
     resolved "http://r.cnpmjs.org/json5/download/json5-0.5.1.tgz#1eade7acc012034ad84e2396767ead9fa5495821"
   
-  lodash@^4.17.4:
-    version "4.17.5"
-    resolved "http://r.cnpmjs.org/lodash/download/lodash-4.17.5.tgz#99a92d65c0272debe8c96b6057bc8fbfa3bed511"
+  less-loader@^4.1.0:
+    version "4.1.0"
+    resolved "http://r.npm.sankuai.com/less-loader/download/less-loader-4.1.0.tgz#2c1352c5b09a4f84101490274fd51674de41363e"
+    dependencies:
+      clone "^2.1.1"
+      loader-utils "^1.1.0"
+      pify "^3.0.0"
   
-  lodash@^4.17.5:
+  loader-utils@^1.1.0:
+    version "1.1.0"
+    resolved "http://r.npm.sankuai.com/loader-utils/download/loader-utils-1.1.0.tgz#c98aef488bcceda2ffb5e2de646d6a754429f5cd"
+    dependencies:
+      big.js "^3.1.3"
+      emojis-list "^2.0.0"
+      json5 "^0.5.0"
+  
+  lodash@^4.17.4, lodash@^4.17.5:
     version "4.17.5"
     resolved "http://registry.npm.taobao.org/lodash/download/lodash-4.17.5.tgz#99a92d65c0272debe8c96b6057bc8fbfa3bed511"
   
@@ -403,9 +485,17 @@ Lockfile:
       mkdirp "0.5.1"
       supports-color "4.4.0"
   
+  moment@^2.17.1:
+    version "2.21.0"
+    resolved "http://r.npm.sankuai.com/moment/download/moment-2.21.0.tgz#2a114b51d2a6ec9e6d83cf803f838a878d8a023a"
+  
   ms@2.0.0:
     version "2.0.0"
     resolved "http://r.cnpmjs.org/ms/download/ms-2.0.0.tgz#5608aeadfc00be6c2901df5f9861788de0d597c8"
+  
+  normalize-wheel@^1.0.1:
+    version "1.0.1"
+    resolved "http://r.npm.sankuai.com/normalize-wheel/download/normalize-wheel-1.0.1.tgz#aec886affdb045070d856447df62ecf86146ec45"
   
   number-is-nan@^1.0.0:
     version "1.0.1"
@@ -432,6 +522,10 @@ Lockfile:
   pathval@^1.0.0:
     version "1.1.0"
     resolved "http://r.cnpmjs.org/pathval/download/pathval-1.1.0.tgz#b942e6d4bde653005ef6b71361def8727d0645e0"
+  
+  pify@^3.0.0:
+    version "3.0.0"
+    resolved "http://r.npm.sankuai.com/pify/download/pify-3.0.0.tgz#e5a4acd2c101fdf3d9a4d07f0dbc4db49dd28176"
   
   private@^0.1.7:
     version "0.1.8"
@@ -490,6 +584,10 @@ Lockfile:
     version "2.0.0"
     resolved "http://r.cnpmjs.org/supports-color/download/supports-color-2.0.0.tgz#535d045ce6b6363fa40117084629995e9df324c7"
   
+  throttle-debounce@^1.0.1:
+    version "1.0.1"
+    resolved "http://r.npm.sankuai.com/throttle-debounce/download/throttle-debounce-1.0.1.tgz#dad0fe130f9daf3719fdea33dc36a8e6ba7f30b5"
+  
   to-fast-properties@^1.0.3:
     version "1.0.3"
     resolved "http://r.cnpmjs.org/to-fast-properties/download/to-fast-properties-1.0.3.tgz#b83571fa4d8c25b82e231b06e3a3055de4ca1a47"
@@ -502,12 +600,20 @@ Lockfile:
     version "4.0.8"
     resolved "http://r.cnpmjs.org/type-detect/download/type-detect-4.0.8.tgz#7646fb5f18871cfbb7749e69bd39a6388eb7450c"
   
+  vue-router@^2.7.0:
+    version "2.8.1"
+    resolved "http://r.npm.sankuai.com/vue-router/download/vue-router-2.8.1.tgz#9833c9ee57ac83beb0269056fefee71713f20695"
+  
+  vue@^2.4.4:
+    version "2.5.16"
+    resolved "http://r.npm.sankuai.com/vue/download/vue-2.5.16.tgz#07edb75e8412aaeed871ebafa99f4672584a0085"
+  
   wrappy@1:
     version "1.0.2"
     resolved "http://r.cnpmjs.org/wrappy/download/wrappy-1.0.2.tgz#b5243d8f3ec1aa35f1364605bc0d1036e30ab69f"
 
 Trace: 
-  Error: Command "se" not found. Did you mean "he"?
+  Error: Command "lint" not found.
       at new MessageError (/Users/jinchenhao/.yarn/lib/cli.js:186:110)
       at /Users/jinchenhao/.yarn/lib/cli.js:87307:17
       at Generator.next (<anonymous>)
