@@ -17,7 +17,10 @@ export default (template, isJSONcompare = false) => {
         throw new Error('function "From" only accepts iterable objects');
     }
     const n = set.length;
-    const getRandom = () => set[random(0, n - 1)];
+    const getRandom = () => {
+        const v = set[random(0, n - 1)];
+        return isJSONcompare ? cloneDeep(v) : v;
+    };
     return () => {
         return {
             check(val) {
