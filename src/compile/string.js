@@ -3,11 +3,9 @@ import randStr from '../lib/randStr';
 
 export default {
     condition: isString,
-    execute: template => {
-        return () => ({
-            check: isString,
-            guarantee: v => isString(v) ? v : template,
-            mock: randStr,
-        });
-    },
-}
+    execute: template => () => ({
+        check: isString,
+        guarantee: v => (isString(v) ? v : template),
+        mock: randStr,
+    }),
+};

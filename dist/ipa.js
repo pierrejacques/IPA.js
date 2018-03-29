@@ -139,7 +139,7 @@ var strategies = {
 };
 
 var fixArray = (function (strategyIn) {
-    var strategy = strategies[strategyIn] || strategies['shortest'];
+    var strategy = strategies[strategyIn] || strategies.shortest;
     cache.forEach(function (value, key) {
         var targetLen = lodash.isNumber(key) ? key : strategy(value);
         value.forEach(function (item) {
@@ -191,9 +191,9 @@ var numberStrat = (function () {
         check: lodash.isNumber,
         guarantee: function guarantee(val) {
             var n = lodash.toNumber(val);
-            return !lodash.isNaN(n) && !lodash.isFinite(n) ? n : 0;
+            return !lodash.isNaN(n) && lodash.isFinite(n) ? n : 0;
         },
-        mock: function mock(val) {
+        mock: function mock() {
             return lodash.random(0, 100);
         }
     };
@@ -270,8 +270,8 @@ var arrayCompiler = {
                     }
                     return result;
                 },
-                guarantee: function guarantee(val_in) {
-                    var val = lodash.isArray(val_in) ? val_in : [];
+                guarantee: function guarantee(valIn) {
+                    var val = lodash.isArray(valIn) ? valIn : [];
                     val.forEach(function (item, idx) {
                         val[idx] = compiled.guarantee(item);
                     });
@@ -284,7 +284,8 @@ var arrayCompiler = {
                     return val;
                 },
                 mock: function mock() {
-                    var length = lodash.random(0, 10);                    if (lodash.isNumber(l)) length = l;
+                    var length = lodash.random(0, 10);
+                    if (lodash.isNumber(l)) length = l;
                     if (lodash.isString(l)) {
                         if (lodash.isNumber(cache.get(l))) {
                             length = cache.get(l);
@@ -373,8 +374,8 @@ var objectCompiler = {
                     });
                     return result;
                 },
-                guarantee: function guarantee(val_in) {
-                    var val = lodash.isPlainObject(val_in) ? val_in : {};
+                guarantee: function guarantee(valIn) {
+                    var val = lodash.isPlainObject(valIn) ? valIn : {};
                     Object.keys(compiled).forEach(function (key) {
                         val[key] = compiled[key].guarantee(val[key]);
                     });
@@ -433,6 +434,7 @@ var compilers = [functionCompiler, ipaCompiler, arrayCompiler, booleanCompiler, 
 var compile = function compile(template) {
     var strategy = void 0;
     for (var i = 0; i < compilers.length; i++) {
+        // eslint-disable-line
         if (compilers[i].condition(template)) {
             strategy = compilers[i].execute(template);
             break;
@@ -442,27 +444,27 @@ var compile = function compile(template) {
     return strategy(compile);
 };
 
-var asClass = (function (cls) {
+var asClass = (function (Cls) {
     for (var _len = arguments.length, params = Array(_len > 1 ? _len - 1 : 0), _key = 1; _key < _len; _key++) {
         params[_key - 1] = arguments[_key];
     }
 
-    if (!lodash.isFunction(cls)) throw new Error('function "asClass" only accept constructor function as 1st parameter');
+    if (!lodash.isFunction(Cls)) throw new Error('function "asClass" only accept constructor function as 1st parameter');
     try {
-        new (Function.prototype.bind.apply(cls, [null].concat(params)))();
+        new (Function.prototype.bind.apply(Cls, [null].concat(params)))(); // eslint-disable-line
     } catch (e) {
         throw new Error('in function "as Class", class(1st param) must match with the params(the rest params)');
     }
     return function () {
         return {
             check: function check(v) {
-                return v instanceof cls;
+                return v instanceof Cls;
             },
             guarantee: function guarantee(v) {
-                return v instanceof cls ? v : new (Function.prototype.bind.apply(cls, [null].concat(params)))();
+                return v instanceof Cls ? v : new (Function.prototype.bind.apply(Cls, [null].concat(params)))();
             },
             mock: function mock() {
-                return new (Function.prototype.bind.apply(cls, [null].concat(params)))();
+                return new (Function.prototype.bind.apply(Cls, [null].concat(params)))();
             }
         };
     };
@@ -480,7 +482,8 @@ var Dict = (function (template) {
                 });
                 return result;
             },
-            guarantee: function guarantee(val) {
+            guarantee: function guarantee(valIn) {
+                var val = valIn;
                 if (!lodash.isPlainObject(val)) return {};
                 Object.keys(val).forEach(function (key) {
                     val[key] = compiled.guarantee(val[key]);
@@ -489,7 +492,7 @@ var Dict = (function (template) {
             },
             mock: function mock() {
                 var output = {};
-                lodash.range(0, lodash.random(1, 10)).forEach(function (idx) {
+                lodash.range(0, lodash.random(1, 10)).forEach(function () {
                     output[randStr()] = compiled.mock();
                 });
                 return output;
@@ -580,8 +583,8 @@ var Each = (function (template) {
                 });
                 return result;
             },
-            guarantee: function guarantee(val_in) {
-                var val = lodash.isArray(val_in) ? val_in : [];
+            guarantee: function guarantee(valIn) {
+                var val = lodash.isArray(valIn) ? valIn : [];
                 compiled.forEach(function (item, idx) {
                     val[idx] = item.guarantee(val[idx]);
                 });
@@ -627,6 +630,7 @@ var From = (function (template) {
         return {
             check: function check(val) {
                 for (var i = 0; i < n; i++) {
+                    // eslint-disable-line
                     if (!isJSONcompare && set[i] === val) {
                         // strict compare
                         return true;
@@ -636,7 +640,7 @@ var From = (function (template) {
                         try {
                             result = JSON.stringify(set[i]) === JSON.stringify(val);
                         } catch (e) {
-                            continue;
+                            continue; // eslint-disable-line
                         }
                         if (result) return true;
                     }
@@ -652,7 +656,7 @@ var From = (function (template) {
     };
 });
 
-var publics = {
+var publicExposed = {
     asClass: asClass,
     Dict: Dict,
     Integer: Integer,
@@ -714,9 +718,10 @@ IPA.inject = function (name, template) {
 IPA.getInstance = instances.get;
 
 IPA.install = function (v) {
-    v.prototype.$ipa = IPA.getInstance;
+    var w = v;
+    w.prototype.$ipa = IPA.getInstance;
 };
 
-Object.assign(IPA, publics);
+Object.assign(IPA, publicExposed);
 
 module.exports = IPA;

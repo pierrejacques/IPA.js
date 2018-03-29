@@ -1,4 +1,4 @@
-import { isArray, isPlainObject, cloneDeep } from 'lodash';
+import { isPlainObject, cloneDeep } from 'lodash';
 import cache from './lib/Cache';
 import templateSymbol from './lib/symbol';
 import fixArray from './lib/fixArray';
@@ -19,7 +19,7 @@ class IPA {
     }
 
     guarantee(data, isCopy = true) {
-        const copy = isCopy ? cloneDeep(data) : data; 
+        const copy = isCopy ? cloneDeep(data) : data;
         const output = this[templateSymbol].guarantee(copy);
         fixArray(this.strategy);
         cache.reset();
@@ -45,8 +45,9 @@ IPA.inject = (name, template) => {
 
 IPA.getInstance = instances.get;
 
-IPA.install = v => {
-    v.prototype.$ipa = IPA.getInstance;
+IPA.install = (v) => {
+    const w = v;
+    w.prototype.$ipa = IPA.getInstance;
 };
 
 Object.assign(IPA, publics);

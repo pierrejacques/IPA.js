@@ -16,7 +16,7 @@ Platform:
 npm manifest: 
   {
     "name": "ipa.js",
-    "version": "3.0.0-beta",
+    "version": "3.0.1",
     "description": "IPA interface manager",
     "main": "dist/ipa.js",
     "scripts": {

@@ -16,7 +16,7 @@ export default {
                 check(val) {
                     if (!isArray(val)) return false;
                     let result = true;
-                    val.forEach(item => {
+                    val.forEach((item) => {
                         result = result && compiled.check(item);
                     });
                     if (l !== undefined) {
@@ -24,8 +24,8 @@ export default {
                     }
                     return result;
                 },
-                guarantee(val_in) {
-                    const val = isArray(val_in) ? val_in : [];
+                guarantee(valIn) {
+                    const val = isArray(valIn) ? valIn : [];
                     val.forEach((item, idx) => {
                         val[idx] = compiled.guarantee(item);
                     });
@@ -38,7 +38,7 @@ export default {
                     return val;
                 },
                 mock() {
-                    let length = random(0, 10);;
+                    let length = random(0, 10);
                     if (isNumber(l)) length = l;
                     if (isString(l)) {
                         if (isNumber(cache.get(l))) {
@@ -48,8 +48,8 @@ export default {
                         }
                     }
                     return times(length, compiled.mock);
-                }
-            }
-        }
-    }
-}
+                },
+            };
+        };
+    },
+};

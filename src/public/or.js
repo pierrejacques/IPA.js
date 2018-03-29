@@ -1,13 +1,13 @@
 export default (...params) => {
     if (params.length === 0) throw new Error('function "or" requires at least 1 parameter');
-    return compile => {
+    return (compile) => {
         const rules = params.map(item => compile(item));
         return {
             check(val) {
                 let result = false;
-                rules.forEach(rule => {
+                rules.forEach((rule) => {
                     result = result || rule.check(val);
-                })
+                });
                 return result;
             },
             guarantee(val) {
@@ -18,4 +18,4 @@ export default (...params) => {
             },
         };
     };
-}
+};

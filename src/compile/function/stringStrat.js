@@ -1,4 +1,4 @@
-import { isString, random, toString } from 'lodash';
+import { isString, toString } from 'lodash';
 import randStr from '../../lib/randStr';
 
 export default () => ({

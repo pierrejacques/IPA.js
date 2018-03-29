@@ -6,7 +6,7 @@ import Range from './Range';
 import Each from './Each';
 import From from './From';
 
-export default {
+const publicExposed = {
     asClass,
     Dict,
     Integer,
@@ -15,3 +15,5 @@ export default {
     Each,
     From,
 };
+
+export default publicExposed;

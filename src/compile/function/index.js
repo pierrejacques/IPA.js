@@ -6,11 +6,11 @@ import objectStrat from './objectStrat';
 import stringStrat from './stringStrat';
 
 const presetClasses = new Map()
-.set(String, stringStrat)
-.set(Number, numberStrat)
-.set(Boolean, booleanStrat)
-.set(Array, arrayStrat)
-.set(Object, objectStrat)
+    .set(String, stringStrat)
+    .set(Number, numberStrat)
+    .set(Boolean, booleanStrat)
+    .set(Array, arrayStrat)
+    .set(Object, objectStrat);
 
 export default {
     condition: isFunction,

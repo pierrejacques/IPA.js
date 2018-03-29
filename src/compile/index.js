@@ -20,9 +20,9 @@ const compilers = [
     stringCompiler,
 ];
 
-const compile = template => {
+const compile = (template) => {
     let strategy;
-    for (let i = 0; i < compilers.length; i++) {
+    for (let i = 0; i < compilers.length; i++) { // eslint-disable-line
         if (compilers[i].condition(template)) {
             strategy = compilers[i].execute(template);
             break;

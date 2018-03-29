@@ -32,7 +32,7 @@ class Cache {
 
     digest(settings) {
         this.reset();
-        Object.keys(settings).forEach(key => {
+        Object.keys(settings).forEach((key) => {
             this.set(key, settings[key]);
         });
     }

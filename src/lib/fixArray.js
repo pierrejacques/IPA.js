@@ -15,7 +15,7 @@ const strategies = {
     most(val) {
         const lengths = val.map(item => item.target.length);
         const freq = new Map();
-        lengths.forEach(length => {
+        lengths.forEach((length) => {
             if (freq.get(length) === undefined) {
                 freq.set(length, 0);
             }
@@ -37,10 +37,10 @@ const strategies = {
 };
 
 export default (strategyIn) => {
-    const strategy = strategies[strategyIn] || strategies['shortest'];
+    const strategy = strategies[strategyIn] || strategies.shortest;
     cache.forEach((value, key) => {
         const targetLen = isNumber(key) ? key : strategy(value);
-        value.forEach(item => {
+        value.forEach((item) => {
             fixLength(targetLen, item);
         });
     });
