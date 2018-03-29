@@ -4,7 +4,7 @@ export default {
     input: 'src/index.js',
     output: {
         format: 'cjs',
-        file: 'dist/ipa.js'
+        file: 'dist/ipa.js',
     },
     plugins: [ 
         babel({
