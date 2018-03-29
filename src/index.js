@@ -39,11 +39,9 @@ class IPA {
 
 const instances = new Map();
 
-IPA.inject = (name, template) => {
-    instances.set(name, new IPA(template));
-};
+IPA.inject = (name, template) => instances.set(name, new IPA(template));
 
-IPA.getInstance = instances.get;
+IPA.getInstance = (name) => instances.get(name);
 
 IPA.install = (v) => {
     const w = v;

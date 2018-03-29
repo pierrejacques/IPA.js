@@ -715,7 +715,9 @@ IPA.inject = function (name, template) {
     instances.set(name, new IPA(template));
 };
 
-IPA.getInstance = instances.get;
+IPA.getInstance = function (name) {
+    return instances.get(name);
+};
 
 IPA.install = function (v) {
     var w = v;
