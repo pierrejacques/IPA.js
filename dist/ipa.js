@@ -166,7 +166,7 @@ var arrayStrat = (function () {
     return {
         check: lodash.isArray,
         guarantee: function guarantee(val) {
-            return lodash.toArray(val);
+            return lodash.isArray(val) ? val : lodash.toArray(val);
         },
         mock: function mock() {
             return [];
@@ -712,7 +712,7 @@ var IPA = function () {
 var instances = new Map();
 
 IPA.inject = function (name, template) {
-    instances.set(name, new IPA(template));
+    return instances.set(name, new IPA(template));
 };
 
 IPA.getInstance = function (name) {

@@ -1,10 +1,9 @@
 const IPA = require('../dist/ipa.js');
-const { or, From } = IPA;
-const NumberableString = new IPA(() => ({
-    check(v) {
-        return (+v).toString() === v;
-    },
-}));
-IPA.inject('numberLike', or(From(['--']), Number, NumberableString));
+const lodash = require('lodash');
 
-console.log(IPA.getInstance('numberLike').check('1'));
+const i = new IPA(Array);
+
+const m = i.mock();
+
+console.log(m === i.guarantee(m))
+console.log(m === i.guarantee(m, false))

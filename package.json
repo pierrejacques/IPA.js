@@ -1,12 +1,13 @@
 {
   "name": "ipa.js",
-  "version": "3.0.3",
+  "version": "3.0.4",
   "description": "IPA interface manager",
   "main": "dist/ipa.js",
   "scripts": {
     "build": "rollup -c",
-    "test": "rollup -c; mocha test/test.js",
-    "try": "rollup -c; node test/scripts.js"
+    "test": "rollup -c; mocha test/index.js",
+    "try": "rollup -c; node test/scripts.js",
+    "time": "rollup -c; node test/timer.js"
   },
   "repository": {
     "type": "git",
