@@ -6,7 +6,7 @@ export default {
         return () => ({
             check: isNumber,
             guarantee: v => (isNumber(v) ? v : template),
-            mock: () => random(0, 100),
+            mock: prod => prod ? template : random(0, 100),
         });
     },
 };

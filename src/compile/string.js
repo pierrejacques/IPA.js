@@ -6,6 +6,6 @@ export default {
     execute: template => () => ({
         check: isString,
         guarantee: v => (isString(v) ? v : template),
-        mock: randStr,
+        mock: prod => prod ? template : randStr,
     }),
 };

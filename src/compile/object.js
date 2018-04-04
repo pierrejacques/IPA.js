@@ -20,17 +20,17 @@ export default {
                     });
                     return result;
                 },
-                guarantee(valIn) {
+                guarantee(valIn, strict) {
                     const val = isPlainObject(valIn) ? valIn : {};
                     Object.keys(compiled).forEach((key) => {
-                        val[key] = compiled[key].guarantee(val[key]);
+                        val[key] = compiled[key].guarantee(val[key], strict);
                     });
                     return val;
                 },
-                mock() {
+                mock(prod) {
                     const val = {};
                     Object.keys(compiled).forEach((key) => {
-                        val[key] = compiled[key].mock(val[key]);
+                        val[key] = compiled[key].mock(prod);
                     });
                     return val;
                 },
