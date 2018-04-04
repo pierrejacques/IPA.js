@@ -314,8 +314,8 @@ var booleanCompiler = {
                 guarantee: function guarantee(v) {
                     return lodash.isBoolean(v) ? v : template;
                 },
-                mock: function mock() {
-                    return !lodash.random(0, 1);
+                mock: function mock(prod) {
+                    return prod ? template : !lodash.random(0, 1);
                 }
             };
         };
@@ -352,8 +352,8 @@ var numberCompiler = {
                 guarantee: function guarantee(v) {
                     return lodash.isNumber(v) ? v : template;
                 },
-                mock: function mock() {
-                    return lodash.random(0, 100);
+                mock: function mock(prod) {
+                    return prod ? template : lodash.random(0, 100);
                 }
             };
         };
@@ -379,17 +379,17 @@ var objectCompiler = {
                     });
                     return result;
                 },
-                guarantee: function guarantee(valIn) {
+                guarantee: function guarantee(valIn, strict) {
                     var val = lodash.isPlainObject(valIn) ? valIn : {};
                     Object.keys(compiled).forEach(function (key) {
-                        val[key] = compiled[key].guarantee(val[key]);
+                        val[key] = compiled[key].guarantee(val[key], strict);
                     });
                     return val;
                 },
-                mock: function mock() {
+                mock: function mock(prod) {
                     var val = {};
                     Object.keys(compiled).forEach(function (key) {
-                        val[key] = compiled[key].mock(val[key]);
+                        val[key] = compiled[key].mock(prod);
                     });
                     return val;
                 }
@@ -428,7 +428,9 @@ var stringCompiler = {
                 guarantee: function guarantee(v) {
                     return lodash.isString(v) ? v : template;
                 },
-                mock: randStr
+                mock: function mock(prod) {
+                    return prod ? template : randStr;
+                }
             };
         };
     }
@@ -671,6 +673,8 @@ var publicExposed = {
     From: From
 };
 
+var isProductionEnv = false;
+
 var IPA = function () {
     function IPA(template) {
         classCallCheck(this, IPA);
@@ -717,8 +721,9 @@ var IPA = function () {
         key: 'mock',
         value: function mock() {
             var settings = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {};
-            var prod = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : false;
+            var prod = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : isProductionEnv;
 
+            console.log(prod); // FIXME:
             if (!lodash.isPlainObject(settings)) {
                 throw new Error('mocking setting should be a plain object');
             }
@@ -750,5 +755,15 @@ IPA.install = function (v) {
 };
 
 Object.assign(IPA, publicExposed);
+
+Object.defineProperty(IPA, 'isProductionEnv', {
+    set: function set$$1(val) {
+        if (!lodash.isBoolean(val)) throw new Error('isProductionEnv can only be set as true or false');
+        isProductionEnv = val;
+    },
+    get: function get$$1(val) {
+        return isProductionEnv;
+    }
+});
 
 module.exports = IPA;

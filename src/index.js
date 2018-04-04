@@ -6,6 +6,10 @@ import checkLength from './lib/checkLength';
 import compile from './compile/index';
 import publics from './public/index';
 
+let isProductionEnv = false;
+const instances = new Map();
+
+// class
 class IPA {
     constructor(template) {
         this[templateSymbol] = compile(template);
@@ -37,7 +41,7 @@ class IPA {
      * @param {the mock setting for array length} settings 
      * @param {whether it's in production environment} prod 
      */
-    mock(settings = {}, prod = false) {
+    mock(settings = {}, prod = isProductionEnv) {
         if (!isPlainObject(settings)) {
             throw new Error('mocking setting should be a plain object');
         }
@@ -48,20 +52,44 @@ class IPA {
     }
 }
 
-const instances = new Map();
-
+// global instance logic
 IPA.inject = (name, template) => instances.set(name, new IPA(template));
+IPA.getInstance = (name) => {
+    let i = null;
+    const obj = {};
+    ['check', 'guarantee', 'mock'].forEach(key => {
+        obj[key] = (...params) => {
+            if (i === null) {
+                i = instances.get(name);
+                if (i === undefined) {
+                    throw new Error('in getInstance: IPA instance called before injected');
+                }
+            }
+            return i[key](...params);
+        }
+    });
+    return obj;
+};
 
-IPA.getInstance = (name) => instances.get(name);
-
+// install && compile expose
 IPA.$compile = compile;
-
 IPA.install = (v) => {
     const w = v;
     w.prototype.$ipa = IPA.getInstance;
     w.prototype.$brew = IPA.$compile;
 };
 
+// public methods
 Object.assign(IPA, publics);
+
+// env settings
+Object.defineProperty(IPA, 'isProductionEnv', {
+    set(val) {
+        isProductionEnv = !!val;
+    },
+    get(val) {
+        return isProductionEnv;
+    },
+});
 
 export default IPA;
