@@ -674,6 +674,9 @@ var publicExposed = {
 };
 
 var isProductionEnv = false;
+var instances = new Map();
+
+// class
 
 var IPA = function () {
     function IPA(template) {
@@ -723,7 +726,6 @@ var IPA = function () {
             var settings = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {};
             var prod = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : isProductionEnv;
 
-            console.log(prod); // FIXME:
             if (!lodash.isPlainObject(settings)) {
                 throw new Error('mocking setting should be a plain object');
             }
@@ -736,30 +738,47 @@ var IPA = function () {
     return IPA;
 }();
 
-var instances = new Map();
+// global instance logic
+
 
 IPA.inject = function (name, template) {
     return instances.set(name, new IPA(template));
 };
-
 IPA.getInstance = function (name) {
-    return instances.get(name);
+    var i = null;
+    var proxy = {};
+    ['check', 'guarantee', 'mock'].forEach(function (key) {
+        proxy[key] = function () {
+            var _i;
+
+            if (i === null) {
+                i = instances.get(name);
+                if (i === undefined) {
+                    throw new Error('in getInstance: IPA instance called before injected');
+                }
+                proxy[templateSymbol] = i[templateSymbol];
+            }
+            return (_i = i)[key].apply(_i, arguments);
+        };
+    });
+    return proxy;
 };
 
+// install && compile expose
 IPA.$compile = compile;
-
 IPA.install = function (v) {
     var w = v;
     w.prototype.$ipa = IPA.getInstance;
     w.prototype.$brew = IPA.$compile;
 };
 
+// public methods
 Object.assign(IPA, publicExposed);
 
+// env settings
 Object.defineProperty(IPA, 'isProductionEnv', {
     set: function set$$1(val) {
-        if (!lodash.isBoolean(val)) throw new Error('isProductionEnv can only be set as true or false');
-        isProductionEnv = val;
+        isProductionEnv = !!val;
     },
     get: function get$$1(val) {
         return isProductionEnv;

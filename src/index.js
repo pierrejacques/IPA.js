@@ -1,6 +1,6 @@
 import { isPlainObject, cloneDeep } from 'lodash';
 import cache from './lib/Cache';
-import templateSymbol from './lib/symbol';
+import coreSymbol from './lib/symbol';
 import fixArray from './lib/fixArray';
 import checkLength from './lib/checkLength';
 import compile from './compile/index';
@@ -12,12 +12,12 @@ const instances = new Map();
 // class
 class IPA {
     constructor(template) {
-        this[templateSymbol] = compile(template);
+        this[coreSymbol] = compile(template);
         this.strategy = 'shortest';
     }
 
     check(data) {
-        const output = this[templateSymbol].check(data) && checkLength();
+        const output = this[coreSymbol].check(data) && checkLength();
         cache.reset();
         return output;
     }
@@ -30,7 +30,7 @@ class IPA {
      */
     guarantee(data, isCopy = true, strict = false) {
         const copy = isCopy ? cloneDeep(data) : data;
-        const output = this[templateSymbol].guarantee(copy, strict);
+        const output = this[coreSymbol].guarantee(copy, strict);
         fixArray(this.strategy);
         cache.reset();
         return output;
@@ -46,7 +46,7 @@ class IPA {
             throw new Error('mocking setting should be a plain object');
         }
         cache.digest(settings);
-        const output = this[templateSymbol].mock(prod);
+        const output = this[coreSymbol].mock(prod);
         cache.reset();
         return output;
     }
@@ -56,19 +56,28 @@ class IPA {
 IPA.inject = (name, template) => instances.set(name, new IPA(template));
 IPA.getInstance = (name) => {
     let i = null;
-    const obj = {};
-    ['check', 'guarantee', 'mock'].forEach(key => {
-        obj[key] = (...params) => {
-            if (i === null) {
-                i = instances.get(name);
-                if (i === undefined) {
-                    throw new Error('in getInstance: IPA instance called before injected');
-                }
+    const init = () => {
+        if (i === null) {
+            i = instances.get(name);
+            if (i === undefined) {
+                throw new Error('in getInstance: IPA instance called before injected');
             }
+        }
+    };
+    const proxy = {};
+    Object.defineProperty(IPA, coreSymbol, {
+        get() {
+            init();
+            return i[coreSymbol];
+        }
+    });
+    ['check', 'guarantee', 'mock'].forEach(key => {
+        proxy[key] = (...params) => {
+            init();
             return i[key](...params);
         }
     });
-    return obj;
+    return proxy;
 };
 
 // install && compile expose
