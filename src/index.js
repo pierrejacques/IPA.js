@@ -18,20 +18,31 @@ class IPA {
         return output;
     }
 
-    guarantee(data, isCopy = true) {
+    /**
+     * 
+     * @param {the inputting data to be guaranteed} data
+     * @param {whether to make a deep copy first} isCopy
+     * @param {whether to use the strict mode} strict
+     */
+    guarantee(data, isCopy = true, strict = false) {
         const copy = isCopy ? cloneDeep(data) : data;
-        const output = this[templateSymbol].guarantee(copy);
+        const output = this[templateSymbol].guarantee(copy, strict);
         fixArray(this.strategy);
         cache.reset();
         return output;
     }
 
-    mock(settings = {}) {
+    /**
+     * 
+     * @param {the mock setting for array length} settings 
+     * @param {whether it's in production environment} prod 
+     */
+    mock(settings = {}, prod = false) {
         if (!isPlainObject(settings)) {
             throw new Error('mocking setting should be a plain object');
         }
         cache.digest(settings);
-        const output = this[templateSymbol].mock();
+        const output = this[templateSymbol].mock(prod);
         cache.reset();
         return output;
     }

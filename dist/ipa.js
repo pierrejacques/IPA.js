@@ -165,8 +165,8 @@ var checkLength = (function () {
 var arrayStrat = (function () {
     return {
         check: lodash.isArray,
-        guarantee: function guarantee(val) {
-            return lodash.isArray(val) ? val : lodash.toArray(val);
+        guarantee: function guarantee(val, strict) {
+            return lodash.isArray(val) ? val : strict ? [] : lodash.toArray(val);
         },
         mock: function mock() {
             return [];
@@ -180,8 +180,8 @@ var booleanStrat = (function () {
         guarantee: function guarantee(val) {
             return !!val;
         },
-        mock: function mock() {
-            return !lodash.random(0, 1);
+        mock: function mock(prod) {
+            return prod ? false : !lodash.random(0, 1);
         }
     };
 });
@@ -189,12 +189,13 @@ var booleanStrat = (function () {
 var numberStrat = (function () {
     return {
         check: lodash.isNumber,
-        guarantee: function guarantee(val) {
+        guarantee: function guarantee(val, strict) {
+            if (strict && !lodash.isNumber(val)) return 0;
             var n = lodash.toNumber(val);
             return !lodash.isNaN(n) && lodash.isFinite(n) ? n : 0;
         },
-        mock: function mock() {
-            return lodash.random(0, 100);
+        mock: function mock(prod) {
+            return prod ? 0 : lodash.random(0, 100);
         }
     };
 });
@@ -220,10 +221,12 @@ var randStr = (function () {
 var stringStrat = (function () {
     return {
         check: lodash.isString,
-        guarantee: function guarantee(v) {
-            return lodash.toString(v);
+        guarantee: function guarantee(v, strict) {
+            return lodash.isString(v) ? v : strict ? '' : lodash.toString(v);
         },
-        mock: randStr
+        mock: function mock(prod) {
+            return prod ? '' : randStr();
+        }
     };
 });
 
@@ -681,27 +684,44 @@ var IPA = function () {
             cache.reset();
             return output;
         }
+
+        /**
+         * 
+         * @param {the inputting data to be guaranteed} data
+         * @param {whether to make a deep copy first} isCopy
+         * @param {whether to use the strict mode} strict
+         */
+
     }, {
         key: 'guarantee',
         value: function guarantee(data) {
             var isCopy = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : true;
+            var strict = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : false;
 
             var copy = isCopy ? lodash.cloneDeep(data) : data;
-            var output = this[templateSymbol].guarantee(copy);
+            var output = this[templateSymbol].guarantee(copy, strict);
             fixArray(this.strategy);
             cache.reset();
             return output;
         }
+
+        /**
+         * 
+         * @param {the mock setting for array length} settings 
+         * @param {whether it's in production environment} prod 
+         */
+
     }, {
         key: 'mock',
         value: function mock() {
             var settings = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {};
+            var prod = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : false;
 
             if (!lodash.isPlainObject(settings)) {
                 throw new Error('mocking setting should be a plain object');
             }
             cache.digest(settings);
-            var output = this[templateSymbol].mock();
+            var output = this[templateSymbol].mock(prod);
             cache.reset();
             return output;
         }

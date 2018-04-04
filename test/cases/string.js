@@ -11,16 +11,19 @@ module.exports = [
             input: 'test',
             check: true,
             guarantee: 'test',
+            strict: 'test',
         }, {
             name: 'inputting: empty string',
             input: '',
             check: true,
             guarantee: '',
+            strict: '',
         }, {
             name: 'inputting: number',
             input: 1,
             check: false,
             guarantee: '1',
+            strict: '',
         },]
     },
 ];

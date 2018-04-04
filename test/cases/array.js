@@ -11,21 +11,25 @@ module.exports = [
             input: [],
             check: true,
             guarantee: [],
+            strict: [],
         }, {
             name: 'inputting: non-empty array',
             input: [1, '2', false, String, { name: 1 }],
             check: true,
             guarantee: [1, '2', false, String, { name: 1 }],
+            strict: [1, '2', false, String, { name: 1 }],
         }, {
             name: 'inputting: wrong type',
             inputs: [{}, Array, 1, false],
             check: false,
             guarantee: [],
+            strict: [],
         }, {
             name: 'inputting: convertable',
             inputs: [{ a: '1', b: '2' }, new Set(['1', '2']), '12'],
             check: false,
             guarantee: ['1', '2'],
+            strict: [],
         }],
     },
 ];

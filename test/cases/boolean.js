@@ -11,6 +11,7 @@ module.exports = [
             input: false,
             check: true,
             guarantee: false,
+            strict: false,
         }, {
             name: 'inputting: to true',
             inputs: [
@@ -23,6 +24,7 @@ module.exports = [
             ],
             check: false,
             guarantee: true,
+            strict: true,
         }, {
             name: 'inputting: to false',
             inputs: [
@@ -33,6 +35,7 @@ module.exports = [
             ],
             check: false,
             guarantee: false,
+            strict: false,
         }]
     },
 ];

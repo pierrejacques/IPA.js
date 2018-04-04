@@ -2,6 +2,6 @@ import { isArray, toArray } from 'lodash';
 
 export default () => ({
     check: isArray,
-    guarantee: val => isArray(val) ? val : toArray(val),
+    guarantee:(val, strict) => isArray(val) ? val : strict ? [] : toArray(val),
     mock: () => [],
 });
