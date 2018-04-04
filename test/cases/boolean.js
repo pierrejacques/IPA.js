@@ -4,14 +4,49 @@ Object.defineProperty(exports, "__esModule", {
 
 module.exports = [
     {
-        desc: 'When template = Array',
-        template: Array,
+        desc: 'When template = true (boolean default)',
+        template: true,
         situations: [{
-            name: 'inputting: empty array',
-            input: [],
+            name: 'inputting: false',
+            input: false,
             check: true,
-            guarantee: [],
-            strict: [],
+            guarantee: false,
+            strict: false,
+        }, {
+            name: 'inputting: true',
+            input: true,
+            check: true,
+            guarantee: true,
+            strict: true,
+        }, {
+            name: 'inputting: non-boolean',
+            inputs: [1, 'a', {}, [], () => {}],
+            check: false,
+            guarantee: true,
+            strict: true,
+        }],
+    },
+    {
+        desc: 'When template = false (boolean default)',
+        template: false,
+        situations: [{
+            name: 'inputting: false',
+            input: false,
+            check: true,
+            guarantee: false,
+            strict: false,
+        }, {
+            name: 'inputting: true',
+            input: true,
+            check: true,
+            guarantee: true,
+            strict: true,
+        }, {
+            name: 'inputting: non-boolean',
+            inputs: [1, 'a', {}, [], () => {}],
+            check: false,
+            guarantee: false,
+            strict: false,
         }],
     },
 ];
