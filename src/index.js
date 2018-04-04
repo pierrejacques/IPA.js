@@ -52,6 +52,7 @@ class IPA {
     }
 }
 
+
 // global instance logic
 IPA.inject = (name, template) => instances.set(name, new IPA(template));
 IPA.getInstance = (name) => {
@@ -65,20 +66,34 @@ IPA.getInstance = (name) => {
         }
     };
     const proxy = {};
-    Object.defineProperty(IPA, coreSymbol, {
+    Object.defineProperty(proxy, coreSymbol, {
         get() {
             init();
             return i[coreSymbol];
-        }
+        },
     });
-    ['check', 'guarantee', 'mock'].forEach(key => {
-        proxy[key] = (...params) => {
+    Object.defineProperty(proxy, 'strategy', {
+        get() {
             init();
-            return i[key](...params);
-        }
+            return i.strategy;
+        },
+        set(v) {
+            init();
+            i.strategy = v;
+        },
+    });
+    const methods = ['check', 'guarantee', 'mock'];
+    methods.forEach(key => {
+        Object.defineProperty(proxy, key, {
+            get() {
+                init();
+                return i[key];
+            }
+        });
     });
     return proxy;
 };
+
 
 // install && compile expose
 IPA.$compile = compile;

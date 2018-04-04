@@ -244,6 +244,7 @@ var ipaCompiler = {
         return !!(template && template[templateSymbol]);
     },
     execute: function execute(template) {
+        console.log('here');
         return function () {
             return template[templateSymbol];
         };
@@ -746,20 +747,39 @@ IPA.inject = function (name, template) {
 };
 IPA.getInstance = function (name) {
     var i = null;
-    var proxy = {};
-    ['check', 'guarantee', 'mock'].forEach(function (key) {
-        proxy[key] = function () {
-            var _i;
-
-            if (i === null) {
-                i = instances.get(name);
-                if (i === undefined) {
-                    throw new Error('in getInstance: IPA instance called before injected');
-                }
-                proxy[templateSymbol] = i[templateSymbol];
+    var init = function init() {
+        if (i === null) {
+            i = instances.get(name);
+            if (i === undefined) {
+                throw new Error('in getInstance: IPA instance called before injected');
             }
-            return (_i = i)[key].apply(_i, arguments);
-        };
+        }
+    };
+    var proxy = {};
+    Object.defineProperty(proxy, templateSymbol, {
+        get: function get$$1() {
+            init();
+            return i[templateSymbol];
+        }
+    });
+    Object.defineProperty(proxy, 'strategy', {
+        get: function get$$1() {
+            init();
+            return i.strategy;
+        },
+        set: function set$$1(v) {
+            init();
+            i.strategy = v;
+        }
+    });
+    var methods = ['check', 'guarantee', 'mock'];
+    methods.forEach(function (key) {
+        Object.defineProperty(proxy, key, {
+            get: function get$$1() {
+                init();
+                return i[key];
+            }
+        });
     });
     return proxy;
 };
