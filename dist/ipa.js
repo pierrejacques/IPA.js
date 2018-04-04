@@ -767,7 +767,7 @@ var IPA = function () {
 
 var instances = new Map();
 IPA.inject = function (name, template) {
-    if (instance.has(name)) throw new Error('in inject: reassign to global IPA instance is not arrowed');
+    if (instances.has(name)) throw new Error('in inject: reassign to global IPA instance is not arrowed');
     instances.set(name, new IPA(template));
 };
 IPA.getInstance = function (name) {
