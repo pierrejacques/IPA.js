@@ -3,11 +3,12 @@ import cache from './lib/Cache';
 import coreSymbol from './lib/symbol';
 import fixArray from './lib/fixArray';
 import checkLength from './lib/checkLength';
+import createProxy from './lib/createProxy';
 import compile from './compile/index';
 import publics from './public/index';
 
 let isProductionEnv = false;
-const instances = new Map();
+
 
 // class
 class IPA {
@@ -54,44 +55,21 @@ class IPA {
 
 
 // global instance logic
-IPA.inject = (name, template) => instances.set(name, new IPA(template));
+const instances = new Map();
+IPA.inject = (name, template) => {
+    if (instances.has(name)) throw new Error('in inject: reassign to global IPA instance is not arrowed');
+    instances.set(name, new IPA(template));
+};
 IPA.getInstance = (name) => {
     let i = null;
-    const init = () => {
-        if (i === null) {
-            i = instances.get(name);
-            if (i === undefined) {
-                throw new Error('in getInstance: IPA instance called before injected');
-            }
+    return createProxy(() => {
+        if (i) return i;
+        i = instances.get(name);
+        if (i === undefined) {
+            throw new Error('in getInstance: IPA instance called before injected');
         }
-    };
-    const proxy = {};
-    Object.defineProperty(proxy, coreSymbol, {
-        get() {
-            init();
-            return i[coreSymbol];
-        },
+        return i;
     });
-    Object.defineProperty(proxy, 'strategy', {
-        get() {
-            init();
-            return i.strategy;
-        },
-        set(v) {
-            init();
-            i.strategy = v;
-        },
-    });
-    const methods = ['check', 'guarantee', 'mock'];
-    methods.forEach(key => {
-        Object.defineProperty(proxy, key, {
-            get() {
-                init();
-                return i[key];
-            }
-        });
-    });
-    return proxy;
 };
 
 

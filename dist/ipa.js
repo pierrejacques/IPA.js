@@ -162,6 +162,31 @@ var checkLength = (function () {
     return result;
 });
 
+var getterProps = ['check', 'guarantee', 'mock', templateSymbol];
+var bothProps = ['strategy'];
+
+var createProxy = (function (getInstance) {
+    var proxy = {};
+    getterProps.forEach(function (prop) {
+        Object.defineProperty(proxy, prop, {
+            get: function get() {
+                return getInstance()[prop];
+            }
+        });
+    });
+    bothProps.forEach(function (prop) {
+        Object.defineProperty(proxy, prop, {
+            set: function set() {
+                return getInstance()[prop];
+            },
+            get: function get() {
+                return getInstance()[prop];
+            }
+        });
+    });
+    return proxy;
+});
+
 var arrayStrat = (function () {
     return {
         check: lodash.isArray,
@@ -244,7 +269,6 @@ var ipaCompiler = {
         return !!(template && template[templateSymbol]);
     },
     execute: function execute(template) {
-        console.log('here');
         return function () {
             return template[templateSymbol];
         };
@@ -675,7 +699,6 @@ var publicExposed = {
 };
 
 var isProductionEnv = false;
-var instances = new Map();
 
 // class
 
@@ -742,46 +765,21 @@ var IPA = function () {
 // global instance logic
 
 
+var instances = new Map();
 IPA.inject = function (name, template) {
-    return instances.set(name, new IPA(template));
+    if (instance.has(name)) throw new Error('in inject: reassign to global IPA instance is not arrowed');
+    instances.set(name, new IPA(template));
 };
 IPA.getInstance = function (name) {
     var i = null;
-    var init = function init() {
-        if (i === null) {
-            i = instances.get(name);
-            if (i === undefined) {
-                throw new Error('in getInstance: IPA instance called before injected');
-            }
+    return createProxy(function () {
+        if (i) return i;
+        i = instances.get(name);
+        if (i === undefined) {
+            throw new Error('in getInstance: IPA instance called before injected');
         }
-    };
-    var proxy = {};
-    Object.defineProperty(proxy, templateSymbol, {
-        get: function get$$1() {
-            init();
-            return i[templateSymbol];
-        }
+        return i;
     });
-    Object.defineProperty(proxy, 'strategy', {
-        get: function get$$1() {
-            init();
-            return i.strategy;
-        },
-        set: function set$$1(v) {
-            init();
-            i.strategy = v;
-        }
-    });
-    var methods = ['check', 'guarantee', 'mock'];
-    methods.forEach(function (key) {
-        Object.defineProperty(proxy, key, {
-            get: function get$$1() {
-                init();
-                return i[key];
-            }
-        });
-    });
-    return proxy;
 };
 
 // install && compile expose
