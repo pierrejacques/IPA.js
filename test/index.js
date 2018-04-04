@@ -5,10 +5,7 @@ const expect = require('chai').expect;
 const IPA = require('../dist/ipa.js');
 
 const cases = [
-    ...require('./cases/number'),
-    ...require('./cases/boolean'),
-    ...require('./cases/string'),
-    ...require('./cases/array'),
+    ...require('./cases/function'),
 ];
 
 cases.forEach(c => {
