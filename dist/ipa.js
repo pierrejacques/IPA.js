@@ -273,10 +273,10 @@ var arrayCompiler = {
                     }
                     return result;
                 },
-                guarantee: function guarantee(valIn) {
+                guarantee: function guarantee(valIn, strict) {
                     var val = lodash.isArray(valIn) ? valIn : [];
                     val.forEach(function (item, idx) {
-                        val[idx] = compiled.guarantee(item);
+                        val[idx] = compiled.guarantee(item, strict);
                     });
                     if (l !== undefined) {
                         cache.push(l, {
@@ -286,8 +286,8 @@ var arrayCompiler = {
                     }
                     return val;
                 },
-                mock: function mock() {
-                    var length = lodash.random(0, 10);
+                mock: function mock(prod) {
+                    var length = prod ? 0 : lodash.random(0, 10);
                     if (lodash.isNumber(l)) length = l;
                     if (lodash.isString(l)) {
                         if (lodash.isNumber(cache.get(l))) {
@@ -296,7 +296,9 @@ var arrayCompiler = {
                             cache.set(l, length);
                         }
                     }
-                    return lodash.times(length, compiled.mock);
+                    return lodash.times(length, function () {
+                        return compiled.mock(prod);
+                    });
                 }
             };
         };
