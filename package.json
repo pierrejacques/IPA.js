@@ -6,8 +6,7 @@
   "scripts": {
     "build": "rollup -c",
     "test": "rollup -c; mocha test/index.js",
-    "try": "rollup -c; node test/scripts.js",
-    "time": "rollup -c; node test/timer.js"
+    "try": "rollup -c; node test/scripts.js"
   },
   "repository": {
     "type": "git",

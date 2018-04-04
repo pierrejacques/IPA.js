@@ -43,9 +43,12 @@ IPA.inject = (name, template) => instances.set(name, new IPA(template));
 
 IPA.getInstance = (name) => instances.get(name);
 
+IPA.$compile = compile;
+
 IPA.install = (v) => {
     const w = v;
     w.prototype.$ipa = IPA.getInstance;
+    w.prototype.$brew = IPA.$compile;
 };
 
 Object.assign(IPA, publics);

@@ -719,9 +719,12 @@ IPA.getInstance = function (name) {
     return instances.get(name);
 };
 
+IPA.$compile = compile;
+
 IPA.install = function (v) {
     var w = v;
     w.prototype.$ipa = IPA.getInstance;
+    w.prototype.$brew = IPA.$compile;
 };
 
 Object.assign(IPA, publicExposed);
