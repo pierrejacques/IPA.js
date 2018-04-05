@@ -17,6 +17,18 @@ class IPA {
         this[strategySymbol] = 'shortest';
     }
 
+    set strategy(val) {
+        if (!fixArray[val]) {
+            if (!isProductionEnv) throw new Error(`in IPA strategy setter: invalid strategy "${val}"`);
+            return;
+        }
+        this[strategySymbol] = val;
+    }
+
+    get strategy () {
+        return this[strategySymbol];
+    }
+
     check(data) {
         const output = this[coreSymbol].check(data) && checkLength();
         cache.reset();
@@ -42,9 +54,11 @@ class IPA {
      * @param {the mock setting for array length} settings 
      * @param {whether it's in production environment} prod 
      */
-    mock(settings = {}, prod = isProductionEnv) {
+    mock(settingsIn = {}, prod = isProductionEnv) {
+        let settings = settingsIn;
         if (!isPlainObject(settings)) {
-            throw new Error('mocking setting should be a plain object');
+            if (!isProductionEnv) throw new Error('mocking setting should be a plain object');
+            settings = {};
         }
         cache.digest(settings);
         const output = this[coreSymbol].mock(prod);
@@ -57,7 +71,9 @@ class IPA {
 // global instance logic
 const instances = new Map();
 IPA.inject = (name, template) => {
-    if (instances.has(name)) throw new Error('in inject: reassign to global IPA instance is not arrowed');
+    if (instances.has(name) && !isProductionEnv) {
+        throw new Error('in inject: reassign to global IPA instance is not arrowed');
+    }
     instances.set(name, new IPA(template));
 };
 IPA.getInstance = (name) => {
@@ -65,9 +81,7 @@ IPA.getInstance = (name) => {
     return createProxy(() => {
         if (i) return i;
         i = instances.get(name);
-        if (i === undefined) {
-            throw new Error('in getInstance: IPA instance called before injected');
-        }
+        if (i === undefined) throw new Error('in getInstance: IPA instance called before injected');
         return i;
     });
 };
@@ -93,14 +107,5 @@ Object.defineProperty(IPA, 'isProductionEnv', {
         return isProductionEnv;
     },
 });
-Object.defineProperty(IPA, 'strategy', {
-    set(val) {
-        if (!fixArray[val]) throw new Error(`in IPA strategy setter: invalid strategy ${val}`);
-        this[strategySymbol] = val;
-    },
-    get() {
-        return this[strategySymbol];
-    }
-})
 
 export default IPA;

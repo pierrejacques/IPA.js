@@ -752,16 +752,30 @@ var IPA = function () {
     }, {
         key: 'mock',
         value: function mock() {
-            var settings = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {};
+            var settingsIn = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {};
             var prod = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : isProductionEnv;
 
+            var settings = settingsIn;
             if (!lodash.isPlainObject(settings)) {
-                throw new Error('mocking setting should be a plain object');
+                if (!isProductionEnv) throw new Error('mocking setting should be a plain object');
+                settings = {};
             }
             cache.digest(settings);
             var output = this[templateSymbol].mock(prod);
             cache.reset();
             return output;
+        }
+    }, {
+        key: 'strategy',
+        set: function set$$1(val) {
+            if (!fixer[val]) {
+                if (!isProductionEnv) throw new Error('in IPA strategy setter: invalid strategy "' + val + '"');
+                return;
+            }
+            this[strategySymbol] = val;
+        },
+        get: function get$$1() {
+            return this[strategySymbol];
         }
     }]);
     return IPA;
@@ -772,7 +786,9 @@ var IPA = function () {
 
 var instances = new Map();
 IPA.inject = function (name, template) {
-    if (instances.has(name)) throw new Error('in inject: reassign to global IPA instance is not arrowed');
+    if (instances.has(name) && !isProductionEnv) {
+        throw new Error('in inject: reassign to global IPA instance is not arrowed');
+    }
     instances.set(name, new IPA(template));
 };
 IPA.getInstance = function (name) {
@@ -780,9 +796,7 @@ IPA.getInstance = function (name) {
     return createProxy(function () {
         if (i) return i;
         i = instances.get(name);
-        if (i === undefined) {
-            throw new Error('in getInstance: IPA instance called before injected');
-        }
+        if (i === undefined) throw new Error('in getInstance: IPA instance called before injected');
         return i;
     });
 };
@@ -805,15 +819,6 @@ Object.defineProperty(IPA, 'isProductionEnv', {
     },
     get: function get$$1() {
         return isProductionEnv;
-    }
-});
-Object.defineProperty(IPA, 'strategy', {
-    set: function set$$1(val) {
-        if (!fixer[val]) throw new Error('in IPA strategy setter: invalid strategy ' + val);
-        this[strategySymbol] = val;
-    },
-    get: function get$$1() {
-        return this[strategySymbol];
     }
 });
 
