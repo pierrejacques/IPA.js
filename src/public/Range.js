@@ -10,11 +10,10 @@ export default (min, max, isFloat = false) => {
     return () => ({
         check: val => isNumber(val) && val >= min && val <= max,
         guarantee: (val) => {
-            if (!isNumber(val)) return (min + max) / 2;
-            if (val < min) return min;
+            if (!isNumber(val) || val < min) return min;
             if (val > min) return max;
             return val;
         },
-        mock: () => random(min, max, isFloat),
+        mock: (prod) => prod ? min : random(min, max, isFloat),
     });
 };

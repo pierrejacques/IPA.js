@@ -39,9 +39,9 @@ export default (template, isJSONcompare = false) => {
             }
             return false;
         },
-        guarantee(val) {
-            return this.check(val) ? val : getRandom();
+        guarantee(val, strict) {
+            return this.check(val) ? val : strict ? set[0] : getRandom();
         },
-        mock: getRandom,
+        mock: prod => prod ? set[0] : getRandom,
     });
 };

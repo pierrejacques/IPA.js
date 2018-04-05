@@ -518,18 +518,18 @@ var Dict = (function (template) {
                 });
                 return result;
             },
-            guarantee: function guarantee(valIn) {
+            guarantee: function guarantee(valIn, strict) {
                 var val = valIn;
                 if (!lodash.isPlainObject(val)) return {};
                 Object.keys(val).forEach(function (key) {
-                    val[key] = compiled.guarantee(val[key]);
+                    val[key] = compiled.guarantee(val[key], strict);
                 });
                 return val;
             },
-            mock: function mock() {
+            mock: function mock(prod) {
                 var output = {};
-                lodash.range(0, lodash.random(1, 10)).forEach(function () {
-                    output[randStr()] = compiled.mock();
+                lodash.range(0, prod ? 0 : lodash.random(1, 10)).forEach(function () {
+                    output[randStr()] = compiled.mock(prod);
                 });
                 return output;
             }
@@ -539,10 +539,14 @@ var Dict = (function (template) {
 
 var Integer = (function () {
     return {
-        check: lodash.isInteger,
-        guarantee: lodash.toInteger,
-        mock: function mock() {
-            return lodash.random(0, 1000);
+        check: function check(v) {
+            return lodash.isInteger(v);
+        },
+        guarantee: function guarantee(v, strict) {
+            return lodash.isInteger(v) ? v : strict ? 0 : lodash.toInteger(v);
+        },
+        mock: function mock(prod) {
+            return prod ? 0 : lodash.random(0, 1000);
         }
     };
 });
@@ -565,11 +569,11 @@ var or = (function () {
                 });
                 return result;
             },
-            guarantee: function guarantee(val) {
-                return this.check(val) ? val : rules[0].guarantee(val);
+            guarantee: function guarantee(val, strict) {
+                return this.check(val) ? val : rules[0].guarantee(val, strict);
             },
-            mock: function mock() {
-                return rules[0].mock();
+            mock: function mock(prod) {
+                return rules[0].mock(prod);
             }
         };
     };
@@ -590,13 +594,12 @@ var Range = (function (min, max) {
                 return lodash.isNumber(val) && val >= min && val <= max;
             },
             guarantee: function guarantee(val) {
-                if (!lodash.isNumber(val)) return (min + max) / 2;
-                if (val < min) return min;
+                if (!lodash.isNumber(val) || val < min) return min;
                 if (val > min) return max;
                 return val;
             },
-            mock: function mock() {
-                return lodash.random(min, max, isFloat);
+            mock: function mock(prod) {
+                return prod ? min : lodash.random(min, max, isFloat);
             }
         };
     };
@@ -619,10 +622,10 @@ var Each = (function (template) {
                 });
                 return result;
             },
-            guarantee: function guarantee(valIn) {
+            guarantee: function guarantee(valIn, strict) {
                 var val = lodash.isArray(valIn) ? valIn : [];
                 compiled.forEach(function (item, idx) {
-                    val[idx] = item.guarantee(val[idx]);
+                    val[idx] = item.guarantee(val[idx], strict);
                 });
                 if (strictLength) {
                     val.splice(compiled.length);
@@ -630,9 +633,9 @@ var Each = (function (template) {
                 return val;
             },
 
-            mock: function mock() {
+            mock: function mock(prod) {
                 return compiled.map(function (item) {
-                    return item.mock();
+                    return item.mock(prod);
                 });
             }
         };
@@ -683,11 +686,13 @@ var From = (function (template) {
                 }
                 return false;
             },
-            guarantee: function guarantee(val) {
-                return this.check(val) ? val : getRandom();
+            guarantee: function guarantee(val, strict) {
+                return this.check(val) ? val : strict ? set[0] : getRandom();
             },
 
-            mock: getRandom
+            mock: function mock(prod) {
+                return prod ? set[0] : getRandom;
+            }
         };
     };
 });

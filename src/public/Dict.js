@@ -12,18 +12,18 @@ export default template => (compile) => {
             });
             return result;
         },
-        guarantee(valIn) {
+        guarantee(valIn, strict) {
             const val = valIn;
             if (!isPlainObject(val)) return {};
             Object.keys(val).forEach((key) => {
-                val[key] = compiled.guarantee(val[key]);
+                val[key] = compiled.guarantee(val[key], strict);
             });
             return val;
         },
-        mock() {
+        mock(prod) {
             const output = {};
-            range(0, random(1, 10)).forEach(() => {
-                output[randStr()] = compiled.mock();
+            range(0, prod ? 0 : random(1, 10)).forEach(() => {
+                output[randStr()] = compiled.mock(prod);
             });
             return output;
         },

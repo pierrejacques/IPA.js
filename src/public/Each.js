@@ -13,17 +13,17 @@ export default (template, strictLength = true) => {
                 });
                 return result;
             },
-            guarantee(valIn) {
+            guarantee(valIn, strict) {
                 const val = isArray(valIn) ? valIn : [];
                 compiled.forEach((item, idx) => {
-                    val[idx] = item.guarantee(val[idx]);
+                    val[idx] = item.guarantee(val[idx], strict);
                 });
                 if (strictLength) {
                     val.splice(compiled.length);
                 }
                 return val;
             },
-            mock: () => compiled.map(item => item.mock()),
+            mock: prod => compiled.map(item => item.mock(prod)),
         };
     };
 };
