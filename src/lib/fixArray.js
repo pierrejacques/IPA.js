@@ -36,7 +36,7 @@ const strategies = {
     },
 };
 
-export default (strategyIn) => {
+const fixer = (strategyIn) => {
     const strategy = strategies[strategyIn] || strategies.shortest;
     cache.forEach((value, key) => {
         const targetLen = isNumber(key) ? key : strategy(value);
@@ -45,3 +45,7 @@ export default (strategyIn) => {
         });
     });
 };
+
+Object.assign(fixer, strategies);
+
+export default fixer;

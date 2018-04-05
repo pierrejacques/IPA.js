@@ -32,7 +32,7 @@ export default {
                     if (l !== undefined) {
                         cache.push(l, {
                             target: val,
-                            mocker: compiled.mock,
+                            mocker: () => compiled.guarantee(undefined, strict),
                         });
                     }
                     return val;

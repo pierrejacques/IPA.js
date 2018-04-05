@@ -138,7 +138,7 @@ var strategies = {
     }
 };
 
-var fixArray = (function (strategyIn) {
+var fixer = function fixer(strategyIn) {
     var strategy = strategies[strategyIn] || strategies.shortest;
     cache.forEach(function (value, key) {
         var targetLen = lodash.isNumber(key) ? key : strategy(value);
@@ -146,7 +146,9 @@ var fixArray = (function (strategyIn) {
             fixLength(targetLen, item);
         });
     });
-});
+};
+
+Object.assign(fixer, strategies);
 
 var checkLength = (function () {
     var result = true;
@@ -306,7 +308,9 @@ var arrayCompiler = {
                     if (l !== undefined) {
                         cache.push(l, {
                             target: val,
-                            mocker: compiled.mock
+                            mocker: function mocker() {
+                                return compiled.guarantee(undefined, strict);
+                            }
                         });
                     }
                     return val;
@@ -699,6 +703,7 @@ var publicExposed = {
 };
 
 var isProductionEnv = false;
+var strategySymbol = Symbol('strategy');
 
 // class
 
@@ -707,7 +712,7 @@ var IPA = function () {
         classCallCheck(this, IPA);
 
         this[templateSymbol] = compile(template);
-        this.strategy = 'shortest';
+        this[strategySymbol] = 'shortest';
     }
 
     createClass(IPA, [{
@@ -733,7 +738,7 @@ var IPA = function () {
 
             var copy = isCopy ? lodash.cloneDeep(data) : data;
             var output = this[templateSymbol].guarantee(copy, strict);
-            fixArray(this.strategy);
+            fixer(this.strategy);
             cache.reset();
             return output;
         }
@@ -793,13 +798,22 @@ IPA.install = function (v) {
 // public methods
 Object.assign(IPA, publicExposed);
 
-// env settings
+// global configuration items
 Object.defineProperty(IPA, 'isProductionEnv', {
     set: function set$$1(val) {
         isProductionEnv = !!val;
     },
-    get: function get$$1(val) {
+    get: function get$$1() {
         return isProductionEnv;
+    }
+});
+Object.defineProperty(IPA, 'strategy', {
+    set: function set$$1(val) {
+        if (!fixer[val]) throw new Error('in IPA strategy setter: invalid strategy ' + val);
+        this[strategySymbol] = val;
+    },
+    get: function get$$1() {
+        return this[strategySymbol];
     }
 });
 

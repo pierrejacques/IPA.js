@@ -8,13 +8,13 @@ import compile from './compile/index';
 import publics from './public/index';
 
 let isProductionEnv = false;
-
+const strategySymbol = Symbol('strategy');
 
 // class
 class IPA {
     constructor(template) {
         this[coreSymbol] = compile(template);
-        this.strategy = 'shortest';
+        this[strategySymbol] = 'shortest';
     }
 
     check(data) {
@@ -84,14 +84,23 @@ IPA.install = (v) => {
 // public methods
 Object.assign(IPA, publics);
 
-// env settings
+// global configuration items
 Object.defineProperty(IPA, 'isProductionEnv', {
     set(val) {
         isProductionEnv = !!val;
     },
-    get(val) {
+    get() {
         return isProductionEnv;
     },
 });
+Object.defineProperty(IPA, 'strategy', {
+    set(val) {
+        if (!fixArray[val]) throw new Error(`in IPA strategy setter: invalid strategy ${val}`);
+        this[strategySymbol] = val;
+    },
+    get() {
+        return this[strategySymbol];
+    }
+})
 
 export default IPA;

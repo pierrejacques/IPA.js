@@ -9,13 +9,14 @@ const cases = [
     ...require('./cases/boolean'),
     ...require('./cases/string'),
     ...require('./cases/number'),
+    ...require('./cases/array'),
 ];
 
 cases.forEach(c => {
     const instance = new IPA(c.template);
     describe(`${c.desc}`, () => {
         it('should be self-consistence', () => {
-            Array.apply(null, { length: 100 }).forEach(() => {
+            Array.apply(null, { length: 20 }).forEach(() => {
                 const mocked = instance.mock();
                 const prodMock = instance.mock({}, true);
                 expect(instance.check(mocked)).to.be.equal(true);
@@ -36,6 +37,7 @@ cases.forEach(c => {
                 const cRes = situation.check;
                 const gRes = situation.guarantee;
                 const sRes = situation.strict;
+                instance.strategy = situation.strategy || 'shortest',
                 inputs.forEach(input => {
                     expect(instance.check(input)).to.be.equal(cRes);
                     expect(instance.guarantee(input)).to.deep.equal(gRes);
