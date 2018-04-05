@@ -7,6 +7,8 @@ const IPA = require('../dist/ipa.js');
 const cases = [
     ...require('./cases/function'),
     ...require('./cases/boolean'),
+    ...require('./cases/string'),
+    ...require('./cases/number'),
 ];
 
 cases.forEach(c => {

@@ -841,7 +841,7 @@ Lockfile:
 
 Trace: 
   Error: Command failed.
-  Exit code: 6
+  Exit code: 1
   Command: sh
   Arguments: -c rollup -c; mocha test/index.js
   Directory: /Users/jinchenhao/Documents/codes/self/ipa

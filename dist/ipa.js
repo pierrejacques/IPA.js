@@ -454,7 +454,7 @@ var stringCompiler = {
                     return lodash.isString(v) ? v : template;
                 },
                 mock: function mock(prod) {
-                    return prod ? template : randStr;
+                    return prod ? template : randStr();
                 }
             };
         };
