@@ -35,7 +35,7 @@ IPA.js是一个数据结构校验库，可以同时运行于浏览器端和node�
 
 它通过一种类似Mongoose.Schema的简单易懂语法来声明对数据结构的要求：
 
-``` javascript
+``` js
 const personSchema = new IPA({
     name: String,
     age: Number,
@@ -48,7 +48,7 @@ const personSchema = new IPA({
 
 - check方法校验数据结构的合法性：
 
-``` javascript
+``` js
 personSchema.check({
     name: '李雷',
     age: 13,
@@ -59,7 +59,7 @@ personSchema.check({
 
 - guarantee方法保障数据的合法性：
 
-``` javascript
+``` js
 personSchema.guarantee({
     name: '李雷',
     age: '13',
@@ -77,7 +77,7 @@ personSchema.guarantee({
 
 - mock方法生成随机的合法数据：
 
-``` javascript
+``` js
 personSchema.mock();
 
 // { 
@@ -89,7 +89,7 @@ personSchema.mock();
 
 除了对象深层校验，IPA还对数组提供了强大的长度校验、保障和生成机制：
 
-``` javascript
+``` js
 const tableSchema = new IPA({
     thead: [String, 'cols'],
     tbody: [[Number, 'cols'], 'rows'],
@@ -117,31 +117,58 @@ tableSchema.mock({ cols: 3, rows: 2 }); // 指定生成的长度
 
 通过上述核心功能，IPA在完成繁琐易漏的数据结构校验的同时，帮助增强模块的容错能力，并提高开发效率。使得端对端/多模块的工程在开发层面和稳定性层面同时解耦。
 
-为了方便在多种场景下实现对复杂数据结构的校验，IPA还提供了一系列易用的内置类型校验和默认值校验：
+为了方便在多种场景下实现对复杂数据结构的校验，IPA还提供了一系列易用的内置类型校验和默认值校验，并且支持实例间的相互嵌套：
 
 例如：
 
-``` javascript
+``` js
 const { or, Range, Integer } = IPA;
 
-const dataSchema = new IPA([{
+const unitSchema = new IPA({
     id: or(String, Number),
     value: 0,
     count: Integer,
     type: Range(1, 4),
-}]);
+});
+
+const listSchema = new IPA([
+    unitSchema,
+]);
 ```
 
-它还支持具有高扩展性的规则自定义：
+IPA还支持具有高扩展性的规则自定义。在模板编译阶段，它将解析模板语法的`compile`函数作为参数传入用户自定义的校验函数，获得返回的验证规则，这使得构造自定义的嵌套规则成为可能。
 
-``` javascript
-const sequenceSchema = new IPA(() => ({
-    check(v) { return v.length !== undefined },
-    guarantee(v) { return this.check(v) ? v : '' },
-    mock() {
-        const rand = () => String.fromCharCode(Math.floor(Math.random() * 26 + 65));
-        return Array.apply(null, { length: 10 }).map(() => rand()).join('');
-    }
+如下示例了一个对字符串形式的复数的校验实例：
+
+``` js
+const complexSchema = new IPA((compile) => {
+    const reg = /^[0-9]+(.[0-9]+)?\+[0-9]+(.[0-9]+)?i$/;
+    const mocker = compile(Number).mock;
+    return {
+        check: v => reg.test(v),
+        guarantee: v => reg.test(v) ? v : '0+0i',
+        mock: v => `${mocker()}+${mocker()}i`,
+    };
+});
+```
+
+如下示例了一个标准的HTTP响应数据的基本结构，以及针对不同响应类型的扩展结构：
+
+``` js
+const Res = (subtemplate = Object) => {
+    return (compile) => {
+        return compile({
+            code: Number,
+            msg: String,
+            data: subtemplate,
+        });
+    };
+};
+
+const dataSchema1 = new IPA(Res(String));
+const dataSchema2 = new IPA(Res({
+    name: String,
+    value: Number,
 }));
 ```
 
