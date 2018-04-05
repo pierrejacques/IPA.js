@@ -4,15 +4,18 @@ const assert = require('assert');
 const expect = require('chai').expect;
 const IPA = require('../dist/ipa.js');
 
-const cases = [
-    ...require('./cases/function'),
-    ...require('./cases/boolean'),
-    ...require('./cases/string'),
-    ...require('./cases/number'),
-    ...require('./cases/array'),
+const compileCases = [
+    ...require('./compile/function'),
+    ...require('./compile/boolean'),
+    ...require('./compile/string'),
+    ...require('./compile/number'),
+    ...require('./compile/array'),
+    ...require('./compile/object'),
 ];
 
-cases.forEach(c => {
+console.log('======= Testing compilers =======');
+
+compileCases.forEach(c => {
     const instance = new IPA(c.template);
     describe(`${c.desc}`, () => {
         it('should be self-consistence', () => {
@@ -47,3 +50,9 @@ cases.forEach(c => {
         })
     });
 });
+
+console.log('======= Testing publics =======');
+
+const publicCases = [
+
+];
