@@ -55,6 +55,7 @@ describe(`
         ...require('./compile/number'),
         ...require('./compile/array'),
         ...require('./compile/object'),
+        ...require('./compile/ipa')(IPA),
     ]);
 });
 

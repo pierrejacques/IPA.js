@@ -3,7 +3,7 @@ export default {
     execute() {
         return () => ({
             check: v => v !== undefined,
-            guarantee: v => (v === undefined ? null : v),
+            guarantee: v => v === undefined ? null : v,
             mock: () => null,
         });
     },
