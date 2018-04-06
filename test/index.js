@@ -68,5 +68,6 @@ describe(`
         ...require('./public/or')(IPA),
         ...require('./public/asClass')(IPA),
         ...require('./public/Dict')(IPA),
+        ...require('./public/Each')(IPA),
     ]);
 });
