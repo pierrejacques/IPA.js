@@ -609,30 +609,25 @@ var Each = (function (template) {
     };
 });
 
-var From = (function (template) {
-    var deep = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : false;
-
-    var set = [];
-    try {
-        template.forEach(function (v) {
-            set.push(v);
-        });
-    } catch (e) {
-        throw new Error('in IPA.From: the 1st param must be iterable');
+var From = (function () {
+    for (var _len = arguments.length, set = Array(_len), _key = 0; _key < _len; _key++) {
+        set[_key] = arguments[_key];
     }
+
     var n = set.length;
     var getRandom = function getRandom() {
         var v = set[lodash.random(0, n - 1)];
-        return deep ? lodash.cloneDeep(v) : v;
+        return lodash.cloneDeep(v);
+    };
+    var getFirst = function getFirst() {
+        return lodash.cloneDeep(set[0]);
     };
     return function () {
         return {
             check: function check(val) {
                 for (var i = 0; i < n; i++) {
                     // eslint-disable-line
-                    if (!deep && set[i] === val || deep && lodash.isEqual(set[i], val)) {
-                        return true;
-                    }
+                    if (lodash.isEqual(set[i], val)) return true;
                 }
                 return false;
             },
@@ -641,7 +636,7 @@ var From = (function (template) {
             },
 
             mock: function mock(prod) {
-                return !prod ? getRandom() : deep ? lodash.cloneDeep(set[0]) : set[0];
+                return prod ? getFirst() : getRandom();
             }
         };
     };
