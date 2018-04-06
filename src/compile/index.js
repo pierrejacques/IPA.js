@@ -1,4 +1,4 @@
-import functionCompiler from './function/index';
+import functionCompiler from './function';
 import ipaCompiler from './ipa';
 import arrayCompiler from './array';
 import booleanCompiler from './boolean';

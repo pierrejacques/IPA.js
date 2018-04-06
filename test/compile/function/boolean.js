@@ -24,7 +24,7 @@ module.exports = [
             ],
             check: false,
             guarantee: true,
-            strict: true,
+            strict: false,
         }, {
             name: 'inputting: to false',
             inputs: [

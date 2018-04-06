@@ -189,75 +189,42 @@ var createProxy = (function (getInstance) {
     return proxy;
 });
 
-var arrayStrat = (function () {
-    return {
-        check: lodash.isArray,
-        guarantee: function guarantee(val, strict) {
-            return lodash.isArray(val) ? val : strict ? [] : lodash.toArray(val);
-        },
-        mock: function mock() {
-            return [];
-        }
-    };
-});
-
-var booleanStrat = (function () {
-    return {
-        check: lodash.isBoolean,
-        guarantee: function guarantee(val) {
-            return !!val;
-        },
-        mock: function mock(prod) {
-            return prod ? false : !lodash.random(0, 1);
-        }
-    };
-});
-
-var numberStrat = (function () {
-    return {
-        check: lodash.isNumber,
-        guarantee: function guarantee(val, strict) {
-            if (strict && !lodash.isNumber(val)) return 0;
-            var n = lodash.toNumber(val);
-            return !lodash.isNaN(n) && lodash.isFinite(n) ? n : 0;
-        },
-        mock: function mock(prod) {
-            return prod ? 0 : lodash.random(0, 100);
-        }
-    };
-});
-
-var objectStrat = (function () {
-    return {
-        check: lodash.isPlainObject,
-        guarantee: function guarantee(val) {
-            return lodash.isPlainObject(val) ? val : {};
-        },
-        mock: function mock() {
-            return {};
-        }
-    };
-});
-
 var dict = ['ad', 'aliqua', 'amet', 'anim', 'aute', 'cillum', 'commodo', 'culpa', 'do', 'dolor', 'duis', 'elit', 'enim', 'esse', 'est', 'et', 'ex', 'fugiat', 'id', 'in', 'ipsum', 'irure', 'labore', 'Lorem', 'magna', 'minim', 'mollit', 'nisi', 'non', 'nulla', 'officia', 'pariatur', 'quis', 'sint', 'sit', 'sunt', 'tempor', 'ut', 'velit', 'veniam'];
 
 var randStr = (function () {
     return dict[lodash.random(0, dict.length - 1)];
 });
 
-var stringStrat = (function () {
-    return {
-        check: lodash.isString,
-        guarantee: function guarantee(v, strict) {
-            return lodash.isString(v) ? v : strict ? '' : lodash.toString(v);
-        },
-        mock: function mock(prod) {
-            return prod ? '' : randStr();
-        }
+var geneStrat = function geneStrat(ck, cvt, dft, mk) {
+    return function () {
+        return {
+            check: ck,
+            guarantee: function guarantee(v, strict) {
+                return ck(v) ? v : strict ? dft : cvt(v);
+            },
+            mock: function mock(prod) {
+                return prod ? dft : mk();
+            }
+        };
     };
-});
+};
 
-var presetClasses = new Map().set(String, stringStrat).set(Number, numberStrat).set(Boolean, booleanStrat).set(Array, arrayStrat).set(Object, objectStrat);
+var presetClasses = new Map([[String, geneStrat(lodash.isString, lodash.toString, '', randStr)], [Number, geneStrat(lodash.isNumber, function (v) {
+    var n = lodash.toNumber(v);
+    return !isNaN(n) && isFinite(n) ? n : 0;
+}, 0, function () {
+    return lodash.random(0, 100);
+})], [Boolean, geneStrat(lodash.isBoolean, function (v) {
+    return !!v;
+}, false, function () {
+    return !lodash.random(0, 1);
+})], [Array, geneStrat(lodash.isArray, lodash.toArray, [], function () {
+    return [];
+})], [Object, geneStrat(lodash.isPlainObject, function () {
+    return {};
+}, {}, function () {
+    return {};
+})]]);
 
 var functionCompiler = {
     condition: lodash.isFunction,
