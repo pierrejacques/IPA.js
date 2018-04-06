@@ -7,13 +7,17 @@ export default (min, max, isFloat = false) => {
     if (min > max) {
         throw new Error('in function "Range", min(1st param) must be no larger than max(2st param)');
     }
-    return () => ({
-        check: val => isNumber(val) && val >= min && val <= max,
-        guarantee: (val) => {
-            if (!isNumber(val) || val < min) return min;
-            if (val > min) return max;
-            return val;
-        },
-        mock: (prod) => prod ? min : random(min, max, isFloat),
-    });
+    return (compile) => {
+        const nb = compile(Number);
+        return {
+            check: val => isNumber(val) && val >= min && val <= max,
+            guarantee: (val, strict) => {
+                const v = nb.guarantee(val, strict);
+                if (v < min) return min;
+                if (v > max) return max;
+                return v;
+            },
+            mock: (prod) => prod ? min : random(min, max, isFloat),
+        }
+    };
 };

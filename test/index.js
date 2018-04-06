@@ -71,5 +71,6 @@ describe(`
         ...require('./public/Each')(IPA),
         ...require('./public/From')(IPA),
         ...require('./public/Integer')(IPA),
+        ...require('./public/Range')(IPA),
     ]);
 });

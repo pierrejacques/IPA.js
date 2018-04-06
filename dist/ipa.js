@@ -555,15 +555,17 @@ var Range = (function (min, max) {
     if (min > max) {
         throw new Error('in function "Range", min(1st param) must be no larger than max(2st param)');
     }
-    return function () {
+    return function (compile) {
+        var nb = compile(Number);
         return {
             check: function check(val) {
                 return lodash.isNumber(val) && val >= min && val <= max;
             },
-            guarantee: function guarantee(val) {
-                if (!lodash.isNumber(val) || val < min) return min;
-                if (val > min) return max;
-                return val;
+            guarantee: function guarantee(val, strict) {
+                var v = nb.guarantee(val, strict);
+                if (v < min) return min;
+                if (v > max) return max;
+                return v;
             },
             mock: function mock(prod) {
                 return prod ? min : lodash.random(min, max, isFloat);
