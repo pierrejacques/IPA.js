@@ -67,5 +67,6 @@ describe(`
     test([
         ...require('./public/or')(IPA),
         ...require('./public/asClass')(IPA),
+        ...require('./public/Dict')(IPA),
     ]);
 });
