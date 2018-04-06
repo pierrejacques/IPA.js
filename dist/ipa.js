@@ -195,7 +195,7 @@ var randStr = (function () {
     return dict[lodash.random(0, dict.length - 1)];
 });
 
-var geneStrat = function geneStrat(ck, cvt, dft, mk) {
+var Strat = function Strat(ck, cvt, dft, mk) {
     return function () {
         return {
             check: ck,
@@ -209,18 +209,18 @@ var geneStrat = function geneStrat(ck, cvt, dft, mk) {
     };
 };
 
-var presetClasses = new Map([[String, geneStrat(lodash.isString, lodash.toString, '', randStr)], [Number, geneStrat(lodash.isNumber, function (v) {
+var presetClasses = new Map([[String, Strat(lodash.isString, lodash.toString, '', randStr)], [Number, Strat(lodash.isNumber, function (v) {
     var n = lodash.toNumber(v);
     return !isNaN(n) && isFinite(n) ? n : 0;
 }, 0, function () {
     return lodash.random(0, 100);
-})], [Boolean, geneStrat(lodash.isBoolean, function (v) {
+})], [Boolean, Strat(lodash.isBoolean, function (v) {
     return !!v;
 }, false, function () {
     return !lodash.random(0, 1);
-})], [Array, geneStrat(lodash.isArray, lodash.toArray, [], function () {
+})], [Array, Strat(lodash.isArray, lodash.toArray, [], function () {
     return [];
-})], [Object, geneStrat(lodash.isPlainObject, function () {
+})], [Object, Strat(lodash.isPlainObject, function () {
     return {};
 }, {}, function () {
     return {};
