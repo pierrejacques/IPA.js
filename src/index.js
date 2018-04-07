@@ -1,6 +1,6 @@
-import { isPlainObject, cloneDeep } from 'lodash';
+import _ from 'lodash';
 import cache from './lib/Cache';
-import coreSymbol from './lib/symbol';
+import _core_ from './lib/symbol';
 import fixArray from './lib/fixArray';
 import checkLength from './lib/checkLength';
 import createProxy from './lib/createProxy';
@@ -8,13 +8,13 @@ import compile from './compile/index';
 import publics from './public/index';
 
 let isProductionEnv = false;
-const strategySymbol = Symbol('strategy');
+const _strat_ = Symbol('strategy');
 
 // class
 class IPA {
     constructor(template) {
-        this[coreSymbol] = compile(template);
-        this[strategySymbol] = 'shortest';
+        this[_core_] = compile(template);
+        this[_strat_] = 'shortest';
     }
 
     set strategy(val) {
@@ -22,15 +22,15 @@ class IPA {
             if (!isProductionEnv) throw new Error(`in IPA strategy setter: invalid strategy "${val}"`);
             return;
         }
-        this[strategySymbol] = val;
+        this[_strat_] = val;
     }
 
     get strategy () {
-        return this[strategySymbol];
+        return this[_strat_];
     }
 
     check(data) {
-        const output = this[coreSymbol].check(data) && checkLength();
+        const output = this[_core_].check(data) && checkLength();
         cache.reset();
         return output;
     }
@@ -42,8 +42,8 @@ class IPA {
      * @param {whether to use the strict mode} strict
      */
     guarantee(data, isCopy = true, strict = false) {
-        const copy = isCopy ? cloneDeep(data) : data;
-        const output = this[coreSymbol].guarantee(copy, strict);
+        const copy = isCopy ? _.cloneDeep(data) : data;
+        const output = this[_core_].guarantee(copy, strict);
         fixArray(this.strategy);
         cache.reset();
         return output;
@@ -56,12 +56,12 @@ class IPA {
      */
     mock(settingsIn = {}, prod = isProductionEnv) {
         let settings = settingsIn;
-        if (!isPlainObject(settings)) {
+        if (!_.isPlainObject(settings)) {
             if (!isProductionEnv) throw new Error('mocking setting should be a plain object');
             settings = {};
         }
         cache.digest(settings);
-        const output = this[coreSymbol].mock(prod);
+        const output = this[_core_].mock(prod);
         cache.reset();
         return output;
     }

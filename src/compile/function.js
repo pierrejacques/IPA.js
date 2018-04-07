@@ -18,7 +18,7 @@ const Strat = (ck, cvt, dft, mk) => () => ({
     mock: prod => prod ? dft : mk(),
 });
 
-const presetClasses = new Map([
+const presets = new Map([
     [String, Strat(isString, toString, '', randStr)],
     [Number, Strat(isNumber, v => { const n = toNumber(v);
         return !isNaN(n) && isFinite(n) ? n : 0;
@@ -28,7 +28,20 @@ const presetClasses = new Map([
     [Object, Strat(isPlainObject, () => ({}), {}, () => ({}))],
 ]);
 
+const bypass = {
+    check: () => true,
+    guarantee: v => v,
+    mock: () => undefined,
+};
+
 export default {
     condition: isFunction,
-    execute: template => presetClasses.get(template) || template,
+    execute: template => {
+        if (presets.has(template)) return presets.get(template);
+        return (cp) => ({
+            check: template(cp).check || bypass.check,
+            guarantee: template(cp).guarantee || bypass.guarantee,
+            mock: template(cp).mock || bypass.mock,
+        });
+    },
 };

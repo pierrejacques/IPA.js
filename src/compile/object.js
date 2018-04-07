@@ -1,9 +1,9 @@
 import { isPlainObject } from 'lodash';
-import templateSymbol from '../lib/symbol';
+import _core_ from '../lib/symbol';
 
 export default {
     condition(template) {
-        return isPlainObject(template) && !template[templateSymbol];
+        return isPlainObject(template) && !template[_core_];
     },
     execute(template) {
         return (compile) => {

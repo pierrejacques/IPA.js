@@ -1,33 +1,33 @@
 import { isArray } from 'lodash';
 
-const cacheSymbol = Symbol('cache');
+const _cache_ = Symbol('cache');
 
 class Cache {
     constructor() {
-        this[cacheSymbol] = new Map();
+        this[_cache_] = new Map();
     }
 
     push(name, item) {
-        if (!isArray(this[cacheSymbol].get(name))) {
-            this[cacheSymbol].set(name, []);
+        if (!isArray(this[_cache_].get(name))) {
+            this[_cache_].set(name, []);
         }
-        this[cacheSymbol].get(name).push(item);
+        this[_cache_].get(name).push(item);
     }
 
     set(name, value) {
-        this[cacheSymbol].set(name, value);
+        this[_cache_].set(name, value);
     }
 
     get(name) {
-        return this[cacheSymbol].get(name);
+        return this[_cache_].get(name);
     }
 
     forEach(cb) {
-        this[cacheSymbol].forEach(cb);
+        this[_cache_].forEach(cb);
     }
 
     reset() {
-        this[cacheSymbol].clear();
+        this[_cache_].clear();
     }
 
     digest(settings) {

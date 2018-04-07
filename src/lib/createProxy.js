@@ -1,6 +1,6 @@
-import coreSymbol from './symbol';
+import _core_ from './symbol';
 
-const getterProps = ['check', 'guarantee', 'mock', coreSymbol];
+const getterProps = ['check', 'guarantee', 'mock', _core_];
 const bothProps = ['strategy'];
 
 export default (getInstance) => {

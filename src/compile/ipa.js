@@ -1,10 +1,10 @@
-import templateSymbol from '../lib/symbol';
+import _core_ from '../lib/symbol';
 
 export default {
     condition(template) {
-        return !!(template && template[templateSymbol]);
+        return !!(template && template[_core_]);
     },
     execute(template) {
-        return () => template[templateSymbol];
+        return () => template[_core_];
     },
 };

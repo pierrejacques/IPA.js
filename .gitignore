@@ -4,3 +4,4 @@ img/
 *.sketch
 bug.log.md
 yarn-error.log
+.DS_Store
