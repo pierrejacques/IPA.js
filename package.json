@@ -6,7 +6,7 @@
   "scripts": {
     "build": "rollup -c",
     "test": "rollup -c; mocha test/index.js",
-    "script": "rollup -c; node test/scripts.js",
+    "script": "rollup -c; node test/script.js",
     "pure-test": "mocha test/index.js"
   },
   "repository": {

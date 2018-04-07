@@ -138,18 +138,25 @@ const listSchema = new IPA([
 
 IPA还支持具有高扩展性的规则自定义。在模板编译阶段，它将解析模板语法的`compile`函数作为参数传入用户自定义的校验函数，获得返回的验证规则，这使得构造自定义的嵌套规则成为可能。
 
-如下示例了一个对字符串形式的复数的校验实例：
+如下示例了一个可以对校验规则进行**与操作**的函数，并基于此生成了一个可以用来校验是否是合法的ASCII码值的校验器：
 
 ``` js
-const complexSchema = new IPA((compile) => {
-    const reg = /^[0-9]+(.[0-9]+)?\+[0-9]+(.[0-9]+)?i$/;
-    const mocker = compile(Number).mock;
-    return {
-        check: v => reg.test(v),
-        guarantee: v => reg.test(v) ? v : '0+0i',
-        mock: v => `${mocker()}+${mocker()}i`,
-    };
-});
+function and (...templates) {
+    return (compile) => {
+        const rules = templates.map(template => compile(template));
+        return {
+            check(val) {
+                return rules.filter(rule => rule.check(val) === false).length === 0;
+            } 
+        }
+    }
+}；
+
+function RangeInt (min, max) {
+    return and(IPA.Range(min, max), IPA.Integer);
+}
+
+const ASCIICodeSchema = new IPA(RangeInt(0, 127));
 ```
 
 如下示例了一个标准的HTTP响应数据的基本结构，以及针对不同响应类型的扩展结构：
