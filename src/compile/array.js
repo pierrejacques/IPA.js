@@ -15,14 +15,10 @@ export default {
             return {
                 check(val) {
                     if (!isArray(val)) return false;
-                    let result = true;
-                    val.forEach((item) => {
-                        result = result && compiled.check(item);
-                    });
                     if (l !== undefined) {
                         cache.push(l, val.length);
                     }
-                    return result;
+                    return val.filter(i => !compiled.check(i)).length === 0;
                 },
                 guarantee(valIn, strict) {
                     const val = isArray(valIn) ? valIn : [];
