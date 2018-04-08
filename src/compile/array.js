@@ -18,7 +18,7 @@ export default {
                     if (l !== undefined) {
                         cache.push(l, val.length);
                     }
-                    return val.filter(i => !compiled.check(i)).length === 0;
+                    return !val.filter(i => !compiled.check(i)).length;
                 },
                 guarantee(valIn, strict) {
                     const val = isArray(valIn) ? valIn : [];
