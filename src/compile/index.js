@@ -1,23 +1,23 @@
-import functionCompiler from './function';
-import ipaCompiler from './ipa';
-import arrayCompiler from './array';
-import booleanCompiler from './boolean';
-import nullCompiler from './null';
-import numberCompiler from './number';
-import objectCompiler from './object';
-import undefinedCompiler from './undefined';
-import stringCompiler from './string';
+import funcComp from './function';
+import ipaComp from './ipa';
+import arrComp from './array';
+import boolComp from './boolean';
+import nullComp from './null';
+import numComp from './number';
+import objComp from './object';
+import undefinedComp from './undefined';
+import strComp from './string';
 
 const compilers = [
-    functionCompiler,
-    ipaCompiler,
-    arrayCompiler,
-    booleanCompiler,
-    nullCompiler,
-    numberCompiler,
-    objectCompiler,
-    undefinedCompiler,
-    stringCompiler,
+    funcComp,
+    ipaComp,
+    arrComp,
+    boolComp,
+    nullComp,
+    numComp,
+    objComp,
+    undefinedComp,
+    strComp,
 ];
 
 const compile = (template) => {
