@@ -1,11 +1,11 @@
 import { isFunction } from 'lodash';
 
 export default (Cls, ...params) => {
-    if (!isFunction(Cls)) throw new Error('function "asClass" only accept constructor function as 1st parameter');
+    if (!isFunction(Cls)) throw new Error('in function "asClass": 1st parameter must be a class');
     try {
         new Cls(...params); // eslint-disable-line
     } catch (e) {
-        throw new Error('in function "as Class", class(1st param) must match with the params(the rest params)');
+        throw new Error('in function "asClass": class unmatched with params');
     }
     return () => ({
         check: v => v instanceof Cls,

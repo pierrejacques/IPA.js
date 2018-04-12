@@ -4,16 +4,8 @@ import randStr from '../lib/randStr';
 export default template => (compile) => {
     const compiled = compile(template);
     return {
-        check(val) {
-            if (!isPlainObject(val)) return false;
-            let result = true;
-            Object.values(val).forEach((value) => {
-                result = result && compiled.check(value);
-            });
-            return result;
-        },
-        guarantee(valIn, strict) {
-            const val = valIn;
+        check: val => isPlainObject(val) && Object.values(val).every(v => compiled.check(v)),
+        guarantee(val, strict) {
             if (!isPlainObject(val)) return {};
             Object.keys(val).forEach((key) => {
                 val[key] = compiled.guarantee(val[key], strict);

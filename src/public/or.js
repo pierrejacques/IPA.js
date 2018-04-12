@@ -3,13 +3,7 @@ export default (...params) => {
     return (compile) => {
         const rules = params.map(item => compile(item));
         return {
-            check(val) {
-                let result = false;
-                rules.forEach((rule) => {
-                    result = result || rule.check(val);
-                });
-                return result;
-            },
+            check: val => rules.some(rule => rule.check(val)),
             guarantee(val, strict) {
                 return this.check(val) ? val : rules[0].guarantee(val, strict);
             },

@@ -12,10 +12,7 @@ export default {
                 compiled[key] = compile(template[key]);
             });
             return {
-                check(val) {
-                    if (!isPlainObject(val)) return false;
-                    return Object.keys(compiled).every((key) => compiled[key].check(val[key]));
-                },
+                check:val => isPlainObject(val) && Object.keys(compiled).every((key) => compiled[key].check(val[key])),
                 guarantee(valIn, strict) {
                     const val = isPlainObject(valIn) ? valIn : {};
                     Object.keys(compiled).forEach((key) => {
