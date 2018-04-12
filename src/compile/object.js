@@ -14,11 +14,7 @@ export default {
             return {
                 check(val) {
                     if (!isPlainObject(val)) return false;
-                    let result = true;
-                    Object.keys(compiled).forEach((key) => {
-                        result = result && compiled[key].check(val[key]);
-                    });
-                    return result;
+                    return Object.keys(compiled).every((key) => compiled[key].check(val[key]));
                 },
                 guarantee(valIn, strict) {
                     const val = isPlainObject(valIn) ? valIn : {};
