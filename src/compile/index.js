@@ -21,15 +21,9 @@ const compilers = [
 ];
 
 const compile = (template) => {
-    let strategy;
-    for (let i = 0; i < compilers.length; i++) { // eslint-disable-line
-        if (compilers[i].condition(template)) {
-            strategy = compilers[i].execute(template);
-            break;
-        }
-    }
-    if (!strategy) throw new Error(`compile error: failed to recognize pattern ${JSON.stringify(template)}`);
-    return strategy(compile);
+    const compiler = compilers.find(item => item.condition(template));
+    if (!compiler) throw new Error(`compile error: failed to recognize pattern ${JSON.stringify(template)}`);
+    return compiler.execute(template)(compile);
 };
 
 export default compile;

@@ -16,7 +16,7 @@ Platform:
 npm manifest: 
   {
     "name": "ipa.js",
-    "version": "3.1.0",
+    "version": "3.1.0-beta",
     "description": "IPA interface manager",
     "main": "dist/ipa.js",
     "scripts": {
@@ -1110,7 +1110,7 @@ Lockfile:
 
 Trace: 
   Error: Command failed.
-  Exit code: 22
+  Exit code: 98
   Command: sh
   Arguments: -c rollup -c; mocha test/index.js
   Directory: /Users/jinchenhao/Documents/codes/self/ipa
