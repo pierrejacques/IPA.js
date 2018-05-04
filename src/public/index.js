@@ -14,6 +14,7 @@ const publicExposed = {
     Range,
     Each,
     From,
+    assemble,
 };
 
 export default publicExposed;
