@@ -4,4 +4,5 @@ module.exports = [
     ...require('./number'),
     ...require('./object'),
     ...require('./string'),
+    ...require('./function'),
 ];

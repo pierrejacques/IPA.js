@@ -5,6 +5,7 @@ import or from './or';
 import Range from './Range';
 import Each from './Each';
 import From from './From';
+import assemble from './assemble';
 
 const publicExposed = {
     asClass,

@@ -1,9 +1,9 @@
-export default (checker, guaranteer, mocker) => (compile) => {
-    const checke = compile(checker);
-    const guarantee = compile(guaranteer);
-    const mocke = compile(mocker);
+export default (c, g, m) => (compile) => {
+    const check = compile(c).check;
+    const guarantee = compile(g).guarantee;
+    const mock = compile(m).mock;
     return {
-        checke,
+        check,
         guarantee,
         mock,
     };
