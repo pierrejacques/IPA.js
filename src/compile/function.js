@@ -2,7 +2,6 @@ import {
     isFunction,
     isBoolean,
     isNumber,
-    toNumber,
     isArray,
     toArray,
     isPlainObject,
@@ -20,13 +19,11 @@ const Strat = (ck, cvt, dft, mk) => () => ({
 
 const presets = new Map([
     [String, Strat(isString, toString, '', randStr)],
-    [Number, Strat(isNumber, v => { const n = toNumber(v);
-        return !isNaN(n) && isFinite(n) ? n : 0;
-    }, 0, () => random(0, 100))],
+    [Number, Strat(isNumber, v => +v || 0, 0, () => random(0, 100))],
     [Boolean, Strat(isBoolean, v => !!v, false, () => !random(0, 1))],
     [Array, Strat(isArray, toArray, [], () => [])],
     [Object, Strat(isPlainObject, () => ({}), {}, () => ({}))],
-    [Function, Strat(isFunction, () => Function(), Function(), () => Function())],
+    [Function, Strat(isFunction, v => Function(toString(v)), Function(), () => Function())],
 ]);
 
 const bypass = {
@@ -39,10 +36,6 @@ export default {
     condition: isFunction,
     execute: template => {
         if (presets.has(template)) return presets.get(template);
-        return (cp) => ({
-            check: template(cp).check || bypass.check,
-            guarantee: template(cp).guarantee || bypass.guarantee,
-            mock: template(cp).mock || bypass.mock,
-        });
+        return (cp) => Object.assign({}, bypass, template(cp));
     },
 };

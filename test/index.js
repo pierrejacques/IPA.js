@@ -50,28 +50,28 @@ describe(`
 `, () => {
     test([
         ...require('./compile/function'),
-        // ...require('./compile/boolean'),
-        // ...require('./compile/string'),
-        // ...require('./compile/number'),
-        // ...require('./compile/array'),
-        // ...require('./compile/object'),
-        // ...require('./compile/ipa')(IPA),
+        ...require('./compile/boolean'),
+        ...require('./compile/string'),
+        ...require('./compile/number'),
+        ...require('./compile/array'),
+        ...require('./compile/object'),
+        ...require('./compile/ipa')(IPA),
     ]);
 });
 
-// describe(`
+describe(`
 
-// ===== | TESTING PUBLICS | =====
+===== | TESTING PUBLICS | =====
 
-// `, () => {
-//     test([
-//         ...require('./public/or')(IPA),
-//         ...require('./public/asClass')(IPA),
-//         ...require('./public/Dict')(IPA),
-//         ...require('./public/Each')(IPA),
-//         ...require('./public/From')(IPA),
-//         ...require('./public/Integer')(IPA),
-//         ...require('./public/Range')(IPA),
-//         ...require('./public/assemble')(IPA),
-//     ]);
-// });
+`, () => {
+    test([
+        ...require('./public/or')(IPA),
+        ...require('./public/asClass')(IPA),
+        ...require('./public/Dict')(IPA),
+        ...require('./public/Each')(IPA),
+        ...require('./public/From')(IPA),
+        ...require('./public/Integer')(IPA),
+        ...require('./public/Range')(IPA),
+        ...require('./public/assemble')(IPA),
+    ]);
+});
