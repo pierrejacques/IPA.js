@@ -23,7 +23,7 @@ const presets = new Map([
     [Boolean, Strat(isBoolean, v => !!v, false, () => !random(0, 1))],
     [Array, Strat(isArray, toArray, [], () => [])],
     [Object, Strat(isPlainObject, () => ({}), {}, () => ({}))],
-    [Function, Strat(isFunction, v => Function(toString(v)), Function(), () => Function())],
+    [Function, Strat(isFunction, () => () => {}, () => {}, () => () => {})],
 ]);
 
 const bypass = {

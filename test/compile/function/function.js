@@ -5,6 +5,7 @@ Object.defineProperty(exports, "__esModule", {
 module.exports = [
     {
         desc: 'When template = Function',
+        skipDeepTest: true,
         template: Function,
         situations: [{
             name: 'inputting: func',
