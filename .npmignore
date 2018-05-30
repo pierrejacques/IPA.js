@@ -1,0 +1,9 @@
+node_modules/
+img/
+texlogo.js
+test/script.js
+*.jpg
+*.sketch
+bug.log.md
+yarn-error.log
+.DS_Store
