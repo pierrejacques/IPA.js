@@ -1,4 +1,4 @@
-# IPA.js数据校验库*v3.1.0*
+# IPA.js数据校验库*v3.2.0*
 
 [官方文档地址](https://pierrejacques.github.io/ipa-document)
 
