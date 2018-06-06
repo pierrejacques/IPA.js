@@ -1,6 +1,6 @@
 # IPA.js数据校验库*v3.1.0*
 
-建议阅读[官方文档](http://www.zhongxiaotuan.com/ipa-js/#/intro)
+[官方文档地址](https://pierrejacques.github.io/ipa-document)
 
 - 更快开发
 - 更易维护
