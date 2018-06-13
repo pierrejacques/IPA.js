@@ -2,6 +2,7 @@ node_modules/
 img/
 dist/
 *.jpg
+*.key
 *.sketch
 bug.log.md
 yarn-error.log
