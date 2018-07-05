@@ -7,7 +7,7 @@ import createProxy from './lib/createProxy';
 import compile from './compile/index';
 import publics from './public/index';
 
-let isProductionEnv = false;
+let isProductionEnv: boolean = false;
 const _strat_ = Symbol('strategy');
 
 // class
