@@ -11,7 +11,7 @@ let isProductionEnv: boolean = false;
 const _strat_ = Symbol('strategy');
 
 // class
-class IPA {
+class IPA implements IPALike {
     constructor(template) {
         this[_core_] = compile(template);
         this[_strat_] = 'shortest';
