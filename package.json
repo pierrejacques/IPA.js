@@ -1,6 +1,6 @@
 {
   "name": "ipa.js",
-  "version": "3.2.0",
+  "version": "3.3.0",
   "description": "IPA interface manager",
   "main": "./dist/ipa.js",
   "types": "./ipa.d.ts",
