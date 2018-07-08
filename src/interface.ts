@@ -49,8 +49,7 @@ export enum IPAErrorLogType {
 
 export interface IPAErrorLog {
     type: IPAErrorLogType;
-    expect: any;
-    result: any;
+    message: string;
 }
 
 export interface IPAErrorCatcher {
