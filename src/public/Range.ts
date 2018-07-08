@@ -7,7 +7,7 @@ export default (min, max, isFloat = false) => {
     if (min > max) {
         throw new Error('in function "Range", min(1st param) must be no larger than max(2st param)');
     }
-    return (compile) => {
+    return ({ compile }) => {
         const nb = compile(Number);
         return {
             check: val => isNumber(val) && val >= min && val <= max,

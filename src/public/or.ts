@@ -1,6 +1,6 @@
 export default (...params) => {
     if (params.length === 0) throw new Error('function "or" requires at least 1 parameter');
-    return (compile) => {
+    return ({ compile }) => {
         const rules = params.map(item => compile(item));
         return {
             check: val => rules.some(rule => rule.check(val)),

@@ -1,7 +1,7 @@
 import { isPlainObject, range, random } from 'lodash';
 import randStr from '../lib/randStr';
 
-export default template => (compile) => {
+export default template => ({ compile }) => {
     const compiled = compile(template);
     return {
         check: val => isPlainObject(val) && Object.values(val).every(v => compiled.check(v)),

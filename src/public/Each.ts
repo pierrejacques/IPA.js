@@ -2,7 +2,7 @@ import { isArray } from 'lodash';
 
 export default (template, strictLength = true) => {
     if (!isArray(template)) throw new Error('function "Each" only accepts array as parameter');
-    return (compile) => {
+    return ({ compile }) => {
         const compiled = template.map(item => compile(item));
         return {
             check: val => isArray(val) && (!strictLength || val.length === template.length) && compiled.every((item, i) => item.check(val[i])),
