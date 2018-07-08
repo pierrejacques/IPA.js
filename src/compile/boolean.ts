@@ -1,6 +1,7 @@
 import { isBoolean, random } from 'lodash';
+import { IPACompiler } from '../interface';
 
-export default {
+const booleanCompiler: IPACompiler = {
     condition: isBoolean,
     execute(template) {
         return () => ({
@@ -10,3 +11,5 @@ export default {
         });
     },
 };
+
+export default booleanCompiler;

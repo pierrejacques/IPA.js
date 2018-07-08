@@ -1,12 +1,13 @@
 import { isPlainObject } from 'lodash';
 import _core_ from '../lib/symbol';
+import { IPACompiler } from '../interface';
 
-export default {
+const objectCompiler: IPACompiler = {
     condition(template) {
         return isPlainObject(template) && !template[_core_];
     },
     execute(template) {
-        return (compile) => {
+        return ({ compile }) => {
             const compiled = {};
             Object.keys(template).forEach((key) => {
                 compiled[key] = compile(template[key]);
@@ -31,3 +32,5 @@ export default {
         };
     },
 };
+
+export default objectCompiler;

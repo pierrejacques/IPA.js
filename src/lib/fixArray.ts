@@ -1,5 +1,6 @@
 import { isNumber, mean, times } from 'lodash';
-import cache from './Cache';
+import { privateCache } from './cache';
+import { IPAStrategy } from '../interface';
 
 const fixLength = (len, item) => {
     const arr = item.target;
@@ -21,7 +22,7 @@ const strategies = {
             }
             freq.set(length, freq.get(length) + 1);
         });
-        const sorted = [...freq].sort((a, b) => a[1] < b[1]).map(item => item[0]);
+        const sorted = [...freq].sort((a, b) => a[1] - b[1]).map(item => item[0]);
         return sorted[0];
     },
     shortest(val) {
@@ -38,14 +39,12 @@ const strategies = {
 
 const fixer = (strategyIn) => {
     const strategy = strategies[strategyIn] || strategies.shortest;
-    cache.forEach((value, key) => {
+    privateCache.forEach((value, key) => {
         const targetLen = isNumber(key) ? key : strategy(value);
         value.forEach((item) => {
             fixLength(targetLen, item);
         });
     });
 };
-
-Object.assign(fixer, strategies);
 
 export default fixer;

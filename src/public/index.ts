@@ -7,7 +7,7 @@ import Each from './Each';
 import From from './From';
 import assemble from './assemble';
 
-const publicExposed = {
+export {
     asClass,
     Dict,
     Integer,
@@ -17,5 +17,3 @@ const publicExposed = {
     From,
     assemble,
 };
-
-export default publicExposed;

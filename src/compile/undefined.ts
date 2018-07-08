@@ -1,4 +1,6 @@
-export default {
+import { IPACompiler } from "../interface";
+
+const undefinedCompiler: IPACompiler = {
     condition: t => t === undefined,
     execute() {
         return () => ({
@@ -8,3 +10,5 @@ export default {
         });
     },
 };
+
+export default undefinedCompiler;

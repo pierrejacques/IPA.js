@@ -1,9 +1,10 @@
 import _core_ from './symbol';
+import { IPALike } from '../interface';
 
 const getterProps = ['check', 'guarantee', 'mock', _core_];
 const bothProps = ['strategy'];
 
-export default (getInstance) => {
+export default (getInstance: () => IPALike): IPALike => {
     const proxy = {};
     getterProps.forEach(prop => {
         Object.defineProperty(proxy, prop, {
@@ -22,8 +23,5 @@ export default (getInstance) => {
             }
         });
     });
-    return proxy;
+    return (proxy as IPALike);
 };
-
-
-

@@ -1,6 +1,7 @@
 import { isNumber, random } from 'lodash';
+import { IPACompiler } from '../interface';
 
-export default {
+const numberCompiler: IPACompiler = {
     condition: isNumber,
     execute(template) {
         return () => ({
@@ -10,3 +11,5 @@ export default {
         });
     },
 };
+
+export default numberCompiler;

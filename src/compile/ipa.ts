@@ -1,6 +1,7 @@
 import _core_ from '../lib/symbol';
+import { IPACompiler } from '../interface';
 
-export default {
+const ipaInstanceCompiler: IPACompiler = {
     condition(template) {
         return !!(template && template[_core_]);
     },
@@ -8,3 +9,5 @@ export default {
         return () => template[_core_];
     },
 };
+
+export default ipaInstanceCompiler;

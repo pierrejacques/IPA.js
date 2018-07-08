@@ -1,4 +1,6 @@
-export default {
+import { IPACompiler } from "../interface";
+
+const nullCompiler: IPACompiler = {
     condition: t => t === null,
     execute() {
         return () => ({
@@ -8,3 +10,4 @@ export default {
         });
     },
 };
+export default nullCompiler;

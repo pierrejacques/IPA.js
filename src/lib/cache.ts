@@ -1,11 +1,12 @@
 import { isArray } from 'lodash';
+import { IPACache } from '../interface';
 
 const _cache_ = Symbol('cache');
 
-class Cache {
-    constructor() {
-        this[_cache_] = new Map();
-    }
+class Cache implements IPACache {
+    private [_cache_]: Map<string, any> = new Map();
+
+    constructor() {}
 
     push(name, item) {
         if (!isArray(this[_cache_].get(name))) {
@@ -38,4 +39,5 @@ class Cache {
     }
 }
 
-export default new Cache();
+export const privateCache = new Cache();
+export const publicCache = new Cache();

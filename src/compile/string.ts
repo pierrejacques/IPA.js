@@ -1,7 +1,8 @@
 import { isString } from 'lodash';
 import randStr from '../lib/randStr';
+import { IPACompiler } from '../interface';
 
-export default {
+const stringCompiler: IPACompiler = {
     condition: isString,
     execute: template => () => ({
         check: isString,
@@ -9,3 +10,5 @@ export default {
         mock: prod => prod ? template : randStr(),
     }),
 };
+
+export default stringCompiler;
