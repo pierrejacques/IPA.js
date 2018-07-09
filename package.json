@@ -1,31 +1,34 @@
 {
-  "name": "ipa.js",
-  "version": "3.3.0",
-  "description": "IPA interface manager",
-  "main": "./dist/ipa.js",
-  "types": "./ipa.d.ts",
-  "scripts": {
-    "build": "rollup -c",
-    "test": "rollup -c; mocha test/index.js",
-    "script": "rollup -c; node test/script.js",
-    "pure-test": "mocha test/index.js"
-  },
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/pierrejacques/IPA.js.git"
-  },
-  "author": "pierrejacques",
-  "license": "MIT",
-  "bugs": {
-    "url": "https://github.com/pierrejacques/IPA.js/issues"
-  },
-  "homepage": "https://github.com/pierrejacques/IPA.js#readme",
-  "devDependencies": {
-    "chai": "^4.1.2",
-    "mocha": "^5.0.0"
-  },
-  "dependencies": {
-    "@types/lodash": "^4.14.110",
-    "lodash": "^4.17.5"
-  }
+    "name": "ipa.js",
+    "version": "3.3.0",
+    "description": "IPA interface manager",
+    "main": "./dist/ipa.js",
+    "types": "./ipa.d.ts",
+    "scripts": {
+        "build": "rollup -c",
+        "test": "rollup -c; mocha test/index.js",
+        "script": "rollup -c; node test/script.js",
+        "pure-test": "mocha test/index.js"
+    },
+    "repository": {
+        "type": "git",
+        "url": "git+https://github.com/pierrejacques/IPA.js.git"
+    },
+    "author": "pierrejacques",
+    "license": "MIT",
+    "bugs": {
+        "url": "https://github.com/pierrejacques/IPA.js/issues"
+    },
+    "homepage": "https://github.com/pierrejacques/IPA.js#readme",
+    "devDependencies": {
+        "@types/lodash": "^4.14.110",
+        "chai": "^4.1.2",
+        "mocha": "^5.0.0",
+        "rollup-plugin-babel": "^3.0.3",
+        "rollup-plugin-replace": "2.0.0",
+        "rollup-plugin-uglify": "^3.0.0"
+    },
+    "dependencies": {
+        "lodash": "^4.17.5"
+    }
 }
