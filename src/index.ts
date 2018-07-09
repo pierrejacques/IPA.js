@@ -20,6 +20,15 @@ import {
     Range,
 } from './public/index';
 
+function ShallReset() {
+    return (target, name: string, descriptor: PropertyDescriptor) => {
+        descriptor.value();
+        privateCache.reset();
+        publicCache.reset()
+        catcher.clear();
+    };
+}
+
 export default class IPA implements IPALike {
     public static isProductionEnv = false;
     public static instances = new Map();
@@ -59,12 +68,9 @@ export default class IPA implements IPALike {
         this[_core_] = compile(template);
     }
 
+    @ShallReset()
     check(data) {
-        const output = this[_core_].check(data) && checkLength();
-        privateCache.reset(); // FIXME: think of clearing by decorator
-        publicCache.reset();
-        catcher.clear();
-        return output;
+        return this[_core_].check(data) && checkLength();
     }
 
     /**
@@ -72,13 +78,11 @@ export default class IPA implements IPALike {
      * @param {whether to make a deep copy first} isCopy
      * @param {whether to use the strict mode} strict
      */
+    @ShallReset()
     guarantee(data, isCopy = true, strict = false) {
         const copy = isCopy ? cloneDeep(data) : data;
         const output = this[_core_].guarantee(copy, strict);
         fixArray(this.strategy);
-        privateCache.reset();
-        publicCache.reset();
-        catcher.clear();
         return output;
     }
 
@@ -86,6 +90,7 @@ export default class IPA implements IPALike {
      * @param {the mock setting for array length} settings 
      * @param {whether it's in production environment} prod 
      */
+    @ShallReset()
     mock(settingsIn = {}, prod = IPA.isProductionEnv) {
         let settings = settingsIn;
         if (!isPlainObject(settings)) {
@@ -93,10 +98,6 @@ export default class IPA implements IPALike {
             settings = {};
         }
         privateCache.digest(settings);
-        const output = this[_core_].mock(prod);
-        privateCache.reset();
-        publicCache.reset();
-        catcher.clear();
-        return output;
+        return this[_core_].mock(prod);
     }
 }
