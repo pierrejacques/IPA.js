@@ -1,24 +1,13 @@
-import replace from 'rollup-plugin-replace';
-import babel from 'rollup-plugin-babel';
-import uglify from 'rollup-plugin-uglify';
+import typescript from 'rollup-plugin-typescript2';
 
 export default {
-    input: 'src/index.js',
+    input: 'src/index.ts',
     output: {
         format: 'cjs',
         file: 'dist/ipa.js',
     },
     plugins: [
-        replace({ // minimize the size
-            Strat: 'S',
-            getterProps: 'g',
-            bothProps: 'b',
-            delimiters: ['', '']
-        }),
-        babel({
-            exclude: 'node_modules/**'
-        }),
-        uglify(),
+        typescript(),
     ],
     external: [
         'lodash',

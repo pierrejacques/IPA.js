@@ -1,1 +1,632 @@
-"use strict";function _interopDefault(n){return n&&"object"==typeof n&&"default"in n?n.default:n}var _=require("lodash"),___default=_interopDefault(_),classCallCheck=function(n,t){if(!(n instanceof t))throw new TypeError("Cannot call a class as a function")},createClass=function(){function n(n,t){for(var e=0;e<t.length;e++){var r=t[e];r.enumerable=r.enumerable||!1,r.configurable=!0,"value"in r&&(r.writable=!0),Object.defineProperty(n,r.key,r)}}return function(t,e,r){return e&&n(t.prototype,e),r&&n(t,r),t}}(),toConsumableArray=function(n){if(Array.isArray(n)){for(var t=0,e=Array(n.length);t<n.length;t++)e[t]=n[t];return e}return Array.from(n)},_cache_=Symbol("cache"),Cache=function(){function n(){classCallCheck(this,n),this[_cache_]=new Map}return createClass(n,[{key:"push",value:function(n,t){_.isArray(this[_cache_].get(n))||this[_cache_].set(n,[]),this[_cache_].get(n).push(t)}},{key:"set",value:function(n,t){this[_cache_].set(n,t)}},{key:"get",value:function(n){return this[_cache_].get(n)}},{key:"forEach",value:function(n){this[_cache_].forEach(n)}},{key:"reset",value:function(){this[_cache_].clear()}},{key:"digest",value:function(n){var t=this;this.reset(),Object.keys(n).forEach(function(e){t.set(e,n[e])})}}]),n}(),cache=new Cache,_core_=Symbol("IPA_core"),fixLength=function(n,t){var e=t.target,r=t.mocker;e.length>n?e.splice(n):e.push.apply(e,toConsumableArray(_.times(n-e.length,r)))},strategies={most:function(n){var t=n.map(function(n){return n.target.length}),e=new Map;return t.forEach(function(n){void 0===e.get(n)&&e.set(n,0),e.set(n,e.get(n)+1)}),[].concat(toConsumableArray(e)).sort(function(n,t){return n[1]<t[1]}).map(function(n){return n[0]})[0]},shortest:function(n){return Math.min.apply(Math,toConsumableArray(n.map(function(n){return n.target.length})))},longest:function(n){return Math.max.apply(Math,toConsumableArray(n.map(function(n){return n.target.length})))},average:function(n){var t=_.mean(n.map(function(n){return n.target.length}));return Math.ceil(t)}},fixer=function(n){var t=strategies[n]||strategies.shortest;cache.forEach(function(n,e){var r=_.isNumber(e)?e:t(n);n.forEach(function(n){fixLength(r,n)})})};Object.assign(fixer,strategies);var checkLength=function(){var n=!0;return cache.forEach(function(t,e){n=_.isNumber(e)?n&&0===t.filter(function(n){return n!==e}).length:n&&_.min(t)===_.max(t)}),n},g=["check","guarantee","mock",_core_],b=["strategy"],createProxy=function(n){var t={};return g.forEach(function(e){Object.defineProperty(t,e,{get:function(){return n()[e]}})}),b.forEach(function(e){Object.defineProperty(t,e,{set:function(){return n()[e]},get:function(){return n()[e]}})}),t},dict=["ad","aliqua","amet","anim","aute","cillum","commodo","culpa","do","dolor","duis","elit","enim","esse","est","et","ex","fugiat","id","in","ipsum","irure","labore","Lorem","magna","minim","mollit","nisi","non","nulla","officia","pariatur","quis","sint","sit","sunt","tempor","ut","velit","veniam"],randStr=function(){return dict[_.random(0,dict.length-1)]},S=function(n,t,e,r){return function(){return{check:n,guarantee:function(r,c){return n(r)?r:c?e:t(r)},mock:function(n){return n?e:r()}}}},presets=new Map([[String,S(_.isString,_.toString,"",randStr)],[Number,S(_.isNumber,function(n){return+n||0},0,function(){return _.random(0,100)})],[Boolean,S(_.isBoolean,function(n){return!!n},!1,function(){return!_.random(0,1)})],[Array,S(_.isArray,_.toArray,[],function(){return[]})],[Object,S(_.isPlainObject,function(){return{}},{},function(){return{}})],[Function,S(_.isFunction,function(){return function(){}},function(){},function(){return function(){}})]]),bypass={check:function(){return!0},guarantee:function(n){return n},mock:function(){}},funcComp={condition:_.isFunction,execute:function(n){return presets.has(n)?presets.get(n):function(t){return Object.assign({},bypass,n(t))}}},ipaComp={condition:function(n){return!(!n||!n[_core_])},execute:function(n){return function(){return n[_core_]}}},arrComp={condition:function(n){return _.isArray(n)},execute:function(n){var t=n[1];if(void 0!==t&&!_.isNumber(t)&&!_.isString(t))throw new Error("compile failed: the 2nd parameter for array can only be String or Number");return function(e){var r=e(n[0]);return{check:function(n){return!!_.isArray(n)&&(void 0!==t&&cache.push(t,n.length),n.every(function(n){return r.check(n)}))},guarantee:function(n,e){var c=_.isArray(n)?n:[];return c.forEach(function(n,t){c[t]=r.guarantee(n,e)}),void 0!==t&&cache.push(t,{target:c,mocker:function(){return r.guarantee(void 0,e)}}),c},mock:function(n){var e=n?0:_.random(0,10);return _.isNumber(t)&&(e=t),_.isString(t)&&(_.isNumber(cache.get(t))?e=cache.get(t):cache.set(t,e)),_.times(e,function(){return r.mock(n)})}}}}},boolComp={condition:_.isBoolean,execute:function(n){return function(){return{check:_.isBoolean,guarantee:function(t){return _.isBoolean(t)?t:n},mock:function(t){return t?n:!_.random(0,1)}}}}},nullComp={condition:function(n){return null===n},execute:function(){return function(){return{check:function(n){return void 0!==n},guarantee:function(n){return void 0===n?null:n},mock:function(){return null}}}}},numComp={condition:_.isNumber,execute:function(n){return function(){return{check:_.isNumber,guarantee:function(t){return _.isNumber(t)?t:n},mock:function(t){return t?n:_.random(0,100)}}}}},objComp={condition:function(n){return _.isPlainObject(n)&&!n[_core_]},execute:function(n){return function(t){var e={};return Object.keys(n).forEach(function(r){e[r]=t(n[r])}),{check:function(n){return _.isPlainObject(n)&&Object.keys(e).every(function(t){return e[t].check(n[t])})},guarantee:function(n,t){var r=_.isPlainObject(n)?n:{};return Object.keys(e).forEach(function(n){r[n]=e[n].guarantee(r[n],t)}),r},mock:function(n){var t={};return Object.keys(e).forEach(function(r){t[r]=e[r].mock(n)}),t}}}}},undefinedComp={condition:function(n){return void 0===n},execute:function(){return function(){return{check:function(){return!0},guarantee:function(n){return n},mock:function(){}}}}},strComp={condition:_.isString,execute:function(n){return function(){return{check:_.isString,guarantee:function(t){return _.isString(t)?t:n},mock:function(t){return t?n:randStr()}}}}},compilers=[funcComp,ipaComp,arrComp,boolComp,nullComp,numComp,objComp,undefinedComp,strComp],compile=function n(t){var e=compilers.find(function(n){return n.condition(t)});if(!e)throw new Error("compile error: failed to recognize pattern "+JSON.stringify(t));return e.execute(t)(n)},asClass=function(n){for(var t=arguments.length,e=Array(t>1?t-1:0),r=1;r<t;r++)e[r-1]=arguments[r];if(!_.isFunction(n))throw new Error('in function "asClass": 1st parameter must be a class');try{new(Function.prototype.bind.apply(n,[null].concat(e)))}catch(n){throw new Error('in function "asClass": class unmatched with params')}return function(){return{check:function(t){return t instanceof n},guarantee:function(t){return t instanceof n?t:new(Function.prototype.bind.apply(n,[null].concat(e)))},mock:function(){return new(Function.prototype.bind.apply(n,[null].concat(e)))}}}},Dict=function(n){return function(t){var e=t(n);return{check:function(n){return _.isPlainObject(n)&&Object.values(n).every(function(n){return e.check(n)})},guarantee:function(n,t){return _.isPlainObject(n)?(Object.keys(n).forEach(function(r){n[r]=e.guarantee(n[r],t)}),n):{}},mock:function(n){var t={};return _.range(0,n?0:_.random(1,10)).forEach(function(){t[randStr()]=e.mock(n)}),t}}}},Integer=function(){return{check:function(n){return _.isInteger(n)},guarantee:function(n,t){return _.isInteger(n)?n:t?0:_.toInteger(n)},mock:function(n){return n?0:_.random(0,100)}}},or=function(){for(var n=arguments.length,t=Array(n),e=0;e<n;e++)t[e]=arguments[e];if(0===t.length)throw new Error('function "or" requires at least 1 parameter');return function(n){var e=t.map(function(t){return n(t)});return{check:function(n){return e.some(function(t){return t.check(n)})},guarantee:function(n,t){return this.check(n)?n:e[0].guarantee(n,t)},mock:function(n){return e[0].mock(n)}}}},Range=function(n,t){var e=arguments.length>2&&void 0!==arguments[2]&&arguments[2];if(!_.isNumber(n)||!_.isNumber(t))throw new Error('function "Range" only accept Number as 1st & 2nd parameters');if(n>t)throw new Error('in function "Range", min(1st param) must be no larger than max(2st param)');return function(r){var c=r(Number);return{check:function(e){return _.isNumber(e)&&e>=n&&e<=t},guarantee:function(e,r){var o=c.guarantee(e,r);return o<n?n:o>t?t:o},mock:function(r){return r?n:_.random(n,t,e)}}}},Each=function(n){var t=!(arguments.length>1&&void 0!==arguments[1])||arguments[1];if(!_.isArray(n))throw new Error('function "Each" only accepts array as parameter');return function(e){var r=n.map(function(n){return e(n)});return{check:function(e){return _.isArray(e)&&(!t||e.length===n.length)&&r.every(function(n,t){return n.check(e[t])})},guarantee:function(n,e){var c=_.isArray(n)?n:[];return r.forEach(function(n,t){c[t]=n.guarantee(c[t],e)}),t&&c.splice(r.length),c},mock:function(n){return r.map(function(t){return t.mock(n)})}}}},From=function(){for(var n=arguments.length,t=Array(n),e=0;e<n;e++)t[e]=arguments[e];var r=function(){var n=t[_.random(0,t.length-1)];return _.cloneDeep(n)};return function(){return{check:function(n){return-1!==t.findIndex(function(t){return _.isEqual(t,n)})},guarantee:function(n,e){return this.check(n)?n:e?t[0]:r()},mock:function(n){return n?_.cloneDeep(t[0]):r()}}}},assemble=function(n,t,e){return function(r){return{check:r(n).check,guarantee:r(t).guarantee,mock:r(e).mock}}},publicExposed={asClass:asClass,Dict:Dict,Integer:Integer,or:or,Range:Range,Each:Each,From:From,assemble:assemble},isProductionEnv=!1,_strat_=Symbol("strategy"),IPA=function(){function n(t){classCallCheck(this,n),this[_core_]=compile(t),this[_strat_]="shortest"}return createClass(n,[{key:"check",value:function(n){var t=this[_core_].check(n)&&checkLength();return cache.reset(),t}},{key:"guarantee",value:function(n){var t=!(arguments.length>1&&void 0!==arguments[1])||arguments[1],e=arguments.length>2&&void 0!==arguments[2]&&arguments[2],r=t?___default.cloneDeep(n):n,c=this[_core_].guarantee(r,e);return fixer(this.strategy),cache.reset(),c}},{key:"mock",value:function(){var n=arguments.length>0&&void 0!==arguments[0]?arguments[0]:{},t=arguments.length>1&&void 0!==arguments[1]?arguments[1]:isProductionEnv,e=n;if(!___default.isPlainObject(e)){if(!isProductionEnv)throw new Error("mocking setting should be a plain object");e={}}cache.digest(e);var r=this[_core_].mock(t);return cache.reset(),r}},{key:"strategy",set:function(n){if(fixer[n])this[_strat_]=n;else if(!isProductionEnv)throw new Error('in IPA strategy setter: invalid strategy "'+n+'"')},get:function(){return this[_strat_]}}]),n}(),instances=new Map;IPA.inject=function(n,t){if(instances.has(n)&&!isProductionEnv)throw new Error("in inject: reassign to global IPA instance is not arrowed");instances.set(n,new IPA(t))},IPA.getInstance=function(n){var t=null;return createProxy(function(){if(t)return t;if(void 0===(t=instances.get(n)))throw new Error("in getInstance: IPA instance called before injected");return t})},IPA.$compile=compile,IPA.install=function(n){var t=n;t.prototype.$ipa=IPA.getInstance,t.prototype.$brew=IPA.$compile},Object.assign(IPA,publicExposed),Object.defineProperty(IPA,"isProductionEnv",{set:function(n){isProductionEnv=!!n},get:function(){return isProductionEnv}}),module.exports=IPA;
+'use strict';
+
+var lodash = require('lodash');
+
+/*! *****************************************************************************
+Copyright (c) Microsoft Corporation. All rights reserved.
+Licensed under the Apache License, Version 2.0 (the "License"); you may not use
+this file except in compliance with the License. You may obtain a copy of the
+License at http://www.apache.org/licenses/LICENSE-2.0
+
+THIS CODE IS PROVIDED ON AN *AS IS* BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+KIND, EITHER EXPRESS OR IMPLIED, INCLUDING WITHOUT LIMITATION ANY IMPLIED
+WARRANTIES OR CONDITIONS OF TITLE, FITNESS FOR A PARTICULAR PURPOSE,
+MERCHANTABLITY OR NON-INFRINGEMENT.
+
+See the Apache Version 2.0 License for specific language governing permissions
+and limitations under the License.
+***************************************************************************** */
+/* global Reflect, Promise */
+
+var extendStatics = Object.setPrototypeOf ||
+    ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
+    function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
+
+function __extends(d, b) {
+    extendStatics(d, b);
+    function __() { this.constructor = d; }
+    d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
+}
+
+function __decorate(decorators, target, key, desc) {
+    var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+    if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+    else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+    return c > 3 && r && Object.defineProperty(target, key, r), r;
+}
+
+var IPAStrategy;
+(function (IPAStrategy) {
+    IPAStrategy["Shortest"] = "shortest";
+    IPAStrategy["Longest"] = "longest";
+    IPAStrategy["Most"] = "most";
+    IPAStrategy["Average"] = "average";
+    IPAStrategy["Least"] = "least";
+})(IPAStrategy || (IPAStrategy = {}));
+var IPAErrorLogType;
+(function (IPAErrorLogType) {
+    IPAErrorLogType["Key"] = "key";
+    IPAErrorLogType["Message"] = "message";
+})(IPAErrorLogType || (IPAErrorLogType = {}));
+
+var _a;
+var _cache_ = Symbol('cache');
+var Cache = /** @class */ (function () {
+    function Cache() {
+        this[_a] = new Map();
+    }
+    Cache.prototype.push = function (name, item) {
+        if (!lodash.isArray(this[_cache_].get(name))) {
+            this[_cache_].set(name, []);
+        }
+        this[_cache_].get(name).push(item);
+    };
+    Cache.prototype.set = function (name, value) {
+        this[_cache_].set(name, value);
+    };
+    Cache.prototype.get = function (name) {
+        return this[_cache_].get(name);
+    };
+    Cache.prototype.forEach = function (cb) {
+        this[_cache_].forEach(cb);
+    };
+    Cache.prototype.reset = function () {
+        this[_cache_].clear();
+    };
+    Cache.prototype.digest = function (settings) {
+        var _this = this;
+        this.reset();
+        Object.keys(settings).forEach(function (key) {
+            _this.set(key, settings[key]);
+        });
+    };
+    return Cache;
+}());
+_a = _cache_;
+var privateCache = new Cache();
+var publicCache = new Cache();
+
+var IPAErrorMap = /** @class */ (function (_super) {
+    __extends(IPAErrorMap, _super);
+    function IPAErrorMap(logStack) {
+        return _super.call(this) || this;
+    }
+    return IPAErrorMap;
+}(Map));
+var Catcher = /** @class */ (function () {
+    function Catcher() {
+    }
+    Catcher.prototype.log = function (errorLog) {
+        this.stack.unshift(errorLog);
+    };
+    Catcher.prototype.clear = function () {
+        this.stack = [];
+    };
+    Catcher.prototype.display = function () {
+        return new IPAErrorMap(this.stack);
+    };
+    return Catcher;
+}());
+var catcher = new Catcher();
+
+var _core_ = Symbol('IPA_core');
+
+var fixLength = function (len, item) {
+    var arr = item.target;
+    var mocker = item.mocker;
+    if (arr.length > len) {
+        arr.splice(len);
+    }
+    else {
+        arr.push.apply(arr, lodash.times(len - arr.length, mocker));
+    }
+};
+var strategies = {
+    most: function (val) {
+        var lengths = val.map(function (item) { return item.target.length; });
+        var freqs = new Map();
+        lengths.forEach(function (length) {
+            if (freqs.get(length) === undefined) {
+                freqs.set(length, 0);
+            }
+            freqs.set(length, freqs.get(length) + 1);
+        });
+        var maxFreq = null;
+        freqs.forEach(function (len, freq) {
+            if (!maxFreq || freq > maxFreq.freq) {
+                maxFreq = { len: len, freq: freq };
+            }
+        });
+        return maxFreq.len;
+    },
+    shortest: function (val) {
+        return Math.min.apply(Math, val.map(function (item) { return item.target.length; }));
+    },
+    longest: function (val) {
+        return Math.max.apply(Math, val.map(function (item) { return item.target.length; }));
+    },
+    average: function (val) {
+        var average = lodash.mean(val.map(function (item) { return item.target.length; }));
+        return Math.ceil(average);
+    },
+};
+var fixer = function (strategyIn) {
+    var strategy = strategies[strategyIn] || strategies.shortest;
+    privateCache.forEach(function (value, key) {
+        var targetLen = lodash.isNumber(key) ? key : strategy(value);
+        value.forEach(function (item) {
+            fixLength(targetLen, item);
+        });
+    });
+};
+
+var checkLength = (function () {
+    var result = true;
+    privateCache.forEach(function (value, key) {
+        if (lodash.isNumber(key)) {
+            result = result && value.filter(function (item) { return item !== key; }).length === 0;
+        }
+        else {
+            result = result && lodash.min(value) === lodash.max(value);
+        }
+    });
+    return result;
+});
+
+var getterProps = ['check', 'guarantee', 'mock', _core_];
+var bothProps = ['strategy'];
+var createProxy = (function (getInstance) {
+    var proxy = {};
+    getterProps.forEach(function (prop) {
+        Object.defineProperty(proxy, prop, {
+            get: function () {
+                return getInstance()[prop];
+            }
+        });
+    });
+    bothProps.forEach(function (prop) {
+        Object.defineProperty(proxy, prop, {
+            set: function () {
+                return getInstance()[prop];
+            },
+            get: function () {
+                return getInstance()[prop];
+            }
+        });
+    });
+    return proxy;
+});
+
+var dict = 'ad,aliqua,amet,anim,aute,cillum,commodo,culpa,do,dolor,duis,elit,enim,esse,est,et,ex,fugiat,id,in,ipsum,irure,labore,lorem,magna,minim,mollit,nisi,non,nulla,officia,pariatur,quis,sint,sit,sunt,tempor,ut,velit,veniam'
+    .split(',');
+var randStr = (function () { return dict[lodash.random(0, dict.length - 1)]; });
+
+var Strat = function (ck, cvt, dft, mk) { return function () { return ({
+    check: ck,
+    guarantee: function (v, strict) { return ck(v) ? v : strict ? dft : cvt(v); },
+    mock: function (prod) { return prod ? dft : mk(); },
+}); }; };
+var functionCompilerMap = new Map()
+    .set(String, Strat(lodash.isString, lodash.toString, '', randStr))
+    .set(Number, Strat(lodash.isNumber, function (v) { return +v || 0; }, 0, function () { return lodash.random(0, 100); }))
+    .set(Boolean, Strat(lodash.isBoolean, function (v) { return !!v; }, false, function () { return !lodash.random(0, 1); }))
+    .set(Array, Strat(lodash.isArray, lodash.toArray, [], function () { return []; }))
+    .set(Object, Strat(lodash.isPlainObject, function () { return ({}); }, {}, function () { return ({}); }))
+    .set(Function, Strat(lodash.isFunction, function () { return function () { }; }, function () { }, function () { return function () { }; }));
+var bypass = {
+    check: function () { return true; },
+    guarantee: function (v) { return v; },
+    mock: function () { return undefined; },
+};
+var funcComp = {
+    condition: lodash.isFunction,
+    execute: function (template) {
+        if (functionCompilerMap.has(template))
+            return functionCompilerMap.get(template);
+        return function (cp) { return Object.assign({}, bypass, template(cp)); };
+    },
+};
+
+var ipaInstanceCompiler = {
+    condition: function (template) {
+        return !!(template && template[_core_]);
+    },
+    execute: function (template) {
+        return function () { return template[_core_]; };
+    },
+};
+
+var arrayCompiler = {
+    condition: function (template) {
+        return lodash.isArray(template);
+    },
+    execute: function (template) {
+        var l = template[1];
+        if (l !== undefined && !lodash.isNumber(l) && !lodash.isString(l)) {
+            throw new Error('compile failed: the 2nd parameter for array can only be String or Number');
+        }
+        return function (_a) {
+            var compile = _a.compile;
+            var compiled = compile(template[0]);
+            return {
+                check: function (val) {
+                    if (!lodash.isArray(val))
+                        return false;
+                    if (l !== undefined) {
+                        privateCache.push(l, val.length);
+                    }
+                    return val.every(function (i) { return compiled.check(i); });
+                },
+                guarantee: function (valIn, strict) {
+                    var val = lodash.isArray(valIn) ? valIn : [];
+                    val.forEach(function (item, idx) {
+                        val[idx] = compiled.guarantee(item, strict);
+                    });
+                    if (l !== undefined) {
+                        privateCache.push(l, {
+                            target: val,
+                            mocker: function () { return compiled.guarantee(undefined, strict); },
+                        });
+                    }
+                    return val;
+                },
+                mock: function (prod) {
+                    var length = prod ? 0 : lodash.random(0, 10);
+                    if (lodash.isNumber(l))
+                        length = l;
+                    if (lodash.isString(l)) {
+                        if (lodash.isNumber(privateCache.get(l))) {
+                            length = privateCache.get(l);
+                        }
+                        else {
+                            privateCache.set(l, length);
+                        }
+                    }
+                    return lodash.times(length, function () { return compiled.mock(prod); });
+                },
+            };
+        };
+    },
+};
+
+var booleanCompiler = {
+    condition: lodash.isBoolean,
+    execute: function (template) {
+        return function () { return ({
+            check: lodash.isBoolean,
+            guarantee: function (v) { return (lodash.isBoolean(v) ? v : template); },
+            mock: function (prod) { return prod ? template : !lodash.random(0, 1); },
+        }); };
+    },
+};
+
+var nullCompiler = {
+    condition: function (t) { return t === null; },
+    execute: function () {
+        return function () { return ({
+            check: function (v) { return v !== undefined; },
+            guarantee: function (v) { return v === undefined ? null : v; },
+            mock: function () { return null; },
+        }); };
+    },
+};
+
+var numberCompiler = {
+    condition: lodash.isNumber,
+    execute: function (template) {
+        return function () { return ({
+            check: lodash.isNumber,
+            guarantee: function (v) { return (lodash.isNumber(v) ? v : template); },
+            mock: function (prod) { return prod ? template : lodash.random(0, 100); },
+        }); };
+    },
+};
+
+var objectCompiler = {
+    condition: function (template) {
+        return lodash.isPlainObject(template) && !template[_core_];
+    },
+    execute: function (template) {
+        return function (_a) {
+            var compile = _a.compile;
+            var compiled = {};
+            Object.keys(template).forEach(function (key) {
+                compiled[key] = compile(template[key]);
+            });
+            return {
+                check: function (val) { return lodash.isPlainObject(val) && Object.keys(compiled).every(function (key) { return compiled[key].check(val[key]); }); },
+                guarantee: function (valIn, strict) {
+                    var val = lodash.isPlainObject(valIn) ? valIn : {};
+                    Object.keys(compiled).forEach(function (key) {
+                        val[key] = compiled[key].guarantee(val[key], strict);
+                    });
+                    return val;
+                },
+                mock: function (prod) {
+                    var val = {};
+                    Object.keys(compiled).forEach(function (key) {
+                        val[key] = compiled[key].mock(prod);
+                    });
+                    return val;
+                },
+            };
+        };
+    },
+};
+
+var undefinedCompiler = {
+    condition: function (t) { return t === undefined; },
+    execute: function () {
+        return function () { return ({
+            check: function () { return true; },
+            guarantee: function (v) { return v; },
+            mock: function () { return undefined; },
+        }); };
+    },
+};
+
+var stringCompiler = {
+    condition: lodash.isString,
+    execute: function (template) { return function () { return ({
+        check: lodash.isString,
+        guarantee: function (v) { return (lodash.isString(v) ? v : template); },
+        mock: function (prod) { return prod ? template : randStr(); },
+    }); }; },
+};
+
+var compilers = [
+    funcComp,
+    ipaInstanceCompiler,
+    arrayCompiler,
+    booleanCompiler,
+    nullCompiler,
+    numberCompiler,
+    objectCompiler,
+    undefinedCompiler,
+    stringCompiler,
+];
+var context = {
+    compile: null,
+    cache: publicCache,
+    catcher: catcher,
+};
+var compile = function (template) {
+    var compiler = compilers.find(function (item) { return item.condition(template); });
+    if (!compiler)
+        throw new Error("compile error: failed to recognize pattern " + JSON.stringify(template));
+    return compiler.execute(template)(context);
+};
+context.compile = compile;
+
+var asClass = (function (Cls) {
+    var params = [];
+    for (var _i = 1; _i < arguments.length; _i++) {
+        params[_i - 1] = arguments[_i];
+    }
+    return function () { return ({
+        check: function (v) { return v instanceof Cls; },
+        guarantee: function (v) { return (v instanceof Cls ? v : new (Cls.bind.apply(Cls, [void 0].concat(params)))()); },
+        mock: function () { return new (Cls.bind.apply(Cls, [void 0].concat(params)))(); },
+    }); };
+});
+
+var Dict = (function (template) { return function (_a) {
+    var compile = _a.compile;
+    var compiled = compile(template);
+    return {
+        check: function (val) { return lodash.isPlainObject(val) && Object.values(val).every(function (v) { return compiled.check(v); }); },
+        guarantee: function (val, strict) {
+            if (!lodash.isPlainObject(val))
+                return {};
+            Object.keys(val).forEach(function (key) {
+                val[key] = compiled.guarantee(val[key], strict);
+            });
+            return val;
+        },
+        mock: function (prod) {
+            var output = {};
+            lodash.range(0, prod ? 0 : lodash.random(1, 10)).forEach(function () {
+                output[randStr()] = compiled.mock(prod);
+            });
+            return output;
+        },
+    };
+}; });
+
+var Integer = (function () { return ({
+    check: function (v) { return lodash.isInteger(v); },
+    guarantee: function (v, strict) { return lodash.isInteger(v) ? v : strict ? 0 : lodash.toInteger(v); },
+    mock: function (prod) { return prod ? 0 : lodash.random(0, 100); },
+}); });
+
+var or = (function () {
+    var params = [];
+    for (var _i = 0; _i < arguments.length; _i++) {
+        params[_i] = arguments[_i];
+    }
+    if (params.length === 0)
+        throw new Error('function "or" requires at least 1 parameter');
+    return function (_a) {
+        var compile = _a.compile;
+        var rules = params.map(function (item) { return compile(item); });
+        return {
+            check: function (val) { return rules.some(function (rule) { return rule.check(val); }); },
+            guarantee: function (val, strict) {
+                return this.check(val) ? val : rules[0].guarantee(val, strict);
+            },
+            mock: function (prod) {
+                return rules[0].mock(prod);
+            },
+        };
+    };
+});
+
+var Range = (function (min, max, isFloat) {
+    if (isFloat === void 0) { isFloat = false; }
+    if (!lodash.isNumber(min) || !lodash.isNumber(max)) {
+        throw new Error('function "Range" only accept Number as 1st & 2nd parameters');
+    }
+    if (min > max) {
+        throw new Error('in function "Range", min(1st param) must be no larger than max(2st param)');
+    }
+    return function (_a) {
+        var compile = _a.compile;
+        var nb = compile(Number);
+        return {
+            check: function (val) { return lodash.isNumber(val) && val >= min && val <= max; },
+            guarantee: function (val, strict) {
+                var v = nb.guarantee(val, strict);
+                if (v < min)
+                    return min;
+                if (v > max)
+                    return max;
+                return v;
+            },
+            mock: function (prod) { return prod ? min : lodash.random(min, max, isFloat); },
+        };
+    };
+});
+
+var Each = (function (template, strictLength) {
+    if (strictLength === void 0) { strictLength = true; }
+    if (!lodash.isArray(template))
+        throw new Error('function "Each" only accepts array as parameter');
+    return function (_a) {
+        var compile = _a.compile;
+        var compiled = template.map(function (item) { return compile(item); });
+        return {
+            check: function (val) { return lodash.isArray(val) && (!strictLength || val.length === template.length) && compiled.every(function (item, i) { return item.check(val[i]); }); },
+            guarantee: function (valIn, strict) {
+                var val = lodash.isArray(valIn) ? valIn : [];
+                compiled.forEach(function (item, idx) {
+                    val[idx] = item.guarantee(val[idx], strict);
+                });
+                if (strictLength) {
+                    val.splice(compiled.length);
+                }
+                return val;
+            },
+            mock: function (prod) { return compiled.map(function (item) { return item.mock(prod); }); },
+        };
+    };
+});
+
+var From = (function () {
+    var set = [];
+    for (var _i = 0; _i < arguments.length; _i++) {
+        set[_i] = arguments[_i];
+    }
+    var getRandom = function () {
+        var v = set[lodash.random(0, set.length - 1)];
+        return lodash.cloneDeep(v);
+    };
+    var getFirst = function () { return lodash.cloneDeep(set[0]); };
+    return function () { return ({
+        check: function (val) { return set.findIndex(function (item) { return lodash.isEqual(item, val); }) !== -1; },
+        guarantee: function (val, strict) {
+            return this.check(val) ? val : strict ? set[0] : getRandom();
+        },
+        mock: function (prod) { return prod ? getFirst() : getRandom(); },
+    }); };
+});
+
+var assemble = (function (c, g, m) { return function (_a) {
+    var compile = _a.compile;
+    var check = compile(c).check;
+    var guarantee = compile(g).guarantee;
+    var mock = compile(m).mock;
+    return {
+        check: check,
+        guarantee: guarantee,
+        mock: mock,
+    };
+}; });
+
+function ShallReset(target, name, descriptor) {
+    descriptor.value();
+    privateCache.reset();
+    publicCache.reset();
+    catcher.clear();
+}
+var IPA = /** @class */ (function () {
+    function IPA(template) {
+        this.strategy = IPAStrategy.Shortest;
+        this[_core_] = compile(template);
+    }
+    IPA.prototype.check = function (data) {
+        return this[_core_].check(data) && checkLength();
+    };
+    /**
+     * @param {the inputting data to be guaranteed} data
+     * @param {whether to make a deep copy first} isCopy
+     * @param {whether to use the strict mode} strict
+     */
+    IPA.prototype.guarantee = function (data, isCopy, strict) {
+        if (isCopy === void 0) { isCopy = true; }
+        if (strict === void 0) { strict = false; }
+        var copy = isCopy ? lodash.cloneDeep(data) : data;
+        var output = this[_core_].guarantee(copy, strict);
+        fixer(this.strategy);
+        return output;
+    };
+    /**
+     * @param {the mock setting for array length} settings
+     * @param {whether it's in production environment} prod
+     */
+    IPA.prototype.mock = function (settingsIn, prod) {
+        if (settingsIn === void 0) { settingsIn = {}; }
+        if (prod === void 0) { prod = IPA.isProductionEnv; }
+        var settings = settingsIn;
+        if (!lodash.isPlainObject(settings)) {
+            if (!IPA.isProductionEnv)
+                throw new Error('mocking setting should be a plain object');
+            settings = {};
+        }
+        privateCache.digest(settings);
+        return this[_core_].mock(prod);
+    };
+    IPA.isProductionEnv = false;
+    IPA.instances = new Map();
+    IPA.inject = function (name, template) {
+        if (IPA.instances.has(name) && !IPA.isProductionEnv) {
+            throw new Error('in inject: reassign to global IPA instance is not arrowed');
+        }
+        IPA.instances.set(name, new IPA(template));
+    };
+    IPA.getInstance = function (name) {
+        var i = null;
+        return createProxy(function () {
+            if (i)
+                return i;
+            i = IPA.instances.get(name);
+            if (i === undefined)
+                throw new Error('in getInstance: IPA instance called before injected');
+            return i;
+        });
+    };
+    IPA.$compile = compile;
+    IPA.install = function (v) {
+        v.prototype.$ipa = IPA.getInstance;
+        v.prototype.$brew = IPA.$compile;
+    };
+    IPA.asClass = asClass;
+    IPA.assemble = assemble;
+    IPA.Dict = Dict;
+    IPA.Each = Each;
+    IPA.From = From;
+    IPA.Integer = Integer;
+    IPA.or = or;
+    IPA.Range = Range;
+    __decorate([
+        ShallReset
+    ], IPA.prototype, "check", null);
+    __decorate([
+        ShallReset
+    ], IPA.prototype, "guarantee", null);
+    __decorate([
+        ShallReset
+    ], IPA.prototype, "mock", null);
+    return IPA;
+}());
+
+module.exports = IPA;

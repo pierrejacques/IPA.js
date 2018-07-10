@@ -7,3 +7,4 @@ dist/
 bug.log.md
 yarn-error.log
 .DS_Store
+*_cache/

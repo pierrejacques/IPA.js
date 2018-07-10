@@ -1,6 +1,5 @@
 import { isNumber, mean, times } from 'lodash';
 import { privateCache } from './cache';
-import { IPAStrategy } from '../interface';
 
 const fixLength = (len, item) => {
     const arr = item.target;
@@ -15,15 +14,20 @@ const fixLength = (len, item) => {
 const strategies = {
     most(val) {
         const lengths = val.map(item => item.target.length);
-        const freq = new Map();
+        const freqs = new Map();
         lengths.forEach((length) => {
-            if (freq.get(length) === undefined) {
-                freq.set(length, 0);
+            if (freqs.get(length) === undefined) {
+                freqs.set(length, 0);
             }
-            freq.set(length, freq.get(length) + 1);
+            freqs.set(length, freqs.get(length) + 1);
         });
-        const sorted = [...freq].sort((a, b) => a[1] - b[1]).map(item => item[0]);
-        return sorted[0];
+        let maxFreq = null;
+        freqs.forEach((len, freq) => {
+            if (!maxFreq || freq > maxFreq.freq) {
+                maxFreq = { len, freq };
+            }
+        });
+        return maxFreq.len;
     },
     shortest(val) {
         return Math.min(...val.map(item => item.target.length));

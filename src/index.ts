@@ -20,13 +20,11 @@ import {
     Range,
 } from './public/index';
 
-function ShallReset() {
-    return (target, name: string, descriptor: PropertyDescriptor) => {
-        descriptor.value();
-        privateCache.reset();
-        publicCache.reset()
-        catcher.clear();
-    };
+function ShallReset(target: any, name: string, descriptor: PropertyDescriptor): void {
+    descriptor.value();
+    privateCache.reset();
+    publicCache.reset();
+    catcher.clear();
 }
 
 export default class IPA implements IPALike {
@@ -68,7 +66,7 @@ export default class IPA implements IPALike {
         this[_core_] = compile(template);
     }
 
-    @ShallReset()
+    @ShallReset
     check(data) {
         return this[_core_].check(data) && checkLength();
     }
@@ -78,7 +76,7 @@ export default class IPA implements IPALike {
      * @param {whether to make a deep copy first} isCopy
      * @param {whether to use the strict mode} strict
      */
-    @ShallReset()
+    @ShallReset
     guarantee(data, isCopy = true, strict = false) {
         const copy = isCopy ? cloneDeep(data) : data;
         const output = this[_core_].guarantee(copy, strict);
@@ -90,7 +88,7 @@ export default class IPA implements IPALike {
      * @param {the mock setting for array length} settings 
      * @param {whether it's in production environment} prod 
      */
-    @ShallReset()
+    @ShallReset
     mock(settingsIn = {}, prod = IPA.isProductionEnv) {
         let settings = settingsIn;
         if (!isPlainObject(settings)) {
