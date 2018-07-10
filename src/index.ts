@@ -20,13 +20,6 @@ import {
     Range,
 } from './public/index';
 
-function ShallReset(target: any, name: string, descriptor: PropertyDescriptor): void {
-    descriptor.value();
-    privateCache.reset();
-    publicCache.reset();
-    catcher.clear();
-}
-
 export default class IPA extends IPALike {
     public static isProductionEnv = false;
     public static instances = new Map();
@@ -50,6 +43,11 @@ export default class IPA extends IPALike {
         v.prototype.$ipa = IPA.getInstance;
         v.prototype.$brew = IPA.$compile;
     };
+    public static reset = () => {
+        privateCache.reset();
+        publicCache.reset();
+        catcher.clear();
+    };
 
     public static asClass = asClass;
     public static assemble = assemble;
@@ -68,9 +66,10 @@ export default class IPA extends IPALike {
         this.core = compile(template);
     }
 
-    @ShallReset
     check(data) {
-        return this.core.check(data) && checkLength();
+        const output = this.core.check(data) && checkLength();
+        IPA.reset();
+        return output;
     }
 
     /**
@@ -78,11 +77,11 @@ export default class IPA extends IPALike {
      * @param {whether to make a deep copy first} isCopy
      * @param {whether to use the strict mode} strict
      */
-    @ShallReset
     guarantee(data, isCopy = true, strict = false) {
         const copy = isCopy ? cloneDeep(data) : data;
         const output = this.core.guarantee(copy, strict);
         fixArray(this.strategy);
+        IPA.reset();
         return output;
     }
 
@@ -90,7 +89,6 @@ export default class IPA extends IPALike {
      * @param {the mock setting for array length} settings 
      * @param {whether it's in production environment} prod 
      */
-    @ShallReset
     mock(settingsIn = {}, prod = IPA.isProductionEnv) {
         let settings = settingsIn;
         if (!isPlainObject(settings)) {
@@ -98,6 +96,8 @@ export default class IPA extends IPALike {
             settings = {};
         }
         privateCache.digest(settings);
-        return this.core.mock(prod);
+        const output = this.core.mock(prod);
+        IPA.reset();
+        return output;
     }
 }

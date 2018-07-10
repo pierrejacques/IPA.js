@@ -28,13 +28,6 @@ function __extends(d, b) {
     d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
 }
 
-function __decorate(decorators, target, key, desc) {
-    var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
-    if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
-    else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
-    return c > 3 && r && Object.defineProperty(target, key, r), r;
-}
-
 var IPAStrategy;
 (function (IPAStrategy) {
     IPAStrategy["Shortest"] = "shortest";
@@ -48,6 +41,15 @@ var IPAErrorLogType;
     IPAErrorLogType["Key"] = "key";
     IPAErrorLogType["Message"] = "message";
 })(IPAErrorLogType || (IPAErrorLogType = {}));
+
+var IPALike = /** @class */ (function () {
+    function IPALike() {
+    }
+    IPALike.prototype.check = function (data) { return true; };
+    IPALike.prototype.guarantee = function (data, isDeep, isStrict) { };
+    IPALike.prototype.mock = function (config, isProdEnv) { };
+    return IPALike;
+}());
 
 var _a;
 var _cache_ = Symbol('cache');
@@ -108,8 +110,6 @@ var Catcher = /** @class */ (function () {
     return Catcher;
 }());
 var catcher = new Catcher();
-
-var _core_ = Symbol('IPA_core');
 
 var fixLength = function (len, item) {
     var arr = item.target;
@@ -173,28 +173,58 @@ var checkLength = (function () {
     return result;
 });
 
-var getterProps = ['check', 'guarantee', 'mock', _core_];
-var bothProps = ['strategy'];
+var IPAProxy = /** @class */ (function (_super) {
+    __extends(IPAProxy, _super);
+    function IPAProxy(getInstance) {
+        var _this = _super.call(this) || this;
+        _this.getInstance = getInstance;
+        return _this;
+    }
+    Object.defineProperty(IPAProxy.prototype, "core", {
+        get: function () {
+            return this.getInstance().core;
+        },
+        enumerable: true,
+        configurable: true
+    });
+    Object.defineProperty(IPAProxy.prototype, "strategy", {
+        get: function () {
+            return this.getInstance().strategy;
+        },
+        set: function (v) {
+            this.getInstance().strategy = v;
+        },
+        enumerable: true,
+        configurable: true
+    });
+    IPAProxy.prototype.check = function () {
+        var params = [];
+        for (var _i = 0; _i < arguments.length; _i++) {
+            params[_i] = arguments[_i];
+        }
+        var _a;
+        return (_a = this.getInstance()).check.apply(_a, params);
+    };
+    IPAProxy.prototype.guarantee = function () {
+        var params = [];
+        for (var _i = 0; _i < arguments.length; _i++) {
+            params[_i] = arguments[_i];
+        }
+        var _a;
+        return (_a = this.getInstance()).guarantee.apply(_a, params);
+    };
+    IPAProxy.prototype.mock = function () {
+        var params = [];
+        for (var _i = 0; _i < arguments.length; _i++) {
+            params[_i] = arguments[_i];
+        }
+        var _a;
+        return (_a = this.getInstance()).mock.apply(_a, params);
+    };
+    return IPAProxy;
+}(IPALike));
 var createProxy = (function (getInstance) {
-    var proxy = {};
-    getterProps.forEach(function (prop) {
-        Object.defineProperty(proxy, prop, {
-            get: function () {
-                return getInstance()[prop];
-            }
-        });
-    });
-    bothProps.forEach(function (prop) {
-        Object.defineProperty(proxy, prop, {
-            set: function () {
-                return getInstance()[prop];
-            },
-            get: function () {
-                return getInstance()[prop];
-            }
-        });
-    });
-    return proxy;
+    return new IPAProxy(getInstance);
 });
 
 var dict = 'ad,aliqua,amet,anim,aute,cillum,commodo,culpa,do,dolor,duis,elit,enim,esse,est,et,ex,fugiat,id,in,ipsum,irure,labore,lorem,magna,minim,mollit,nisi,non,nulla,officia,pariatur,quis,sint,sit,sunt,tempor,ut,velit,veniam'
@@ -229,10 +259,10 @@ var funcComp = {
 
 var ipaInstanceCompiler = {
     condition: function (template) {
-        return !!(template && template[_core_]);
+        return Boolean(template && (template instanceof IPALike));
     },
     execute: function (template) {
-        return function () { return template[_core_]; };
+        return function () { return template.core; }; // gg
     },
 };
 
@@ -324,7 +354,7 @@ var numberCompiler = {
 
 var objectCompiler = {
     condition: function (template) {
-        return lodash.isPlainObject(template) && !template[_core_];
+        return lodash.isPlainObject(template) && !(template instanceof IPALike);
     },
     execute: function (template) {
         return function (_a) {
@@ -542,19 +572,19 @@ var assemble = (function (c, g, m) { return function (_a) {
     };
 }; });
 
-function ShallReset(target, name, descriptor) {
-    descriptor.value();
-    privateCache.reset();
-    publicCache.reset();
-    catcher.clear();
-}
-var IPA = /** @class */ (function () {
+var IPA = /** @class */ (function (_super) {
+    __extends(IPA, _super);
     function IPA(template) {
-        this.strategy = IPAStrategy.Shortest;
-        this[_core_] = compile(template);
+        var _this = _super.call(this) || this;
+        _this.core = null;
+        _this.strategy = IPAStrategy.Shortest;
+        _this.core = compile(template);
+        return _this;
     }
     IPA.prototype.check = function (data) {
-        return this[_core_].check(data) && checkLength();
+        var output = this.core.check(data) && checkLength();
+        IPA.reset();
+        return output;
     };
     /**
      * @param {the inputting data to be guaranteed} data
@@ -565,8 +595,9 @@ var IPA = /** @class */ (function () {
         if (isCopy === void 0) { isCopy = true; }
         if (strict === void 0) { strict = false; }
         var copy = isCopy ? lodash.cloneDeep(data) : data;
-        var output = this[_core_].guarantee(copy, strict);
+        var output = this.core.guarantee(copy, strict);
         fixer(this.strategy);
+        IPA.reset();
         return output;
     };
     /**
@@ -583,7 +614,9 @@ var IPA = /** @class */ (function () {
             settings = {};
         }
         privateCache.digest(settings);
-        return this[_core_].mock(prod);
+        var output = this.core.mock(prod);
+        IPA.reset();
+        return output;
     };
     IPA.isProductionEnv = false;
     IPA.instances = new Map();
@@ -609,6 +642,11 @@ var IPA = /** @class */ (function () {
         v.prototype.$ipa = IPA.getInstance;
         v.prototype.$brew = IPA.$compile;
     };
+    IPA.reset = function () {
+        privateCache.reset();
+        publicCache.reset();
+        catcher.clear();
+    };
     IPA.asClass = asClass;
     IPA.assemble = assemble;
     IPA.Dict = Dict;
@@ -617,16 +655,7 @@ var IPA = /** @class */ (function () {
     IPA.Integer = Integer;
     IPA.or = or;
     IPA.Range = Range;
-    __decorate([
-        ShallReset
-    ], IPA.prototype, "check", null);
-    __decorate([
-        ShallReset
-    ], IPA.prototype, "guarantee", null);
-    __decorate([
-        ShallReset
-    ], IPA.prototype, "mock", null);
     return IPA;
-}());
+}(IPALike));
 
 module.exports = IPA;
