@@ -42,11 +42,12 @@ export enum IPAErrorLogType {
 
 export interface IPAErrorLog {
     type: IPAErrorLogType;
-    message: string;
+    value: string;
 }
 
 export interface IPAErrorCatcher {
-    log(errorLog: IPAErrorLog): void;
+    key(key: any): void;
+    log(msg: string): void;
     clear(): void;
     display(): Object;
 }

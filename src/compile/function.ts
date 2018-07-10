@@ -21,10 +21,7 @@ const Strat = (
 ): IPAFunction => ({ catcher }) => ({
     check(v) {
         const result = ck(v);
-        if (!result) catcher.log({
-            type: IPAErrorLogType.Message,
-            message: `should be a ${placeholder}`,
-        }); 
+        if (!result) catcher.log(`should be ${placeholder}`); 
         return result;
     },
     guarantee(v, strict) {

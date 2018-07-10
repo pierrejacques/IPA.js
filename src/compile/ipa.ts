@@ -6,7 +6,7 @@ const ipaInstanceCompiler: IPACompiler = {
         return Boolean(template && (template instanceof IPALike));
     },
     execute(template) {
-        return () => template.core; // gg
+        return () => template.core;
     },
 };
 

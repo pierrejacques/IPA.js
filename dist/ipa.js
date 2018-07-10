@@ -98,8 +98,17 @@ var Catcher = /** @class */ (function () {
     function Catcher() {
         this.stack = [];
     }
-    Catcher.prototype.log = function (errorLog) {
-        this.stack.unshift(errorLog);
+    Catcher.prototype.key = function (keyName) {
+        this.stack.unshift({
+            type: IPAErrorLogType.Key,
+            value: keyName,
+        });
+    };
+    Catcher.prototype.log = function (msg) {
+        this.stack.unshift({
+            type: IPAErrorLogType.Message,
+            value: msg,
+        });
     };
     Catcher.prototype.clear = function () {
         this.stack = [];
@@ -237,10 +246,7 @@ var Strat = function (ck, cvt, dft, mk, placeholder) { return function (_a) {
         check: function (v) {
             var result = ck(v);
             if (!result)
-                catcher.log({
-                    type: IPAErrorLogType.Message,
-                    message: "should be a " + placeholder,
-                });
+                catcher.log("should be a " + placeholder);
             return result;
         },
         guarantee: function (v, strict) {

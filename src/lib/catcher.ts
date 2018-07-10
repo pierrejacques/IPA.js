@@ -1,4 +1,4 @@
-import { IPAErrorLog, IPAErrorCatcher } from "../interface";
+import { IPAErrorLog, IPAErrorCatcher, IPAErrorLogType } from "../interface";
 
 class IPAErrorMap {
     log: Array<IPAErrorLog>;
@@ -12,8 +12,18 @@ class Catcher implements IPAErrorCatcher {
 
     constructor() {}
 
-    log(errorLog) {
-        this.stack.unshift(errorLog);
+    key(keyName) {
+        this.stack.unshift({
+            type: IPAErrorLogType.Key,
+            value: keyName,
+        });
+    }
+
+    log(msg) {
+        this.stack.unshift({
+            type: IPAErrorLogType.Message,
+            value: msg,
+        });
     }
 
     clear(): void {
