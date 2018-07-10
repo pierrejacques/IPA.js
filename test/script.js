@@ -1,8 +1,14 @@
 const IPA = require('../dist/ipa.js');
 
-// console.log(IPA);
-// const func = new IPA(Function);
+IPA.addCatcher((err) => {
+    console.log('from IPA', err);
+});
 
-// console.log(func.check(function () {}));
-// console.log(func.guarantee(null));
-// console.log(func.mock({}, true));
+const num = new IPA(Number);
+
+num.addCatcher((err) => {
+    console.log('from instance', err);
+});
+
+num.check('');
+num.check(false);

@@ -1,13 +1,14 @@
 import { IPAErrorLog, IPAErrorCatcher } from "../interface";
 
-class IPAErrorMap extends Map<string, Object> {
+class IPAErrorMap {
+    log: Array<IPAErrorLog>;
     constructor(logStack: Array<IPAErrorLog>) {
-        super();
+        this.log = logStack;
     }
 }
 
 class Catcher implements IPAErrorCatcher {
-    private stack: Array<IPAErrorLog>;
+    private stack: Array<IPAErrorLog> = [];
 
     constructor() {}
 

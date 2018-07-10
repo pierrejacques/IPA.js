@@ -88,15 +88,15 @@ _a = _cache_;
 var privateCache = new Cache();
 var publicCache = new Cache();
 
-var IPAErrorMap = /** @class */ (function (_super) {
-    __extends(IPAErrorMap, _super);
+var IPAErrorMap = /** @class */ (function () {
     function IPAErrorMap(logStack) {
-        return _super.call(this) || this;
+        this.log = logStack;
     }
     return IPAErrorMap;
-}(Map));
+}());
 var Catcher = /** @class */ (function () {
     function Catcher() {
+        this.stack = [];
     }
     Catcher.prototype.log = function (errorLog) {
         this.stack.unshift(errorLog);
@@ -231,18 +231,31 @@ var dict = 'ad,aliqua,amet,anim,aute,cillum,commodo,culpa,do,dolor,duis,elit,eni
     .split(',');
 var randStr = (function () { return dict[lodash.random(0, dict.length - 1)]; });
 
-var Strat = function (ck, cvt, dft, mk) { return function () { return ({
-    check: ck,
-    guarantee: function (v, strict) { return ck(v) ? v : strict ? dft : cvt(v); },
-    mock: function (prod) { return prod ? dft : mk(); },
-}); }; };
+var Strat = function (ck, cvt, dft, mk, placeholder) { return function (_a) {
+    var catcher = _a.catcher;
+    return ({
+        check: function (v) {
+            var result = ck(v);
+            if (!result)
+                catcher.log({
+                    type: IPAErrorLogType.Message,
+                    message: "should be a " + placeholder,
+                });
+            return result;
+        },
+        guarantee: function (v, strict) {
+            return this.check(v) ? v : strict ? dft : cvt(v);
+        },
+        mock: function (prod) { return prod ? dft : mk(); },
+    });
+}; };
 var functionCompilerMap = new Map()
-    .set(String, Strat(lodash.isString, lodash.toString, '', randStr))
-    .set(Number, Strat(lodash.isNumber, function (v) { return +v || 0; }, 0, function () { return lodash.random(0, 100); }))
-    .set(Boolean, Strat(lodash.isBoolean, function (v) { return !!v; }, false, function () { return !lodash.random(0, 1); }))
-    .set(Array, Strat(lodash.isArray, lodash.toArray, [], function () { return []; }))
-    .set(Object, Strat(lodash.isPlainObject, function () { return ({}); }, {}, function () { return ({}); }))
-    .set(Function, Strat(lodash.isFunction, function () { return function () { }; }, function () { }, function () { return function () { }; }));
+    .set(String, Strat(lodash.isString, lodash.toString, '', randStr, 'string'))
+    .set(Number, Strat(lodash.isNumber, function (v) { return +v || 0; }, 0, function () { return lodash.random(0, 100); }, 'number'))
+    .set(Boolean, Strat(lodash.isBoolean, function (v) { return !!v; }, false, function () { return !lodash.random(0, 1); }, 'boolean'))
+    .set(Array, Strat(lodash.isArray, lodash.toArray, [], function () { return []; }, 'array'))
+    .set(Object, Strat(lodash.isPlainObject, function () { return ({}); }, {}, function () { return ({}); }, 'plain object'))
+    .set(Function, Strat(lodash.isFunction, function () { return function () { }; }, function () { }, function () { return function () { }; }, 'function'));
 var bypass = {
     check: function () { return true; },
     guarantee: function (v) { return v; },
@@ -572,10 +585,12 @@ var assemble = (function (c, g, m) { return function (_a) {
     };
 }; });
 
+var errHandlers = new Set();
 var IPA = /** @class */ (function (_super) {
     __extends(IPA, _super);
     function IPA(template) {
         var _this = _super.call(this) || this;
+        _this.errorHandlers = new Set();
         _this.core = null;
         _this.strategy = IPAStrategy.Shortest;
         _this.core = compile(template);
@@ -583,7 +598,7 @@ var IPA = /** @class */ (function (_super) {
     }
     IPA.prototype.check = function (data) {
         var output = this.core.check(data) && checkLength();
-        IPA.reset();
+        IPA.reset(this);
         return output;
     };
     /**
@@ -597,7 +612,7 @@ var IPA = /** @class */ (function (_super) {
         var copy = isCopy ? lodash.cloneDeep(data) : data;
         var output = this.core.guarantee(copy, strict);
         fixer(this.strategy);
-        IPA.reset();
+        IPA.reset(this);
         return output;
     };
     /**
@@ -615,8 +630,14 @@ var IPA = /** @class */ (function (_super) {
         }
         privateCache.digest(settings);
         var output = this.core.mock(prod);
-        IPA.reset();
+        IPA.reset(this);
         return output;
+    };
+    IPA.prototype.addCatcher = function (f) {
+        this.errorHandlers.add(f);
+    };
+    IPA.prototype.removeCatcher = function (f) {
+        this.errorHandlers.delete(f);
     };
     IPA.isProductionEnv = false;
     IPA.instances = new Map();
@@ -642,9 +663,18 @@ var IPA = /** @class */ (function (_super) {
         v.prototype.$ipa = IPA.getInstance;
         v.prototype.$brew = IPA.$compile;
     };
-    IPA.reset = function () {
+    IPA.addCatcher = function (f) {
+        errHandlers.add(f);
+    };
+    IPA.removeCatcher = function (f) {
+        errHandlers.delete(f);
+    };
+    IPA.reset = function (instance) {
         privateCache.reset();
         publicCache.reset();
+        var errorMap = catcher.display();
+        instance.errorHandlers.forEach(function (handle) { return handle(errorMap); });
+        errHandlers.forEach(function (handle) { return handle(errorMap); });
         catcher.clear();
     };
     IPA.asClass = asClass;

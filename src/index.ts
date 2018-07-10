@@ -1,4 +1,4 @@
-import { IPACore, IPAStrategy } from './interface';
+import { IPACore, IPAStrategy, IPAErrorCatcher } from './interface';
 
 import IPALike from './lib/ipa-like';
 import { cloneDeep, isPlainObject } from 'lodash';
@@ -20,9 +20,12 @@ import {
     Range,
 } from './public/index';
 
+const errHandlers = new Set();
+
 export default class IPA extends IPALike {
     public static isProductionEnv = false;
     public static instances = new Map();
+
     public static inject = (name: any, template: any): void => {
         if (IPA.instances.has(name) && !IPA.isProductionEnv) {
             throw new Error('in inject: reassign to global IPA instance is not arrowed');
@@ -43,9 +46,19 @@ export default class IPA extends IPALike {
         v.prototype.$ipa = IPA.getInstance;
         v.prototype.$brew = IPA.$compile;
     };
-    public static reset = () => {
+    
+    public static addCatcher = (f: Function) => {
+        errHandlers.add(f);
+    };
+    public static removeCatcher = (f: Function) => {
+        errHandlers.delete(f);
+    }
+    private static reset = (instance: IPA) => {
         privateCache.reset();
         publicCache.reset();
+        const errorMap = catcher.display();
+        instance.errorHandlers.forEach(handle => handle(errorMap));
+        errHandlers.forEach(handle => handle(errorMap));
         catcher.clear();
     };
 
@@ -58,6 +71,7 @@ export default class IPA extends IPALike {
     public static or = or;
     public static Range = Range;
 
+    private errorHandlers = new Set();
     public core: IPACore = null;
     public strategy: IPAStrategy = IPAStrategy.Shortest;
 
@@ -68,7 +82,7 @@ export default class IPA extends IPALike {
 
     check(data) {
         const output = this.core.check(data) && checkLength();
-        IPA.reset();
+        IPA.reset(this);
         return output;
     }
 
@@ -81,7 +95,7 @@ export default class IPA extends IPALike {
         const copy = isCopy ? cloneDeep(data) : data;
         const output = this.core.guarantee(copy, strict);
         fixArray(this.strategy);
-        IPA.reset();
+        IPA.reset(this);
         return output;
     }
 
@@ -97,7 +111,15 @@ export default class IPA extends IPALike {
         }
         privateCache.digest(settings);
         const output = this.core.mock(prod);
-        IPA.reset();
+        IPA.reset(this);
         return output;
+    }
+
+    addCatcher(f: Function) {
+        this.errorHandlers.add(f);
+    }
+
+    removeCatcher(f: Function) {
+        this.errorHandlers.delete(f);
     }
 }

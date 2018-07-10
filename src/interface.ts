@@ -48,7 +48,7 @@ export interface IPAErrorLog {
 export interface IPAErrorCatcher {
     log(errorLog: IPAErrorLog): void;
     clear(): void;
-    display(): Map<string, Object>;
+    display(): Object;
 }
 
 export interface IPACache {
