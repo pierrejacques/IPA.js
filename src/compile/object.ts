@@ -1,10 +1,10 @@
 import { isPlainObject } from 'lodash';
-import _core_ from '../lib/symbol';
 import { IPACompiler } from '../interface';
+import IPALike from '../lib/ipa-like';
 
 const objectCompiler: IPACompiler = {
     condition(template) {
-        return isPlainObject(template) && !template[_core_];
+        return isPlainObject(template) && !(template instanceof IPALike)
     },
     execute(template) {
         return ({ compile }) => {

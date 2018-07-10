@@ -6,13 +6,6 @@ export enum IPAStrategy {
     Least = 'least'
 }
 
-export interface IPALike {
-    check(data?: any): boolean;
-    guarantee(data?: any, isDeep?: boolean, isStrict?: boolean): any;
-    mock(config?: IPAMockConfig, isProdEnv?: boolean): any;
-    strategy: IPAStrategy;
-}
-
 export interface IPACore {
     check(data?: any): boolean;
     guarantee(data?: any, isStrict?: boolean): any;

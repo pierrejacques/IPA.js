@@ -1,10 +1,10 @@
-import { IPALike, IPACore, IPAStrategy } from './interface';
+import { IPACore, IPAStrategy } from './interface';
 
+import IPALike from './lib/ipa-like';
 import { cloneDeep, isPlainObject } from 'lodash';
 import { privateCache, publicCache } from './lib/cache';
 import catcher from './lib/catcher';
 
-import _core_ from './lib/symbol';
 import fixArray from './lib/fixArray';
 import checkLength from './lib/checkLength';
 import createProxy from './lib/createProxy';
@@ -27,7 +27,7 @@ function ShallReset(target: any, name: string, descriptor: PropertyDescriptor): 
     catcher.clear();
 }
 
-export default class IPA implements IPALike {
+export default class IPA extends IPALike {
     public static isProductionEnv = false;
     public static instances = new Map();
     public static inject = (name: any, template: any): void => {
@@ -60,15 +60,17 @@ export default class IPA implements IPALike {
     public static or = or;
     public static Range = Range;
 
+    public core: IPACore = null;
     public strategy: IPAStrategy = IPAStrategy.Shortest;
 
     constructor(template: any) {
-        this[_core_] = compile(template);
+        super();
+        this.core = compile(template);
     }
 
     @ShallReset
     check(data) {
-        return this[_core_].check(data) && checkLength();
+        return this.core.check(data) && checkLength();
     }
 
     /**
@@ -79,7 +81,7 @@ export default class IPA implements IPALike {
     @ShallReset
     guarantee(data, isCopy = true, strict = false) {
         const copy = isCopy ? cloneDeep(data) : data;
-        const output = this[_core_].guarantee(copy, strict);
+        const output = this.core.guarantee(copy, strict);
         fixArray(this.strategy);
         return output;
     }
@@ -96,6 +98,6 @@ export default class IPA implements IPALike {
             settings = {};
         }
         privateCache.digest(settings);
-        return this[_core_].mock(prod);
+        return this.core.mock(prod);
     }
 }

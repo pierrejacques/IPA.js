@@ -1,12 +1,12 @@
-import _core_ from '../lib/symbol';
-import { IPACompiler } from '../interface';
+import IPALike from "../lib/ipa-like";
+import { IPACompiler } from "../interface";
 
 const ipaInstanceCompiler: IPACompiler = {
     condition(template) {
-        return !!(template && template[_core_]);
+        return Boolean(template && (template instanceof IPALike));
     },
     execute(template) {
-        return () => template[_core_];
+        return () => template.core; // gg
     },
 };
 

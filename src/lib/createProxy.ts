@@ -1,27 +1,35 @@
-import _core_ from './symbol';
-import { IPALike } from '../interface';
+import IPALike from './ipa-like';
 
-const getterProps = ['check', 'guarantee', 'mock', _core_];
-const bothProps = ['strategy'];
+class IPAProxy extends IPALike {
+    constructor(private getInstance: () => IPALike) {
+        super();
+    }
+
+    get core() {
+        return this.getInstance().core;
+    }
+
+    get strategy() {
+        return this.getInstance().strategy;
+    }
+
+    set strategy(v) {
+        this.getInstance().strategy = v;
+    }
+
+    check(...params) {
+        return this.getInstance().check(...params);
+    }
+
+    guarantee(...params) {
+        return this.getInstance().guarantee(...params);
+    }
+
+    mock(...params) {
+        return this.getInstance().mock(...params);
+    }
+}
 
 export default (getInstance: () => IPALike): IPALike => {
-    const proxy = {};
-    getterProps.forEach(prop => {
-        Object.defineProperty(proxy, prop, {
-            get() {
-                return getInstance()[prop];
-            }
-        });
-    });
-    bothProps.forEach(prop => {
-        Object.defineProperty(proxy, prop, {
-            set() {
-                return getInstance()[prop];
-            },
-            get() {
-                return getInstance()[prop];
-            }
-        });
-    });
-    return (proxy as IPALike);
+    return new IPAProxy(getInstance);
 };
