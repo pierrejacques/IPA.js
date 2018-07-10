@@ -1,5 +1,7 @@
 node_modules/
 img/
+src/
+test/
 texlogo.js
 test/script.js
 *.jpg
@@ -7,3 +9,6 @@ test/script.js
 bug.log.md
 yarn-error.log
 .DS_Store
+package-lock.json
+yarn.lock
+yarn-error.log

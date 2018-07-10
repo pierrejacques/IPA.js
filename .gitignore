@@ -8,3 +8,6 @@ bug.log.md
 yarn-error.log
 .DS_Store
 *_cache/
+package-lock.json
+yarn.lock
+yarn-error.log
