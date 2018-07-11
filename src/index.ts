@@ -56,9 +56,8 @@ export default class IPA extends IPALike {
     private static reset = (instance: IPA) => {
         privateCache.reset();
         publicCache.reset();
-        const errorMap = catcher.display();
-        instance.errorHandlers.forEach(handle => handle(errorMap));
-        errHandlers.forEach(handle => handle(errorMap));
+        instance.errorHandlers.forEach(handle => handle(catcher.logMap));
+        errHandlers.forEach(handle => handle(catcher.logMap));
         catcher.clear();
     };
 
@@ -106,7 +105,7 @@ export default class IPA extends IPALike {
     mock(settingsIn = {}, prod = IPA.isProductionEnv) {
         let settings = settingsIn;
         if (!isPlainObject(settings)) {
-            if (!IPA.isProductionEnv) throw new Error('mocking setting should be a plain object');
+            if (!IPA.isProductionEnv) throw new Error('mocking setting  a plain object');
             settings = {};
         }
         privateCache.digest(settings);

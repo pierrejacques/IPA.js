@@ -1,10 +1,19 @@
 import { isPlainObject, range, random } from 'lodash';
 import randStr from '../lib/randStr';
 
-export default template => ({ compile }) => {
+export default template => ({ compile, catcher }) => {
     const compiled = compile(template);
     return {
-        check: val => isPlainObject(val) && Object.values(val).every(v => compiled.check(v)),
+        check: val => {
+            return catcher.catch('a plain object', isPlainObject(val)) &&
+            catcher.catch(
+                'a dictionary object',
+                Object.keys(val).every(k => catcher.wrap(
+                    k,
+                    () => compiled.check(val[k]))
+                )
+            );
+        },
         guarantee(val, strict) {
             if (!isPlainObject(val)) return {};
             Object.keys(val).forEach((key) => {

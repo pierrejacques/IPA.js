@@ -34,23 +34,14 @@ export interface IPAContext {
     cache: IPACache;
     catcher: IPAErrorCatcher;
 }
-
-export enum IPAErrorLogType {
-    Key = 'key',
-    Message = 'message',
-}
-
-export interface IPAErrorLog {
-    type: IPAErrorLogType;
-    value: string;
-}
-
 export interface IPAErrorCatcher {
-    key(key: any): void;
-    log(msg: string): void;
+    logMap: Map<string, string>;
     clear(): void;
-    display(): Object;
-}
+    push(key: any): void;
+    pop(): void;
+    wrap(key: any, getResult: () => any): any;
+    catch(msg: string, result?: boolean): boolean;
+}   
 
 export interface IPACache {
     push(name: string, item: any): void;

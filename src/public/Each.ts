@@ -1,11 +1,19 @@
 import { isArray } from 'lodash';
 
-export default (template, strictLength = true) => {
-    if (!isArray(template)) throw new Error('function "Each" only accepts array as parameter');
-    return ({ compile }) => {
+export default (template: Array<any>, strictLength: boolean = true) => {
+    const len = template.length;
+    return ({ compile, catcher }) => {
         const compiled = template.map(item => compile(item));
         return {
-            check: val => isArray(val) && (!strictLength || val.length === template.length) && compiled.every((item, i) => item.check(val[i])),
+            check: val => catcher.catch('an array', !isArray(val)) &&
+                catcher.catch(`with length of ${len}`, strictLength && val.length !== len) &&
+                catcher.catch(
+                    'a correct array',
+                    compiled.every((item, i) => catcher.wrap(
+                        i,
+                        () => item.check(val[i])
+                    )),
+                ),
             guarantee(valIn, strict) {
                 const val = isArray(valIn) ? valIn : [];
                 compiled.forEach((item, idx) => {

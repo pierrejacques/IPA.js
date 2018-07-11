@@ -9,21 +9,18 @@ import {
     toString,
     random,
 } from 'lodash';
+import bypasser from './util.bypasser';
 import randStr from '../lib/randStr';
-import { IPAFunction, IPAErrorLogType } from '../interface';
+import { IPAFunction  } from '../interface';
 
 const Strat = (
     ck: (input?: any) => boolean,
     cvt: (input?: any) => any,
     dft: any,
     mk: () => any,
-    placeholder: string,
+    describe: string,
 ): IPAFunction => ({ catcher }) => ({
-    check(v) {
-        const result = ck(v);
-        if (!result) catcher.log(`should be ${placeholder}`); 
-        return result;
-    },
+    check: v => catcher.catch(describe, ck(v)),
     guarantee(v, strict) {
         return this.check(v) ? v : strict ? dft : cvt(v);
     },
@@ -31,23 +28,17 @@ const Strat = (
 });
 
 const functionCompilerMap: Map<Function, IPAFunction> = new Map()
-    .set(String, Strat(isString, toString, '', randStr, 'string'))
-    .set(Number, Strat(isNumber, v => +v || 0, 0, () => random(0, 100), 'number'))
-    .set(Boolean, Strat(isBoolean, v => !!v, false, () => !random(0, 1), 'boolean'))
-    .set(Array, Strat(isArray, toArray, [], () => [], 'array'))
-    .set(Object, Strat(isPlainObject, () => ({}), {}, () => ({}), 'plain object'))
-    .set(Function, Strat(isFunction, () => () => {}, () => {}, () => () => {}, 'function'));
-
-const bypass = {
-    check: () => true,
-    guarantee: v => v,
-    mock: () => undefined,
-};
+    .set(String, Strat(isString, toString, '', randStr, 'a string'))
+    .set(Number, Strat(isNumber, v => +v || 0, 0, () => random(0, 100), 'a number'))
+    .set(Boolean, Strat(isBoolean, v => !!v, false, () => !random(0, 1), 'a boolean'))
+    .set(Array, Strat(isArray, toArray, [], () => [], 'an array'))
+    .set(Object, Strat(isPlainObject, () => ({}), {}, () => ({}), 'a plain object'))
+    .set(Function, Strat(isFunction, () => () => {}, () => {}, () => () => {}, 'a function'));
 
 export default {
     condition: isFunction,
     execute: template => {
         if (functionCompilerMap.has(template)) return functionCompilerMap.get(template);
-        return (cp) => Object.assign({}, bypass, template(cp));
+        return (cp) => Object.assign({}, bypasser, template(cp));
     },
 };

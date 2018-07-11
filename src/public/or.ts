@@ -1,3 +1,5 @@
+// TODO: how to catch error here
+
 export default (...params) => {
     if (params.length === 0) throw new Error('function "or" requires at least 1 parameter');
     return ({ compile }) => {

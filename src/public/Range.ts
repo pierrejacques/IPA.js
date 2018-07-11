@@ -1,16 +1,13 @@
 import { isNumber, random } from 'lodash';
 
-export default (min, max, isFloat = false) => {
-    if (!isNumber(min) || !isNumber(max)) {
-        throw new Error('function "Range" only accept Number as 1st & 2nd parameters');
-    }
+export default (min: number, max: number, isFloat: boolean = false) => {
     if (min > max) {
         throw new Error('in function "Range", min(1st param) must be no larger than max(2st param)');
     }
-    return ({ compile }) => {
+    return ({ compile, catcher }) => {
         const nb = compile(Number);
         return {
-            check: val => isNumber(val) && val >= min && val <= max,
+            check: val => catcher.catch('an integer', (!isNumber(val)) && val >= min && val <= max),
             guarantee: (val, strict) => {
                 const v = nb.guarantee(val, strict);
                 if (v < min) return min;

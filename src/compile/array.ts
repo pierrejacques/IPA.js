@@ -11,15 +11,19 @@ const arrayCompiler: IPACompiler = {
         if (l !== undefined && !isNumber(l) && !isString(l)) {
             throw new Error('compile failed: the 2nd parameter for array can only be String or Number');
         }
-        return ({ compile }) => {
+        return ({ compile, catcher }) => {
             const compiled = compile(template[0]);
             return {
                 check(val) {
-                    if (!isArray(val)) return false;
+                    if (!isArray(val)) {
+                        return catcher.catch('array');
+                    }
                     if (l !== undefined) {
                         privateCache.push(l, val.length);
                     }
-                    return val.every(i => compiled.check(i));
+                    return catcher.catch('a correct array', val.every((item, index) => {
+                        return catcher.wrap(index, () => compiled.check(item));
+                    }));
                 },
                 guarantee(valIn, strict) {
                     const val = isArray(valIn) ? valIn : [];

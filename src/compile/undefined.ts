@@ -1,14 +1,9 @@
 import { IPACompiler } from "../interface";
+import bypasser from './util.bypasser';
 
 const undefinedCompiler: IPACompiler = {
     condition: t => t === undefined,
-    execute() {
-        return () => ({
-            check: () => true,
-            guarantee: v => v,
-            mock: () => undefined,
-        });
-    },
+    execute: () => () => bypasser,
 };
 
 export default undefinedCompiler;

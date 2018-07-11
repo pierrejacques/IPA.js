@@ -1,4 +1,4 @@
-import { isArray, cloneDeep, random, isEqual } from 'lodash';
+import { cloneDeep, random, isEqual } from 'lodash';
 
 export default (...set) => {
     const getRandom = () => {
@@ -6,8 +6,8 @@ export default (...set) => {
         return cloneDeep(v);
     };
     const getFirst = () => cloneDeep(set[0]);
-    return () => ({
-        check: val => set.findIndex(item => isEqual(item, val)) !== -1,
+    return ({ catcher }) => ({
+        check: val => catcher.catch(`from ${set}`, set.findIndex(item => isEqual(item, val)) !== -1),
         guarantee(val, strict) {
             return this.check(val) ? val : strict ? set[0] : getRandom();
         },

@@ -1,37 +1,41 @@
-import { IPAErrorLog, IPAErrorCatcher, IPAErrorLogType } from "../interface";
-
-class IPAErrorMap {
-    log: Array<IPAErrorLog>;
-    constructor(logStack: Array<IPAErrorLog>) {
-        this.log = logStack;
-    }
-}
+import { IPAErrorCatcher } from "../interface";
 
 class Catcher implements IPAErrorCatcher {
-    private stack: Array<IPAErrorLog> = [];
+    private _logMap: Map<string, string> = new Map();
+    private stack: Array<string> = [];
 
     constructor() {}
 
-    key(keyName) {
-        this.stack.unshift({
-            type: IPAErrorLogType.Key,
-            value: keyName,
-        });
-    }
-
-    log(msg) {
-        this.stack.unshift({
-            type: IPAErrorLogType.Message,
-            value: msg,
-        });
-    }
-
     clear(): void {
+        this._logMap.clear();
         this.stack = [];
     }
 
-    display(): IPAErrorMap {
-        return new IPAErrorMap(this.stack);
+    pop() {
+        this.stack.pop();
+    }
+
+    push(key: any) {
+        const keyStr = typeof key === 'string' ? `.${key}` : `[${key}]`;
+        this.stack.push(keyStr);
+    }
+
+    catch(msg: string, result: boolean = false) {
+        if (!result) {
+            this._logMap.set(this.stack.join(''), `should be ${msg}`);
+        }
+        return result;
+    }
+
+    wrap(key, getResult) {
+        this.push(key);
+        const result = getResult();
+        this.pop();
+        return result;
+    }
+
+    get logMap() {
+        return this._logMap;
     }
 }
 

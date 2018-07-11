@@ -5,11 +5,7 @@ const booleanCompiler: IPACompiler = {
     condition: isBoolean,
     execute(template) {
         return ({ catcher }) => ({
-            check: (v) => {
-                const result = isBoolean(v);
-                if (!result) catcher.log('should be boolean');
-                return result;
-            },
+            check: (v) => catcher.catch('boolean', isBoolean(v)),
             guarantee(v) {
                 return this.check(v) ? v : template;
             },

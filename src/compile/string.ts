@@ -4,8 +4,8 @@ import { IPACompiler } from '../interface';
 
 const stringCompiler: IPACompiler = {
     condition: isString,
-    execute: template => () => ({
-        check: isString,
+    execute: template => ({ catcher }) => ({
+        check: (v) => catcher.catch('string', isString(v)),
         guarantee: v => (isString(v) ? v : template),
         mock: prod => prod ? template : randStr(),
     }),
