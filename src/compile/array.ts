@@ -32,7 +32,10 @@ const arrayCompiler: IPACompiler = {
                 guarantee(valIn, strict) {
                     const val = catcher.catch('array', isArray(valIn)) ? valIn : [];
                     val.forEach((item, idx) => {
-                        val[idx] = compiled.guarantee(item, strict);
+                        val[idx] = catcher.wrap(
+                            idx,
+                            () => compiled.guarantee(item, strict),
+                        );
                     });
                     if (l !== undefined) {
                         privateCache.push(l, {

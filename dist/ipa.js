@@ -347,7 +347,7 @@ var arrayCompiler = {
                 guarantee: function (valIn, strict) {
                     var val = catcher.catch('array', lodash.isArray(valIn)) ? valIn : [];
                     val.forEach(function (item, idx) {
-                        val[idx] = compiled.guarantee(item, strict);
+                        val[idx] = catcher.wrap(idx, function () { return compiled.guarantee(item, strict); });
                     });
                     if (l !== undefined) {
                         privateCache.push(l, {
@@ -399,8 +399,10 @@ var nullCompiler = {
         return function (_a) {
             var catcher = _a.catcher;
             return ({
-                check: function (v) { return catcher.catch("defined", v !== undefined); },
-                guarantee: function (v) { return v === undefined ? null : v; },
+                check: function (v) { return catcher.catch('defined', v !== undefined); },
+                guarantee: function (v) {
+                    return this.check(v) ? v : null;
+                },
                 mock: function () { return null; },
             });
         };
@@ -414,7 +416,9 @@ var numberCompiler = {
             var catcher = _a.catcher;
             return ({
                 check: function (v) { return catcher.catch('a number', lodash.isNumber(v)); },
-                guarantee: function (v) { return (lodash.isNumber(v) ? v : template); },
+                guarantee: function (v) {
+                    return this.check(v) ? v : template;
+                },
                 mock: function (prod) { return prod ? template : lodash.random(0, 100); },
             });
         };
@@ -438,9 +442,9 @@ var objectCompiler = {
                         catcher.catch('a correct object', every(Object.keys(compiled), function (key) { return catcher.wrap(key, function () { return compiled[key].check(val[key]); }); }));
                 },
                 guarantee: function (valIn, strict) {
-                    var val = lodash.isPlainObject(valIn) ? valIn : {};
+                    var val = catcher.catch('a plain object', lodash.isPlainObject(valIn)) ? valIn : {};
                     Object.keys(compiled).forEach(function (key) {
-                        val[key] = compiled[key].guarantee(val[key], strict);
+                        val[key] = catcher.wrap(key, function () { return compiled[key].guarantee(val[key], strict); });
                     });
                     return val;
                 },
@@ -467,7 +471,9 @@ var stringCompiler = {
         var catcher = _a.catcher;
         return ({
             check: function (v) { return catcher.catch('string', lodash.isString(v)); },
-            guarantee: function (v) { return (lodash.isString(v) ? v : template); },
+            guarantee: function (v) {
+                return this.check(v) ? v : template;
+            },
             mock: function (prod) { return prod ? template : randStr(); },
         });
     }; },
@@ -507,7 +513,9 @@ var asClass = (function (Klass) {
         var catcher = _a.catcher;
         return ({
             check: function (v) { return catcher.catch(errorMsg, v instanceof Klass); },
-            guarantee: function (v) { return (v instanceof Klass ? v : new (Klass.bind.apply(Klass, [void 0].concat(params)))()); },
+            guarantee: function (v) {
+                return this.check(v) ? v : new (Klass.bind.apply(Klass, [void 0].concat(params)))();
+            },
             mock: function () { return new (Klass.bind.apply(Klass, [void 0].concat(params)))(); },
         });
     };
@@ -522,10 +530,10 @@ var Dict = (function (template) { return function (_a) {
                 catcher.catch('a dictionary object', every(Object.keys(val), function (k) { return catcher.wrap(k, function () { return compiled.check(val[k]); }); }));
         },
         guarantee: function (val, strict) {
-            if (!lodash.isPlainObject(val))
+            if (!catcher.catch('a plain object', lodash.isPlainObject(val)))
                 return {};
             Object.keys(val).forEach(function (key) {
-                val[key] = compiled.guarantee(val[key], strict);
+                val[key] = catcher.wrap(key, function () { return compiled.guarantee(val[key], strict); });
             });
             return val;
         },
@@ -543,7 +551,9 @@ var Integer = (function (_a) {
     var catcher = _a.catcher;
     return ({
         check: function (v) { return catcher.catch('an integer', lodash.isInteger(v)); },
-        guarantee: function (v, strict) { return lodash.isInteger(v) ? v : strict ? 0 : lodash.toInteger(v); },
+        guarantee: function (v, strict) {
+            return this.check(v) ? v : strict ? 0 : lodash.toInteger(v);
+        },
         mock: function (prod) { return prod ? 0 : lodash.random(0, 100); },
     });
 });
@@ -570,29 +580,6 @@ var or = (function () {
     };
 });
 
-var Range = (function (min, max, isFloat) {
-    if (isFloat === void 0) { isFloat = false; }
-    if (min > max) {
-        throw new Error('in function "Range", min(1st param) must be no larger than max(2st param)');
-    }
-    return function (_a) {
-        var compile = _a.compile, catcher = _a.catcher;
-        var nb = compile(Number);
-        return {
-            check: function (val) { return catcher.catch('an integer', lodash.isNumber(val) && val >= min && val <= max); },
-            guarantee: function (val, strict) {
-                var v = nb.guarantee(val, strict);
-                if (v < min)
-                    return min;
-                if (v > max)
-                    return max;
-                return v;
-            },
-            mock: function (prod) { return prod ? min : lodash.random(min, max, isFloat); },
-        };
-    };
-});
-
 // full checked AND logic
 var and = (function () {
     var bools = [];
@@ -600,6 +587,32 @@ var and = (function () {
         bools[_i] = arguments[_i];
     }
     return bools.every(function (i) { return i; });
+});
+
+var Range = (function (min, max, isFloat) {
+    if (isFloat === void 0) { isFloat = false; }
+    if (min > max) {
+        throw new Error('in function "Range", min(1st param) must be no larger than max(2st param)');
+    }
+    return function (_a) {
+        var compile = _a.compile, catcher = _a.catcher;
+        return {
+            check: function (val) { return and(catcher.catch('a number', lodash.isNumber(val)), catcher.catch("in range [" + min + ", " + max + "]", val >= min && val <= max)); },
+            guarantee: function (val, strict) {
+                if (this.check(val))
+                    return val;
+                return catcher.free(function () {
+                    var v = compile(Number).guarantee(val, strict);
+                    if (v < min)
+                        return min;
+                    if (v > max)
+                        return max;
+                    return v;
+                });
+            },
+            mock: function (prod) { return prod ? min : lodash.random(min, max, isFloat); },
+        };
+    };
 });
 
 var Each = (function (template, strictLength) {
@@ -611,12 +624,21 @@ var Each = (function (template, strictLength) {
         return {
             check: function (val) { return catcher.catch('an array', lodash.isArray(val)) && and(catcher.catch("with length of " + len, !strictLength || val.length === len), catcher.catch('a correct array', every(compiled, function (item, i) { return catcher.wrap(i, function () { return item.check(val[i]); }); }))); },
             guarantee: function (valIn, strict) {
-                var val = lodash.isArray(valIn) ? valIn : [];
-                compiled.forEach(function (item, idx) {
-                    val[idx] = item.guarantee(val[idx], strict);
-                });
-                if (strictLength) {
-                    val.splice(compiled.length);
+                var val = valIn;
+                var process = function () {
+                    compiled.forEach(function (item, idx) {
+                        val[idx] = catcher.wrap(idx, function () { return item.guarantee(val[idx], strict); });
+                    });
+                };
+                if (!lodash.isArray(valIn)) {
+                    val = [];
+                    catcher.free(process);
+                    return val;
+                }
+                process();
+                if (strictLength && val.length !== len) {
+                    val.splice(len);
+                    catcher.catch("with length of " + len);
                 }
                 return val;
             },

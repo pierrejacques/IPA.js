@@ -18,12 +18,24 @@ export default (template: Array<any>, strictLength: boolean = true) => {
                 ),
             ),
             guarantee(valIn, strict) {
-                const val = isArray(valIn) ? valIn : [];
-                compiled.forEach((item, idx) => {
-                    val[idx] = item.guarantee(val[idx], strict);
-                });
-                if (strictLength) {
-                    val.splice(compiled.length);
+                let val = valIn;
+                const process = () => {
+                    compiled.forEach((item, idx) => {
+                        val[idx] = catcher.wrap(
+                            idx,
+                            () => item.guarantee(val[idx], strict)
+                        );
+                    });
+                }
+                if (!isArray(valIn)) {
+                    val = [];
+                    catcher.free(process);
+                    return val;
+                }
+                process();
+                if (strictLength && val.length !== len) {
+                    val.splice(len);
+                    catcher.catch(`with length of ${len}`);
                 }
                 return val;
             },

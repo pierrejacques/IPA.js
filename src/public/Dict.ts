@@ -16,9 +16,9 @@ export default template => ({ compile, catcher }) => {
             );
         },
         guarantee(val, strict) {
-            if (!isPlainObject(val)) return {};
+            if (!catcher.catch('a plain object', isPlainObject(val))) return {};
             Object.keys(val).forEach((key) => {
-                val[key] = compiled.guarantee(val[key], strict);
+                val[key] = catcher.wrap(key, () => compiled.guarantee(val[key], strict));
             });
             return val;
         },

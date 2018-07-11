@@ -6,7 +6,9 @@ const stringCompiler: IPACompiler = {
     condition: isString,
     execute: template => ({ catcher }) => ({
         check: (v) => catcher.catch('string', isString(v)),
-        guarantee: v => (isString(v) ? v : template),
+        guarantee(v) {
+            return this.check(v) ? v : template;
+        },
         mock: prod => prod ? template : randStr(),
     }),
 };

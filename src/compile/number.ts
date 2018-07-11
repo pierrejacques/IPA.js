@@ -6,7 +6,9 @@ const numberCompiler: IPACompiler = {
     execute(template) {
         return ({ catcher }) => ({
             check: v => catcher.catch('a number', isNumber(v)),
-            guarantee: v => (isNumber(v) ? v : template),
+            guarantee(v) {
+                return this.check(v) ? v : template;
+            },
             mock: prod => prod ? template : random(0, 100),
         });
     },
