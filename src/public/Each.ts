@@ -1,4 +1,5 @@
 import { isArray } from 'lodash';
+import fullCheck from '../lib/fullCheck';
 
 export default (template: Array<any>, strictLength: boolean = true) => {
     const len = template.length;
@@ -9,7 +10,7 @@ export default (template: Array<any>, strictLength: boolean = true) => {
                 catcher.catch(`with length of ${len}`, strictLength && val.length !== len) &&
                 catcher.catch(
                     'a correct array',
-                    compiled.every((item, i) => catcher.wrap(
+                    fullCheck(compiled, (item, i) => catcher.wrap(
                         i,
                         () => item.check(val[i])
                     )),

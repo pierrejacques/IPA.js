@@ -1,6 +1,7 @@
 import { isPlainObject } from 'lodash';
 import { IPACompiler } from '../interface';
 import IPALike from '../lib/ipa-like';
+import fullCheck from '../lib/fullCheck';
 
 const objectCompiler: IPACompiler = {
     condition(template) {
@@ -15,7 +16,7 @@ const objectCompiler: IPACompiler = {
             return {
                 check: val => {
                     return catcher.catch('a plain object', isPlainObject(val)) &&
-                    catcher.catch('a correct object', Object.keys(compiled).every((key) => catcher.wrap(
+                    catcher.catch('a correct object', fullCheck(Object.keys(compiled), (key) => catcher.wrap(
                         key,
                         () => compiled[key].check(val[key])),
                     ));

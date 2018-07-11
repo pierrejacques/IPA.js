@@ -36,6 +36,7 @@ export interface IPAContext {
 }
 export interface IPAErrorCatcher {
     logMap: Map<string, string>;
+    currentKey: string;
     clear(): void;
     push(key: any): void;
     pop(): void;

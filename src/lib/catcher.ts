@@ -22,7 +22,7 @@ class Catcher implements IPAErrorCatcher {
 
     catch(msg: string, result: boolean = false) {
         if (!result) {
-            this._logMap.set(this.stack.join(''), `should be ${msg}`);
+            this._logMap.set(this.currentKey, `should be ${msg}`);
         }
         return result;
     }
@@ -36,6 +36,10 @@ class Catcher implements IPAErrorCatcher {
 
     get logMap() {
         return this._logMap;
+    }
+
+    get currentKey() {
+        return this.stack.join('');    
     }
 }
 
