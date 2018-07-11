@@ -1,14 +1,23 @@
 const IPA = require('../dist/ipa.js');
 
 IPA.addCatcher((err) => {
-    console.log('from IPA', err);
+    console.log(err);
 });
 
-const num = new IPA(Number);
-
-num.addCatcher((err) => {
-    console.log('from instance', err);
+const num = new IPA({
+    num: Number,
+    string: String,
+    object: {
+        boolean: Boolean
+    }
 });
 
-num.check('');
-num.check(false);
+console.log(
+    num.check({
+        num: 123,
+        string: '123',
+        object: {
+            boolean: 12,
+        }
+    })
+);

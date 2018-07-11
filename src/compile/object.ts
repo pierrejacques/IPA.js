@@ -13,7 +13,7 @@ const objectCompiler: IPACompiler = {
                 compiled[key] = compile(template[key]);
             });
             return {
-                check:val => {
+                check: val => {
                     return catcher.catch('a plain object', isPlainObject(val)) &&
                     catcher.catch('a correct object', Object.keys(compiled).every((key) => catcher.wrap(
                         key,

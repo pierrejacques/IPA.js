@@ -1,13 +1,13 @@
-node_modules/
-img/
-dist/
+/node_modules/
+/img/
+/dist/
 *.jpg
 *.key
 *.sketch
 bug.log.md
 yarn-error.log
 .DS_Store
-*_cache/
+/*_cache/
 package-lock.json
 yarn.lock
 yarn-error.log

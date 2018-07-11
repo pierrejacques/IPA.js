@@ -36,11 +36,6 @@ var IPAStrategy;
     IPAStrategy["Average"] = "average";
     IPAStrategy["Least"] = "least";
 })(IPAStrategy || (IPAStrategy = {}));
-var IPAErrorLogType;
-(function (IPAErrorLogType) {
-    IPAErrorLogType["Key"] = "key";
-    IPAErrorLogType["Message"] = "message";
-})(IPAErrorLogType || (IPAErrorLogType = {}));
 
 var IPALike = /** @class */ (function () {
     function IPALike() {
@@ -88,34 +83,42 @@ _a = _cache_;
 var privateCache = new Cache();
 var publicCache = new Cache();
 
-var IPAErrorMap = /** @class */ (function () {
-    function IPAErrorMap(logStack) {
-        this.log = logStack;
-    }
-    return IPAErrorMap;
-}());
 var Catcher = /** @class */ (function () {
     function Catcher() {
+        this._logMap = new Map();
         this.stack = [];
     }
-    Catcher.prototype.key = function (keyName) {
-        this.stack.unshift({
-            type: IPAErrorLogType.Key,
-            value: keyName,
-        });
-    };
-    Catcher.prototype.log = function (msg) {
-        this.stack.unshift({
-            type: IPAErrorLogType.Message,
-            value: msg,
-        });
-    };
     Catcher.prototype.clear = function () {
+        this._logMap.clear();
         this.stack = [];
     };
-    Catcher.prototype.display = function () {
-        return new IPAErrorMap(this.stack);
+    Catcher.prototype.pop = function () {
+        this.stack.pop();
     };
+    Catcher.prototype.push = function (key) {
+        var keyStr = typeof key === 'string' ? "." + key : "[" + key + "]";
+        this.stack.push(keyStr);
+    };
+    Catcher.prototype.catch = function (msg, result) {
+        if (result === void 0) { result = false; }
+        if (!result) {
+            this._logMap.set(this.stack.join(''), "should be " + msg);
+        }
+        return result;
+    };
+    Catcher.prototype.wrap = function (key, getResult) {
+        this.push(key);
+        var result = getResult();
+        this.pop();
+        return result;
+    };
+    Object.defineProperty(Catcher.prototype, "logMap", {
+        get: function () {
+            return this._logMap;
+        },
+        enumerable: true,
+        configurable: true
+    });
     return Catcher;
 }());
 var catcher = new Catcher();
@@ -236,19 +239,20 @@ var createProxy = (function (getInstance) {
     return new IPAProxy(getInstance);
 });
 
+var bypasser = {
+    check: function () { return true; },
+    guarantee: function (v) { return v; },
+    mock: function () { return undefined; },
+};
+
 var dict = 'ad,aliqua,amet,anim,aute,cillum,commodo,culpa,do,dolor,duis,elit,enim,esse,est,et,ex,fugiat,id,in,ipsum,irure,labore,lorem,magna,minim,mollit,nisi,non,nulla,officia,pariatur,quis,sint,sit,sunt,tempor,ut,velit,veniam'
     .split(',');
 var randStr = (function () { return dict[lodash.random(0, dict.length - 1)]; });
 
-var Strat = function (ck, cvt, dft, mk, placeholder) { return function (_a) {
+var Strat = function (ck, cvt, dft, mk, describe) { return function (_a) {
     var catcher = _a.catcher;
     return ({
-        check: function (v) {
-            var result = ck(v);
-            if (!result)
-                catcher.log("should be a " + placeholder);
-            return result;
-        },
+        check: function (v) { return catcher.catch(describe, ck(v)); },
         guarantee: function (v, strict) {
             return this.check(v) ? v : strict ? dft : cvt(v);
         },
@@ -256,23 +260,18 @@ var Strat = function (ck, cvt, dft, mk, placeholder) { return function (_a) {
     });
 }; };
 var functionCompilerMap = new Map()
-    .set(String, Strat(lodash.isString, lodash.toString, '', randStr, 'string'))
-    .set(Number, Strat(lodash.isNumber, function (v) { return +v || 0; }, 0, function () { return lodash.random(0, 100); }, 'number'))
-    .set(Boolean, Strat(lodash.isBoolean, function (v) { return !!v; }, false, function () { return !lodash.random(0, 1); }, 'boolean'))
-    .set(Array, Strat(lodash.isArray, lodash.toArray, [], function () { return []; }, 'array'))
-    .set(Object, Strat(lodash.isPlainObject, function () { return ({}); }, {}, function () { return ({}); }, 'plain object'))
-    .set(Function, Strat(lodash.isFunction, function () { return function () { }; }, function () { }, function () { return function () { }; }, 'function'));
-var bypass = {
-    check: function () { return true; },
-    guarantee: function (v) { return v; },
-    mock: function () { return undefined; },
-};
+    .set(String, Strat(lodash.isString, lodash.toString, '', randStr, 'a string'))
+    .set(Number, Strat(lodash.isNumber, function (v) { return +v || 0; }, 0, function () { return lodash.random(0, 100); }, 'a number'))
+    .set(Boolean, Strat(lodash.isBoolean, function (v) { return !!v; }, false, function () { return !lodash.random(0, 1); }, 'a boolean'))
+    .set(Array, Strat(lodash.isArray, lodash.toArray, [], function () { return []; }, 'an array'))
+    .set(Object, Strat(lodash.isPlainObject, function () { return ({}); }, {}, function () { return ({}); }, 'a plain object'))
+    .set(Function, Strat(lodash.isFunction, function () { return function () { }; }, function () { }, function () { return function () { }; }, 'a function'));
 var funcComp = {
     condition: lodash.isFunction,
     execute: function (template) {
         if (functionCompilerMap.has(template))
             return functionCompilerMap.get(template);
-        return function (cp) { return Object.assign({}, bypass, template(cp)); };
+        return function (cp) { return Object.assign({}, bypasser, template(cp)); };
     },
 };
 
@@ -281,7 +280,7 @@ var ipaInstanceCompiler = {
         return Boolean(template && (template instanceof IPALike));
     },
     execute: function (template) {
-        return function () { return template.core; }; // gg
+        return function () { return template.core; };
     },
 };
 
@@ -295,16 +294,19 @@ var arrayCompiler = {
             throw new Error('compile failed: the 2nd parameter for array can only be String or Number');
         }
         return function (_a) {
-            var compile = _a.compile;
+            var compile = _a.compile, catcher = _a.catcher;
             var compiled = compile(template[0]);
             return {
                 check: function (val) {
-                    if (!lodash.isArray(val))
-                        return false;
+                    if (!lodash.isArray(val)) {
+                        return catcher.catch('array');
+                    }
                     if (l !== undefined) {
                         privateCache.push(l, val.length);
                     }
-                    return val.every(function (i) { return compiled.check(i); });
+                    return catcher.catch('a correct array', val.every(function (item, index) {
+                        return catcher.wrap(index, function () { return compiled.check(item); });
+                    }));
                 },
                 guarantee: function (valIn, strict) {
                     var val = lodash.isArray(valIn) ? valIn : [];
@@ -341,33 +343,44 @@ var arrayCompiler = {
 var booleanCompiler = {
     condition: lodash.isBoolean,
     execute: function (template) {
-        return function () { return ({
-            check: lodash.isBoolean,
-            guarantee: function (v) { return (lodash.isBoolean(v) ? v : template); },
-            mock: function (prod) { return prod ? template : !lodash.random(0, 1); },
-        }); };
+        return function (_a) {
+            var catcher = _a.catcher;
+            return ({
+                check: function (v) { return catcher.catch('boolean', lodash.isBoolean(v)); },
+                guarantee: function (v) {
+                    return this.check(v) ? v : template;
+                },
+                mock: function (prod) { return prod ? template : !lodash.random(0, 1); },
+            });
+        };
     },
 };
 
 var nullCompiler = {
     condition: function (t) { return t === null; },
     execute: function () {
-        return function () { return ({
-            check: function (v) { return v !== undefined; },
-            guarantee: function (v) { return v === undefined ? null : v; },
-            mock: function () { return null; },
-        }); };
+        return function (_a) {
+            var catcher = _a.catcher;
+            return ({
+                check: function (v) { return catcher.catch("defined", v !== undefined); },
+                guarantee: function (v) { return v === undefined ? null : v; },
+                mock: function () { return null; },
+            });
+        };
     },
 };
 
 var numberCompiler = {
     condition: lodash.isNumber,
     execute: function (template) {
-        return function () { return ({
-            check: lodash.isNumber,
-            guarantee: function (v) { return (lodash.isNumber(v) ? v : template); },
-            mock: function (prod) { return prod ? template : lodash.random(0, 100); },
-        }); };
+        return function (_a) {
+            var catcher = _a.catcher;
+            return ({
+                check: function (v) { return catcher.catch('a number', lodash.isNumber(v)); },
+                guarantee: function (v) { return (lodash.isNumber(v) ? v : template); },
+                mock: function (prod) { return prod ? template : lodash.random(0, 100); },
+            });
+        };
     },
 };
 
@@ -377,13 +390,16 @@ var objectCompiler = {
     },
     execute: function (template) {
         return function (_a) {
-            var compile = _a.compile;
+            var compile = _a.compile, catcher = _a.catcher;
             var compiled = {};
             Object.keys(template).forEach(function (key) {
                 compiled[key] = compile(template[key]);
             });
             return {
-                check: function (val) { return lodash.isPlainObject(val) && Object.keys(compiled).every(function (key) { return compiled[key].check(val[key]); }); },
+                check: function (val) {
+                    return catcher.catch('a plain object', lodash.isPlainObject(val)) &&
+                        catcher.catch('a correct object', Object.keys(compiled).every(function (key) { return catcher.wrap(key, function () { return compiled[key].check(val[key]); }); }));
+                },
                 guarantee: function (valIn, strict) {
                     var val = lodash.isPlainObject(valIn) ? valIn : {};
                     Object.keys(compiled).forEach(function (key) {
@@ -405,22 +421,19 @@ var objectCompiler = {
 
 var undefinedCompiler = {
     condition: function (t) { return t === undefined; },
-    execute: function () {
-        return function () { return ({
-            check: function () { return true; },
-            guarantee: function (v) { return v; },
-            mock: function () { return undefined; },
-        }); };
-    },
+    execute: function () { return function () { return bypasser; }; },
 };
 
 var stringCompiler = {
     condition: lodash.isString,
-    execute: function (template) { return function () { return ({
-        check: lodash.isString,
-        guarantee: function (v) { return (lodash.isString(v) ? v : template); },
-        mock: function (prod) { return prod ? template : randStr(); },
-    }); }; },
+    execute: function (template) { return function (_a) {
+        var catcher = _a.catcher;
+        return ({
+            check: function (v) { return catcher.catch('string', lodash.isString(v)); },
+            guarantee: function (v) { return (lodash.isString(v) ? v : template); },
+            mock: function (prod) { return prod ? template : randStr(); },
+        });
+    }; },
 };
 
 var compilers = [
@@ -447,23 +460,30 @@ var compile = function (template) {
 };
 context.compile = compile;
 
-var asClass = (function (Cls) {
+var asClass = (function (Klass) {
     var params = [];
     for (var _i = 1; _i < arguments.length; _i++) {
         params[_i - 1] = arguments[_i];
     }
-    return function () { return ({
-        check: function (v) { return v instanceof Cls; },
-        guarantee: function (v) { return (v instanceof Cls ? v : new (Cls.bind.apply(Cls, [void 0].concat(params)))()); },
-        mock: function () { return new (Cls.bind.apply(Cls, [void 0].concat(params)))(); },
-    }); };
+    var errorMsg = " instance of " + Klass.name;
+    return function (_a) {
+        var catcher = _a.catcher;
+        return ({
+            check: function (v) { return catcher.catch(errorMsg, v instanceof Klass); },
+            guarantee: function (v) { return (v instanceof Klass ? v : new (Klass.bind.apply(Klass, [void 0].concat(params)))()); },
+            mock: function () { return new (Klass.bind.apply(Klass, [void 0].concat(params)))(); },
+        });
+    };
 });
 
 var Dict = (function (template) { return function (_a) {
-    var compile = _a.compile;
+    var compile = _a.compile, catcher = _a.catcher;
     var compiled = compile(template);
     return {
-        check: function (val) { return lodash.isPlainObject(val) && Object.values(val).every(function (v) { return compiled.check(v); }); },
+        check: function (val) {
+            return catcher.catch('a plain object', lodash.isPlainObject(val)) &&
+                catcher.catch('a dictionary object', Object.keys(val).every(function (k) { return catcher.wrap(k, function () { return compiled.check(val[k]); }); }));
+        },
         guarantee: function (val, strict) {
             if (!lodash.isPlainObject(val))
                 return {};
@@ -482,12 +502,16 @@ var Dict = (function (template) { return function (_a) {
     };
 }; });
 
-var Integer = (function () { return ({
-    check: function (v) { return lodash.isInteger(v); },
-    guarantee: function (v, strict) { return lodash.isInteger(v) ? v : strict ? 0 : lodash.toInteger(v); },
-    mock: function (prod) { return prod ? 0 : lodash.random(0, 100); },
-}); });
+var Integer = (function (_a) {
+    var catcher = _a.catcher;
+    return ({
+        check: function (v) { return catcher.catch('an integer', lodash.isInteger(v)); },
+        guarantee: function (v, strict) { return lodash.isInteger(v) ? v : strict ? 0 : lodash.toInteger(v); },
+        mock: function (prod) { return prod ? 0 : lodash.random(0, 100); },
+    });
+});
 
+// TODO: how to catch error here
 var or = (function () {
     var params = [];
     for (var _i = 0; _i < arguments.length; _i++) {
@@ -512,17 +536,14 @@ var or = (function () {
 
 var Range = (function (min, max, isFloat) {
     if (isFloat === void 0) { isFloat = false; }
-    if (!lodash.isNumber(min) || !lodash.isNumber(max)) {
-        throw new Error('function "Range" only accept Number as 1st & 2nd parameters');
-    }
     if (min > max) {
         throw new Error('in function "Range", min(1st param) must be no larger than max(2st param)');
     }
     return function (_a) {
-        var compile = _a.compile;
+        var compile = _a.compile, catcher = _a.catcher;
         var nb = compile(Number);
         return {
-            check: function (val) { return lodash.isNumber(val) && val >= min && val <= max; },
+            check: function (val) { return catcher.catch('an integer', (!lodash.isNumber(val)) && val >= min && val <= max); },
             guarantee: function (val, strict) {
                 var v = nb.guarantee(val, strict);
                 if (v < min)
@@ -538,13 +559,14 @@ var Range = (function (min, max, isFloat) {
 
 var Each = (function (template, strictLength) {
     if (strictLength === void 0) { strictLength = true; }
-    if (!lodash.isArray(template))
-        throw new Error('function "Each" only accepts array as parameter');
+    var len = template.length;
     return function (_a) {
-        var compile = _a.compile;
+        var compile = _a.compile, catcher = _a.catcher;
         var compiled = template.map(function (item) { return compile(item); });
         return {
-            check: function (val) { return lodash.isArray(val) && (!strictLength || val.length === template.length) && compiled.every(function (item, i) { return item.check(val[i]); }); },
+            check: function (val) { return catcher.catch('an array', !lodash.isArray(val)) &&
+                catcher.catch("with length of " + len, strictLength && val.length !== len) &&
+                catcher.catch('a correct array', compiled.every(function (item, i) { return catcher.wrap(i, function () { return item.check(val[i]); }); })); },
             guarantee: function (valIn, strict) {
                 var val = lodash.isArray(valIn) ? valIn : [];
                 compiled.forEach(function (item, idx) {
@@ -570,13 +592,16 @@ var From = (function () {
         return lodash.cloneDeep(v);
     };
     var getFirst = function () { return lodash.cloneDeep(set[0]); };
-    return function () { return ({
-        check: function (val) { return set.findIndex(function (item) { return lodash.isEqual(item, val); }) !== -1; },
-        guarantee: function (val, strict) {
-            return this.check(val) ? val : strict ? set[0] : getRandom();
-        },
-        mock: function (prod) { return prod ? getFirst() : getRandom(); },
-    }); };
+    return function (_a) {
+        var catcher = _a.catcher;
+        return ({
+            check: function (val) { return catcher.catch("from " + set, set.findIndex(function (item) { return lodash.isEqual(item, val); }) !== -1); },
+            guarantee: function (val, strict) {
+                return this.check(val) ? val : strict ? set[0] : getRandom();
+            },
+            mock: function (prod) { return prod ? getFirst() : getRandom(); },
+        });
+    };
 });
 
 var assemble = (function (c, g, m) { return function (_a) {
@@ -631,7 +656,7 @@ var IPA = /** @class */ (function (_super) {
         var settings = settingsIn;
         if (!lodash.isPlainObject(settings)) {
             if (!IPA.isProductionEnv)
-                throw new Error('mocking setting should be a plain object');
+                throw new Error('mocking setting  a plain object');
             settings = {};
         }
         privateCache.digest(settings);
@@ -678,9 +703,8 @@ var IPA = /** @class */ (function (_super) {
     IPA.reset = function (instance) {
         privateCache.reset();
         publicCache.reset();
-        var errorMap = catcher.display();
-        instance.errorHandlers.forEach(function (handle) { return handle(errorMap); });
-        errHandlers.forEach(function (handle) { return handle(errorMap); });
+        instance.errorHandlers.forEach(function (handle) { return handle(catcher.logMap); });
+        errHandlers.forEach(function (handle) { return handle(catcher.logMap); });
         catcher.clear();
     };
     IPA.asClass = asClass;
