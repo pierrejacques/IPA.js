@@ -3,6 +3,7 @@ import { IPAErrorCatcher } from "../interface";
 class Catcher implements IPAErrorCatcher {
     private _logMap: Map<string, string> = new Map();
     private stack: Array<string> = [];
+    private isFree: boolean = false;
 
     constructor() {}
 
@@ -22,7 +23,7 @@ class Catcher implements IPAErrorCatcher {
 
     catch(msg: string, result: boolean = false) {
         if (!result) {
-            this._logMap.set(this.currentKey, `should be ${msg}`);
+            this.log(this.currentKey, `should be ${msg}`);
         }
         return result;
     }
@@ -31,6 +32,18 @@ class Catcher implements IPAErrorCatcher {
         this.push(key);
         const result = getResult();
         this.pop();
+        return result;
+    }
+
+    log(key: string, msg: string) {
+        if (this.isFree) return;
+        this._logMap.set(`itself${key}`, msg);
+    }
+
+    free(callback) {
+        this.isFree = true;
+        const result = callback();
+        this.isFree = false;
         return result;
     }
 

@@ -1,6 +1,6 @@
 import { isPlainObject, range, random } from 'lodash';
 import randStr from '../lib/randStr';
-import fullCheck from '../lib/fullCheck';
+import every from '../lib/every';
 
 export default template => ({ compile, catcher }) => {
     const compiled = compile(template);
@@ -9,7 +9,7 @@ export default template => ({ compile, catcher }) => {
             return catcher.catch('a plain object', isPlainObject(val)) &&
             catcher.catch(
                 'a dictionary object',
-                fullCheck(Object.keys(val), k => catcher.wrap(
+                every(Object.keys(val), k => catcher.wrap(
                     k,
                     () => compiled.check(val[k]))
                 )

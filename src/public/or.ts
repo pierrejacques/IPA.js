@@ -1,11 +1,9 @@
-// TODO: how to catch error here
-
 export default (...params) => {
-    if (params.length === 0) throw new Error('function "or" requires at least 1 parameter');
-    return ({ compile }) => {
+    if (params.length < 2) throw new Error('function "or" requires at least 2 parameter');
+    return ({ compile, catcher }) => {
         const rules = params.map(item => compile(item));
         return {
-            check: val => rules.some(rule => rule.check(val)),
+            check: val => catcher.catch('matched with one rule', catcher.free(() => rules.some(rule => rule.check(val)))),
             guarantee(val, strict) {
                 return this.check(val) ? val : rules[0].guarantee(val, strict);
             },

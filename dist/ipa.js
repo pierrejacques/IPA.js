@@ -87,6 +87,7 @@ var Catcher = /** @class */ (function () {
     function Catcher() {
         this._logMap = new Map();
         this.stack = [];
+        this.isFree = false;
     }
     Catcher.prototype.clear = function () {
         this._logMap.clear();
@@ -102,7 +103,7 @@ var Catcher = /** @class */ (function () {
     Catcher.prototype.catch = function (msg, result) {
         if (result === void 0) { result = false; }
         if (!result) {
-            this._logMap.set(this.currentKey, "should be " + msg);
+            this.log(this.currentKey, "should be " + msg);
         }
         return result;
     };
@@ -110,6 +111,17 @@ var Catcher = /** @class */ (function () {
         this.push(key);
         var result = getResult();
         this.pop();
+        return result;
+    };
+    Catcher.prototype.log = function (key, msg) {
+        if (this.isFree)
+            return;
+        this._logMap.set("itself" + key, msg);
+    };
+    Catcher.prototype.free = function (callback) {
+        this.isFree = true;
+        var result = callback();
+        this.isFree = false;
         return result;
     };
     Object.defineProperty(Catcher.prototype, "logMap", {
@@ -179,22 +191,23 @@ var fixer = function (strategyIn) {
     });
 };
 
-var fullCheck = (function (arr, handler) {
-    var flag = true;
-    arr.forEach(function (item, index) {
-        flag = flag && handler(item, index);
-    });
-    return flag;
-});
-
 var checkLength = (function () {
     var result = true;
     privateCache.forEach(function (value, key) {
         if (lodash.isNumber(key)) {
-            result = result && fullCheck(value, function (item) { return item === key; });
+            value.forEach(function (item) {
+                if (item.length !== key) {
+                    catcher.log(item.key, "length unequals to " + key);
+                    result = false;
+                }
+            });
         }
         else {
-            result = result && lodash.min(value) === lodash.max(value);
+            var lengths = value.map(function (item) { return item.length; });
+            if (lodash.min(lengths) !== lodash.max(lengths)) {
+                result = false;
+                value.forEach(function (item) { return catcher.log(item.key, 'length unmatched'); });
+            }
         }
     });
     return result;
@@ -299,6 +312,11 @@ var ipaInstanceCompiler = {
     },
 };
 
+// full checked every method
+var every = (function (arr, handler) {
+    return arr.map(handler).every(function (v) { return v; });
+});
+
 var arrayCompiler = {
     condition: function (template) {
         return lodash.isArray(template);
@@ -317,9 +335,12 @@ var arrayCompiler = {
                         return catcher.catch('array');
                     }
                     if (l !== undefined) {
-                        privateCache.push(l, val.length);
+                        privateCache.push(l, {
+                            length: val.length,
+                            key: catcher.currentKey,
+                        });
                     }
-                    return catcher.catch('a correct array', fullCheck(val, function (item, index) {
+                    return catcher.catch('a correct array', every(val, function (item, index) {
                         return catcher.wrap(index, function () { return compiled.check(item); });
                     }));
                 },
@@ -331,7 +352,7 @@ var arrayCompiler = {
                     if (l !== undefined) {
                         privateCache.push(l, {
                             target: val,
-                            errorKey: catcher.currentKey,
+                            key: catcher.currentKey,
                             mocker: function () { return compiled.guarantee(undefined, strict); },
                         });
                     }
@@ -414,7 +435,7 @@ var objectCompiler = {
             return {
                 check: function (val) {
                     return catcher.catch('a plain object', lodash.isPlainObject(val)) &&
-                        catcher.catch('a correct object', fullCheck(Object.keys(compiled), function (key) { return catcher.wrap(key, function () { return compiled[key].check(val[key]); }); }));
+                        catcher.catch('a correct object', every(Object.keys(compiled), function (key) { return catcher.wrap(key, function () { return compiled[key].check(val[key]); }); }));
                 },
                 guarantee: function (valIn, strict) {
                     var val = lodash.isPlainObject(valIn) ? valIn : {};
@@ -498,7 +519,7 @@ var Dict = (function (template) { return function (_a) {
     return {
         check: function (val) {
             return catcher.catch('a plain object', lodash.isPlainObject(val)) &&
-                catcher.catch('a dictionary object', fullCheck(Object.keys(val), function (k) { return catcher.wrap(k, function () { return compiled.check(val[k]); }); }));
+                catcher.catch('a dictionary object', every(Object.keys(val), function (k) { return catcher.wrap(k, function () { return compiled.check(val[k]); }); }));
         },
         guarantee: function (val, strict) {
             if (!lodash.isPlainObject(val))
@@ -527,19 +548,18 @@ var Integer = (function (_a) {
     });
 });
 
-// TODO: how to catch error here
 var or = (function () {
     var params = [];
     for (var _i = 0; _i < arguments.length; _i++) {
         params[_i] = arguments[_i];
     }
-    if (params.length === 0)
-        throw new Error('function "or" requires at least 1 parameter');
+    if (params.length < 2)
+        throw new Error('function "or" requires at least 2 parameter');
     return function (_a) {
-        var compile = _a.compile;
+        var compile = _a.compile, catcher = _a.catcher;
         var rules = params.map(function (item) { return compile(item); });
         return {
-            check: function (val) { return rules.some(function (rule) { return rule.check(val); }); },
+            check: function (val) { return catcher.catch('matched with one rule', catcher.free(function () { return rules.some(function (rule) { return rule.check(val); }); })); },
             guarantee: function (val, strict) {
                 return this.check(val) ? val : rules[0].guarantee(val, strict);
             },
@@ -573,6 +593,15 @@ var Range = (function (min, max, isFloat) {
     };
 });
 
+// full checked AND logic
+var and = (function () {
+    var bools = [];
+    for (var _i = 0; _i < arguments.length; _i++) {
+        bools[_i] = arguments[_i];
+    }
+    return bools.every(function (i) { return i; });
+});
+
 var Each = (function (template, strictLength) {
     if (strictLength === void 0) { strictLength = true; }
     var len = template.length;
@@ -580,9 +609,7 @@ var Each = (function (template, strictLength) {
         var compile = _a.compile, catcher = _a.catcher;
         var compiled = template.map(function (item) { return compile(item); });
         return {
-            check: function (val) { return catcher.catch('an array', lodash.isArray(val)) &&
-                catcher.catch("with length of " + len, !strictLength || val.length === len) &&
-                catcher.catch('a correct array', fullCheck(compiled, function (item, i) { return catcher.wrap(i, function () { return item.check(val[i]); }); })); },
+            check: function (val) { return catcher.catch('an array', lodash.isArray(val)) && and(catcher.catch("with length of " + len, !strictLength || val.length === len), catcher.catch('a correct array', every(compiled, function (item, i) { return catcher.wrap(i, function () { return item.check(val[i]); }); }))); },
             guarantee: function (valIn, strict) {
                 var val = lodash.isArray(valIn) ? valIn : [];
                 compiled.forEach(function (item, idx) {
@@ -644,7 +671,7 @@ var IPA = /** @class */ (function (_super) {
         return _this;
     }
     IPA.prototype.check = function (data) {
-        var output = this.core.check(data) && checkLength();
+        var output = and(this.core.check(data), checkLength());
         IPA.reset(this);
         return output;
     };
@@ -719,8 +746,10 @@ var IPA = /** @class */ (function (_super) {
     IPA.reset = function (instance) {
         privateCache.reset();
         publicCache.reset();
-        instance.errorHandlers.forEach(function (handle) { return handle(catcher.logMap); });
-        errHandlers.forEach(function (handle) { return handle(catcher.logMap); });
+        if (catcher.logMap.size > 0) {
+            instance.errorHandlers.forEach(function (handle) { return handle(catcher.logMap); });
+            errHandlers.forEach(function (handle) { return handle(catcher.logMap); });
+        }
         catcher.clear();
     };
     IPA.asClass = asClass;

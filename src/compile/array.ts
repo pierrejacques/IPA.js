@@ -1,7 +1,7 @@
 import { isArray, isNumber, isString, times, random } from 'lodash';
 import { privateCache } from '../lib/cache';
 import { IPACompiler } from '../interface';
-import fullCheck from '../lib/fullCheck';
+import every from '../lib/every';
 
 const arrayCompiler: IPACompiler = {
     condition(template) {
@@ -20,9 +20,12 @@ const arrayCompiler: IPACompiler = {
                         return catcher.catch('array');
                     }
                     if (l !== undefined) {
-                        privateCache.push(l, val.length);
+                        privateCache.push(l, {
+                            length: val.length,
+                            key: catcher.currentKey,
+                        });
                     }
-                    return catcher.catch('a correct array', fullCheck(val, (item, index) => {
+                    return catcher.catch('a correct array', every(val, (item, index) => {
                         return catcher.wrap(index, () => compiled.check(item));
                     }));
                 },
@@ -34,7 +37,7 @@ const arrayCompiler: IPACompiler = {
                     if (l !== undefined) {
                         privateCache.push(l, {
                             target: val,
-                            errorKey: catcher.currentKey,
+                            key: catcher.currentKey,
                             mocker: () => compiled.guarantee(undefined, strict),
                         });
                     }

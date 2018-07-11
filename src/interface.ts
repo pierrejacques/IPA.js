@@ -42,6 +42,8 @@ export interface IPAErrorCatcher {
     pop(): void;
     wrap(key: any, getResult: () => any): any;
     catch(msg: string, result?: boolean): boolean;
+    log(key: string, msg: string): void;
+    free(callback: () => any): any;
 }   
 
 export interface IPACache {

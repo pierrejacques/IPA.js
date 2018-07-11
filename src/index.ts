@@ -19,6 +19,7 @@ import {
     or,
     Range,
 } from './public/index';
+import and from './lib/and';
 
 const errHandlers = new Set();
 
@@ -56,8 +57,10 @@ export default class IPA extends IPALike {
     private static reset = (instance: IPA) => {
         privateCache.reset();
         publicCache.reset();
-        instance.errorHandlers.forEach(handle => handle(catcher.logMap));
-        errHandlers.forEach(handle => handle(catcher.logMap));
+        if (catcher.logMap.size > 0) {
+            instance.errorHandlers.forEach(handle => handle(catcher.logMap));
+            errHandlers.forEach(handle => handle(catcher.logMap));
+        }
         catcher.clear();
     };
 
@@ -80,7 +83,7 @@ export default class IPA extends IPALike {
     }
 
     check(data) {
-        const output = this.core.check(data) && checkLength();
+        const output = and(this.core.check(data), checkLength())
         IPA.reset(this);
         return output;
     }

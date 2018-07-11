@@ -1,23 +1,12 @@
 const IPA = require('../dist/ipa.js');
+const { or, From } = IPA;
 
 IPA.addCatcher((err) => {
     console.log(err);
 });
 
-const num = new IPA({
-    num: Number,
-    string: String,
-    object: {
-        boolean: Boolean
-    }
-});
+const num = new IPA(or(Number, String, From(null)));
 
 console.log(
-    num.check({
-        num: 123,
-        string: '123',
-        object: {
-            boolean: 12,
-        }
-    })
+    num.check(undefined)
 );
