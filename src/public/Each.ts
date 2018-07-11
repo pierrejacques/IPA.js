@@ -6,8 +6,8 @@ export default (template: Array<any>, strictLength: boolean = true) => {
     return ({ compile, catcher }) => {
         const compiled = template.map(item => compile(item));
         return {
-            check: val => catcher.catch('an array', !isArray(val)) &&
-                catcher.catch(`with length of ${len}`, strictLength && val.length !== len) &&
+            check: val => catcher.catch('an array', isArray(val)) &&
+                catcher.catch(`with length of ${len}`, !strictLength || val.length === len) &&
                 catcher.catch(
                     'a correct array',
                     fullCheck(compiled, (item, i) => catcher.wrap(

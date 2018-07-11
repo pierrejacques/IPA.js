@@ -1,14 +1,14 @@
 Arguments: 
-  /Users/jinchenhao/.nvm/versions/node/v8.0.0/bin/node /Users/jinchenhao/.yarn/bin/yarn.js st
+  /Users/jinchenhao/.nvm/versions/node/v8.11.3/bin/node /Users/jinchenhao/.yarn/bin/yarn.js test
 
 PATH: 
-  /Users/jinchenhao/.yarn/bin:/Users/jinchenhao/.config/yarn/global/node_modules/.bin:/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin:/usr/local/go/bin:/usr/local/MacGPG2/bin:/Users/jinchenhao/.yarn/bin:/Users/jinchenhao/.config/yarn/global/node_modules/.bin:/Users/jinchenhao/.nvm/versions/node/v8.0.0/bin
+  /Users/jinchenhao/.yarn/bin:/Users/jinchenhao/.config/yarn/global/node_modules/.bin:/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin:/usr/local/go/bin:/usr/local/MacGPG2/bin:/Users/jinchenhao/.yarn/bin:/Users/jinchenhao/.config/yarn/global/node_modules/.bin:/Users/jinchenhao/.nvm/versions/node/v8.11.3/bin
 
 Yarn version: 
   1.5.1
 
 Node version: 
-  8.0.0
+  8.11.3
 
 Platform: 
   darwin x64
@@ -21,9 +21,9 @@ npm manifest:
       "main": "./dist/ipa.js",
       "types": "/dist/index.d.ts",
       "scripts": {
-          "build": "rollup -c",
-          "test": "rollup -c; mocha test/index.js",
-          "script": "rollup -c; node test/script.js",
+          "build": "node_modules/rollup/bin/rollup -c",
+          "test": "node_modules/rollup/bin/rollup -c; mocha test/index.js",
+          "script": "node_modules/rollup/bin/rollup -c; node test/script.js",
           "pure-test": "mocha test/index.js"
       },
       "repository": {
@@ -40,8 +40,9 @@ npm manifest:
           "@types/lodash": "^4.14.110",
           "chai": "^4.1.2",
           "mocha": "^5.0.0",
-          "typescript": "^2.9.2",
-          "rollup-plugin-typescript2": "^0.15.1"
+          "rollup": "^0.62.0",
+          "rollup-plugin-typescript2": "^0.15.1",
+          "typescript": "^2.9.2"
       },
       "dependencies": {
           "lodash": "^4.17.5"
@@ -56,9 +57,17 @@ Lockfile:
   # yarn lockfile v1
   
   
+  "@types/estree@0.0.39":
+    version "0.0.39"
+    resolved "http://r.npm.sankuai.com/@types/estree/download/@types/estree-0.0.39.tgz#e177e699ee1b8c22d23174caaa7422644389509f"
+  
   "@types/lodash@^4.14.110":
     version "4.14.110"
     resolved "https://registry.npmjs.org/@types/lodash/-/lodash-4.14.110.tgz#fb07498f84152947f30ea09d89207ca07123461e"
+  
+  "@types/node@*":
+    version "10.5.2"
+    resolved "http://r.npm.sankuai.com/@types/node/download/@types/node-10.5.2.tgz#f19f05314d5421fe37e74153254201a7bf00a707"
   
   arr-diff@^2.0.0:
     version "2.0.0"
@@ -482,6 +491,13 @@ Lockfile:
       estree-walker "^0.5.2"
       micromatch "^2.3.11"
   
+  rollup@^0.62.0:
+    version "0.62.0"
+    resolved "http://r.npm.sankuai.com/rollup/download/rollup-0.62.0.tgz#4ca8b3c9582195dc9341ff8a1375f58319b95bfc"
+    dependencies:
+      "@types/estree" "0.0.39"
+      "@types/node" "*"
+  
   supports-color@4.4.0:
     version "4.4.0"
     resolved "http://r.cnpmjs.org/supports-color/download/supports-color-4.4.0.tgz#883f7ddabc165142b2a61427f3352ded195d1a3e"
@@ -509,14 +525,17 @@ Lockfile:
     resolved "http://r.cnpmjs.org/wrappy/download/wrappy-1.0.2.tgz#b5243d8f3ec1aa35f1364605bc0d1036e30ab69f"
 
 Trace: 
-  Error: Command "st" not found.
-      at new MessageError (/Users/jinchenhao/.yarn/lib/cli.js:186:110)
-      at /Users/jinchenhao/.yarn/lib/cli.js:87307:17
-      at Generator.next (<anonymous>)
-      at step (/Users/jinchenhao/.yarn/lib/cli.js:98:30)
-      at /Users/jinchenhao/.yarn/lib/cli.js:116:14
-      at Promise (<anonymous>)
-      at F (/Users/jinchenhao/.yarn/lib/cli.js:23451:28)
-      at /Users/jinchenhao/.yarn/lib/cli.js:95:12
-      at runCommand (/Users/jinchenhao/.yarn/lib/cli.js:87312:22)
-      at Object.<anonymous> (/Users/jinchenhao/.yarn/lib/cli.js:87412:14)
+  Error: Command failed.
+  Exit code: 3
+  Command: sh
+  Arguments: -c node_modules/rollup/bin/rollup -c; mocha test/index.js
+  Directory: /Users/jinchenhao/Documents/codes/self/ipa
+  Output:
+  
+      at ProcessTermError.MessageError (/Users/jinchenhao/.yarn/lib/cli.js:186:110)
+      at new ProcessTermError (/Users/jinchenhao/.yarn/lib/cli.js:226:113)
+      at ChildProcess.<anonymous> (/Users/jinchenhao/.yarn/lib/cli.js:30281:17)
+      at emitTwo (events.js:126:13)
+      at ChildProcess.emit (events.js:214:7)
+      at maybeClose (internal/child_process.js:925:16)
+      at Process.ChildProcess._handle.onexit (internal/child_process.js:209:5)

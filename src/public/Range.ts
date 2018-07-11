@@ -7,7 +7,7 @@ export default (min: number, max: number, isFloat: boolean = false) => {
     return ({ compile, catcher }) => {
         const nb = compile(Number);
         return {
-            check: val => catcher.catch('an integer', (!isNumber(val)) && val >= min && val <= max),
+            check: val => catcher.catch('an integer', isNumber(val) && val >= min && val <= max),
             guarantee: (val, strict) => {
                 const v = nb.guarantee(val, strict);
                 if (v < min) return min;

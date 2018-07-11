@@ -2,9 +2,17 @@
 # yarn lockfile v1
 
 
+"@types/estree@0.0.39":
+  version "0.0.39"
+  resolved "http://r.npm.sankuai.com/@types/estree/download/@types/estree-0.0.39.tgz#e177e699ee1b8c22d23174caaa7422644389509f"
+
 "@types/lodash@^4.14.110":
   version "4.14.110"
   resolved "https://registry.npmjs.org/@types/lodash/-/lodash-4.14.110.tgz#fb07498f84152947f30ea09d89207ca07123461e"
+
+"@types/node@*":
+  version "10.5.2"
+  resolved "http://r.npm.sankuai.com/@types/node/download/@types/node-10.5.2.tgz#f19f05314d5421fe37e74153254201a7bf00a707"
 
 arr-diff@^2.0.0:
   version "2.0.0"
@@ -427,6 +435,13 @@ rollup-pluginutils@^2.0.1:
   dependencies:
     estree-walker "^0.5.2"
     micromatch "^2.3.11"
+
+rollup@^0.62.0:
+  version "0.62.0"
+  resolved "http://r.npm.sankuai.com/rollup/download/rollup-0.62.0.tgz#4ca8b3c9582195dc9341ff8a1375f58319b95bfc"
+  dependencies:
+    "@types/estree" "0.0.39"
+    "@types/node" "*"
 
 supports-color@4.4.0:
   version "4.4.0"
