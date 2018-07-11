@@ -671,13 +671,13 @@ var From = (function () {
 
 var assemble = (function (c, g, m) { return function (_a) {
     var compile = _a.compile;
-    var check = compile(c).check;
-    var guarantee = compile(g).guarantee;
-    var mock = compile(m).mock;
+    var cp = compile(c);
+    var gp = compile(g);
+    var mp = compile(m);
     return {
-        check: check,
-        guarantee: guarantee,
-        mock: mock,
+        check: cp.check.bind(cp),
+        guarantee: gp.guarantee.bind(gp),
+        mock: mp.mock.bind(mp),
     };
 }; });
 
