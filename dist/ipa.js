@@ -569,9 +569,9 @@ var or = (function () {
         var compile = _a.compile, catcher = _a.catcher;
         var rules = params.map(function (item) { return compile(item); });
         return {
-            check: function (val) { return catcher.catch('matched with one rule', catcher.free(function () { return rules.some(function (rule) { return rule.check(val); }); })); },
+            check: function (val) { return catcher.catch('matched with one of the rules', catcher.free(function () { return rules.some(function (rule) { return rule.check(val); }); })); },
             guarantee: function (val, strict) {
-                return this.check(val) ? val : rules[0].guarantee(val, strict);
+                return this.check(val) ? val : catcher.free(function () { return rules[0].guarantee(val, strict); });
             },
             mock: function (prod) {
                 return rules[0].mock(prod);

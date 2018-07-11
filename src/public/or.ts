@@ -3,9 +3,9 @@ export default (...params) => {
     return ({ compile, catcher }) => {
         const rules = params.map(item => compile(item));
         return {
-            check: val => catcher.catch('matched with one rule', catcher.free(() => rules.some(rule => rule.check(val)))),
+            check: val => catcher.catch('matched with one of the rules', catcher.free(() => rules.some(rule => rule.check(val)))),
             guarantee(val, strict) {
-                return this.check(val) ? val : rules[0].guarantee(val, strict);
+                return this.check(val) ? val : catcher.free(() => rules[0].guarantee(val, strict));
             },
             mock(prod) {
                 return rules[0].mock(prod);

@@ -8,5 +8,5 @@ IPA.addCatcher((err) => {
 const num = new IPA(or(Number, String, From(null)));
 
 console.log(
-    num.check(undefined)
+    num.guarantee(undefined)
 );
