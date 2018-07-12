@@ -114,14 +114,20 @@ var Catcher = /** @class */ (function () {
         this.pop();
         return result;
     };
-    Catcher.prototype.log = function (key, msg) {
+    Catcher.prototype.log = function (suffix, msg) {
         if (this.isFree)
             return;
         var prefix = 'it';
-        if (key === '') {
+        if (suffix === '') {
             prefix = 'itself';
         }
-        this._logMap["" + prefix + key] = msg;
+        var key = "" + prefix + suffix;
+        if (this._logMap[key]) {
+            this._logMap[key] += " && " + msg;
+        }
+        else {
+            this._logMap[key] = msg;
+        }
     };
     Catcher.prototype.free = function (callback) {
         this.isFree = true;
@@ -378,7 +384,7 @@ var arrayCompiler = {
                             target: val,
                             key: catcher.currentKey,
                             isFree: isFree,
-                            mocker: function () { return compiled.guarantee(undefined, strict); },
+                            mocker: function () { return compiled.guarantee.call(compiled, undefined, strict); },
                         });
                     }
                     return val;
@@ -395,7 +401,7 @@ var arrayCompiler = {
                             privateCache.set(l, length);
                         }
                     }
-                    return lodash.times(length, function () { return compiled.mock(prod); });
+                    return lodash.times(length, function () { return compiled.mock.call(compiled, prod); });
                 },
             };
         };

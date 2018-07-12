@@ -37,13 +37,18 @@ class Catcher implements IPAErrorCatcher {
         return result;
     }
 
-    log(key: string, msg: string) {
+    log(suffix: string, msg: string) {
         if (this.isFree) return;
         let prefix = 'it';
-        if (key === '') {
+        if (suffix === '') {
             prefix = 'itself';
         }
-        this._logMap[`${prefix}${key}`] = msg;
+        const key = `${prefix}${suffix}`;
+        if (this._logMap[key]) {
+            this._logMap[key] += ` && ${msg}`;
+        } else {
+            this._logMap[key] = msg;
+        }
     }
 
     free(callback) {

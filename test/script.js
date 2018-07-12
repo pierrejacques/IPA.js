@@ -1,10 +1,12 @@
 const IPA = require('../dist/ipa.js');
-const { Each } = IPA;
+const { Range } = IPA;
 let count = 0;
 IPA.onError((err) => {
     console.log(++count, err);
 });
 
-const num = new IPA(Each([Number, Boolean, Array], false));
+const num = new IPA([Number, 3]);
 
-num.guarantee([1, true, [], '1']);
+console.log(
+    num.mock()
+)

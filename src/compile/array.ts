@@ -48,7 +48,7 @@ const arrayCompiler: IPACompiler = {
                             target: val,
                             key: catcher.currentKey,
                             isFree,
-                            mocker: () => compiled.guarantee(undefined, strict),
+                            mocker: () => compiled.guarantee.call(compiled, undefined, strict),
                         });
                     }
                     return val;
@@ -63,7 +63,7 @@ const arrayCompiler: IPACompiler = {
                             privateCache.set(l, length);
                         }
                     }
-                    return times(length, () => compiled.mock(prod));
+                    return times(length, () => compiled.mock.call(compiled, prod));
                 },
             };
         };
