@@ -1,4 +1,4 @@
-import { IPACore, IPAStrategy, IPAErrorCatcher } from './interface';
+import { IPACore, IPAStrategy, IPAErrorLog } from './interface';
 
 import IPALike from './lib/ipa-like';
 import { cloneDeep, isPlainObject } from 'lodash';
@@ -21,9 +21,8 @@ import {
 } from './public/index';
 import and from './lib/and';
 
-const errHandlers = new Set();
-
 export default class IPA extends IPALike {
+    private static errorHandler = null;
     public static isProductionEnv = false;
     public static instances = new Map();
 
@@ -48,18 +47,21 @@ export default class IPA extends IPALike {
         v.prototype.$brew = IPA.$compile;
     };
     
-    public static addCatcher = (f: Function) => {
-        errHandlers.add(f);
+    public static onError = (f: Function) => {
+        IPA.errorHandler = f;
     };
-    public static removeCatcher = (f: Function) => {
-        errHandlers.delete(f);
-    }
-    private static reset = (instance: IPA) => {
+
+    private static log = (instance?: IPA, method?: string, input?: any) => {
         privateCache.reset();
         publicCache.reset();
-        if (catcher.logMap.size > 0) {
-            instance.errorHandlers.forEach(handle => handle(catcher.logMap));
-            errHandlers.forEach(handle => handle(catcher.logMap));
+        if (instance && catcher.hasLog) {
+            const log: IPAErrorLog = {
+                method,
+                input,
+                exceptions: catcher.logMap,
+            };
+            instance.errorHandler && instance.errorHandler(log);
+            IPA.errorHandler && IPA.errorHandler(log);
         }
         catcher.clear();
     };
@@ -73,7 +75,7 @@ export default class IPA extends IPALike {
     public static or = or;
     public static Range = Range;
 
-    private errorHandlers = new Set();
+    private errorHandler = null;
     public core: IPACore = null;
     public strategy: IPAStrategy = IPAStrategy.Shortest;
 
@@ -84,7 +86,7 @@ export default class IPA extends IPALike {
 
     check(data) {
         const output = and(this.core.check(data), checkLength())
-        IPA.reset(this);
+        IPA.log(this, 'check', data);
         return output;
     }
 
@@ -97,7 +99,7 @@ export default class IPA extends IPALike {
         const copy = isCopy ? cloneDeep(data) : data;
         const output = this.core.guarantee(copy, strict);
         fixArray(this.strategy);
-        IPA.reset(this);
+        IPA.log(this, 'guarantee', data);
         return output;
     }
 
@@ -113,15 +115,11 @@ export default class IPA extends IPALike {
         }
         privateCache.digest(settings);
         const output = this.core.mock(prod);
-        IPA.reset(this);
+        IPA.log();
         return output;
     }
 
-    addCatcher(f: Function) {
-        this.errorHandlers.add(f);
-    }
-
-    removeCatcher(f: Function) {
-        this.errorHandlers.delete(f);
+    onError(f: Function) {
+        this.errorHandler = f;
     }
 }

@@ -85,12 +85,13 @@ var publicCache = new Cache();
 
 var Catcher = /** @class */ (function () {
     function Catcher() {
-        this._logMap = new Map();
+        this._logMap = {};
         this.stack = [];
         this.isFree = false;
+        this.clear();
     }
     Catcher.prototype.clear = function () {
-        this._logMap.clear();
+        this._logMap = {};
         this.stack = [];
     };
     Catcher.prototype.pop = function () {
@@ -116,7 +117,11 @@ var Catcher = /** @class */ (function () {
     Catcher.prototype.log = function (key, msg) {
         if (this.isFree)
             return;
-        this._logMap.set("itself" + key, msg);
+        var prefix = 'it';
+        if (key === '') {
+            prefix = 'itself';
+        }
+        this._logMap["" + prefix + key] = msg;
     };
     Catcher.prototype.free = function (callback) {
         this.isFree = true;
@@ -138,6 +143,13 @@ var Catcher = /** @class */ (function () {
         enumerable: true,
         configurable: true
     });
+    Object.defineProperty(Catcher.prototype, "hasLog", {
+        get: function () {
+            return Object.keys(this._logMap).length > 0;
+        },
+        enumerable: true,
+        configurable: true
+    });
     return Catcher;
 }());
 var catcher = new Catcher();
@@ -145,6 +157,11 @@ var catcher = new Catcher();
 var fixLength = function (len, item) {
     var arr = item.target;
     var mocker = item.mocker;
+    if (arr.length === len)
+        return;
+    if (!item.isFree) {
+        catcher.log(item.key, 'length unmatch');
+    }
     if (arr.length > len) {
         arr.splice(len);
     }
@@ -263,9 +280,7 @@ var IPAProxy = /** @class */ (function (_super) {
     };
     return IPAProxy;
 }(IPALike));
-var createProxy = (function (getInstance) {
-    return new IPAProxy(getInstance);
-});
+var createProxy = (function (getInstance) { return new IPAProxy(getInstance); });
 
 var bypasser = {
     check: function () { return true; },
@@ -345,14 +360,26 @@ var arrayCompiler = {
                     }));
                 },
                 guarantee: function (valIn, strict) {
-                    var val = catcher.catch('array', lodash.isArray(valIn)) ? valIn : [];
-                    val.forEach(function (item, idx) {
-                        val[idx] = catcher.wrap(idx, function () { return compiled.guarantee(item, strict); });
-                    });
+                    var val = valIn;
+                    var isFree = false;
+                    var process = function () {
+                        val.forEach(function (item, idx) {
+                            val[idx] = catcher.wrap(idx, function () { return compiled.guarantee(item, strict); });
+                        });
+                    };
+                    if (!catcher.catch('an array', lodash.isArray(valIn))) {
+                        val = [];
+                        isFree = true;
+                        catcher.free(process);
+                    }
+                    else {
+                        process();
+                    }
                     if (l !== undefined) {
                         privateCache.push(l, {
                             target: val,
                             key: catcher.currentKey,
+                            isFree: isFree,
                             mocker: function () { return compiled.guarantee(undefined, strict); },
                         });
                     }
@@ -681,12 +708,11 @@ var assemble = (function (c, g, m) { return function (_a) {
     };
 }; });
 
-var errHandlers = new Set();
 var IPA = /** @class */ (function (_super) {
     __extends(IPA, _super);
     function IPA(template) {
         var _this = _super.call(this) || this;
-        _this.errorHandlers = new Set();
+        _this.errorHandler = null;
         _this.core = null;
         _this.strategy = IPAStrategy.Shortest;
         _this.core = compile(template);
@@ -694,7 +720,7 @@ var IPA = /** @class */ (function (_super) {
     }
     IPA.prototype.check = function (data) {
         var output = and(this.core.check(data), checkLength());
-        IPA.reset(this);
+        IPA.log(this, 'check', data);
         return output;
     };
     /**
@@ -708,7 +734,7 @@ var IPA = /** @class */ (function (_super) {
         var copy = isCopy ? lodash.cloneDeep(data) : data;
         var output = this.core.guarantee(copy, strict);
         fixer(this.strategy);
-        IPA.reset(this);
+        IPA.log(this, 'guarantee', data);
         return output;
     };
     /**
@@ -726,15 +752,13 @@ var IPA = /** @class */ (function (_super) {
         }
         privateCache.digest(settings);
         var output = this.core.mock(prod);
-        IPA.reset(this);
+        IPA.log();
         return output;
     };
-    IPA.prototype.addCatcher = function (f) {
-        this.errorHandlers.add(f);
+    IPA.prototype.onError = function (f) {
+        this.errorHandler = f;
     };
-    IPA.prototype.removeCatcher = function (f) {
-        this.errorHandlers.delete(f);
-    };
+    IPA.errorHandler = null;
     IPA.isProductionEnv = false;
     IPA.instances = new Map();
     IPA.inject = function (name, template) {
@@ -759,18 +783,20 @@ var IPA = /** @class */ (function (_super) {
         v.prototype.$ipa = IPA.getInstance;
         v.prototype.$brew = IPA.$compile;
     };
-    IPA.addCatcher = function (f) {
-        errHandlers.add(f);
+    IPA.onError = function (f) {
+        IPA.errorHandler = f;
     };
-    IPA.removeCatcher = function (f) {
-        errHandlers.delete(f);
-    };
-    IPA.reset = function (instance) {
+    IPA.log = function (instance, method, input) {
         privateCache.reset();
         publicCache.reset();
-        if (catcher.logMap.size > 0) {
-            instance.errorHandlers.forEach(function (handle) { return handle(catcher.logMap); });
-            errHandlers.forEach(function (handle) { return handle(catcher.logMap); });
+        if (instance && catcher.hasLog) {
+            var log = {
+                method: method,
+                input: input,
+                exceptions: catcher.logMap,
+            };
+            instance.errorHandler && instance.errorHandler(log);
+            IPA.errorHandler && IPA.errorHandler(log);
         }
         catcher.clear();
     };

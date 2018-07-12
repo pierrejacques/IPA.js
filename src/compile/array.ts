@@ -30,17 +30,28 @@ const arrayCompiler: IPACompiler = {
                     }));
                 },
                 guarantee(valIn, strict) {
-                    const val = catcher.catch('array', isArray(valIn)) ? valIn : [];
-                    val.forEach((item, idx) => {
-                        val[idx] = catcher.wrap(
-                            idx,
-                            () => compiled.guarantee(item, strict),
-                        );
-                    });
+                    let val = valIn;
+                    let isFree = false;
+                    const process = () => {
+                        val.forEach((item, idx) => {
+                            val[idx] = catcher.wrap(
+                                idx,
+                                () => compiled.guarantee(item, strict),
+                            );
+                        });
+                    }
+                    if (!catcher.catch('an array', isArray(valIn))) {
+                        val = [];
+                        isFree = true;
+                        catcher.free(process);
+                    } else {
+                        process();
+                    }
                     if (l !== undefined) {
                         privateCache.push(l, {
                             target: val,
                             key: catcher.currentKey,
+                            isFree,
                             mocker: () => compiled.guarantee(undefined, strict),
                         });
                     }

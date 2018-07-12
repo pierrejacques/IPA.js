@@ -3,7 +3,7 @@
     "version": "3.4.0",
     "description": "IPA interface manager",
     "main": "./dist/ipa.js",
-    "types": "/dist/index.d.ts",
+    "types": "./dist/index.d.ts",
     "scripts": {
         "build": "node_modules/rollup/bin/rollup -c",
         "test": "node_modules/rollup/bin/rollup -c; mocha test/index.js",

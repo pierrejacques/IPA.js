@@ -30,6 +30,4 @@ class IPAProxy extends IPALike {
     }
 }
 
-export default (getInstance: () => IPALike): IPALike => {
-    return new IPAProxy(getInstance);
-};
+export default (getInstance: () => IPALike): IPALike => new IPAProxy(getInstance);

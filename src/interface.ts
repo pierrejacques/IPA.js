@@ -35,7 +35,8 @@ export interface IPAContext {
     catcher: IPAErrorCatcher;
 }
 export interface IPAErrorCatcher {
-    logMap: Map<string, string>;
+    hasLog: boolean;
+    logMap: IPAErrorDict;
     currentKey: string;
     clear(): void;
     push(key: any): void;
@@ -44,7 +45,17 @@ export interface IPAErrorCatcher {
     catch(msg: string, result?: boolean): boolean;
     log(key: string, msg: string): void;
     free(callback: () => any): any;
-}   
+}
+
+export interface IPAErrorDict {
+    [key: string]: string;
+}
+
+export interface IPAErrorLog {
+    exceptions: IPAErrorDict,
+    method: string,
+    input: any,
+}
 
 export interface IPACache {
     push(name: string, item: any): void;
@@ -53,4 +64,8 @@ export interface IPACache {
     forEach(item?: any, index?: number): any;
     reset(): void;
     digest(Object): void;
+}
+
+export interface IPAErrorSubscriber {
+    (log: IPAErrorLog): void;
 }

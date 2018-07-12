@@ -1,9 +1,14 @@
 import { isNumber, mean, times } from 'lodash';
 import { privateCache } from './cache';
+import catcher from './catcher';
 
 const fixLength = (len, item) => {
     const arr = item.target;
     const mocker = item.mocker;
+    if (arr.length === len) return;
+    if (!item.isFree) {
+        catcher.log(item.key, 'length unmatch');
+    }
     if (arr.length > len) {
         arr.splice(len);
     } else {

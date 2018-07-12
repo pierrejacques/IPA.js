@@ -1,12 +1,10 @@
 const IPA = require('../dist/ipa.js');
 const { or, From } = IPA;
 
-IPA.addCatcher((err) => {
+IPA.onError((err) => {
     console.log(err);
 });
 
-const num = new IPA(or(Number, String, From(null)));
+const num = new IPA([Boolean, 3]);
 
-console.log(
-    num.guarantee(undefined)
-);
+num.guarantee(undefined);

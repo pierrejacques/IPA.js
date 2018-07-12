@@ -1,14 +1,16 @@
-import { IPAErrorCatcher } from "../interface";
+import { IPAErrorCatcher, IPAErrorDict } from "../interface";
 
 class Catcher implements IPAErrorCatcher {
-    private _logMap: Map<string, string> = new Map();
+    private _logMap: IPAErrorDict = {};
     private stack: Array<string> = [];
     private isFree: boolean = false;
 
-    constructor() {}
+    constructor() {
+        this.clear();
+    }
 
     clear(): void {
-        this._logMap.clear();
+        this._logMap = {};
         this.stack = [];
     }
 
@@ -37,7 +39,11 @@ class Catcher implements IPAErrorCatcher {
 
     log(key: string, msg: string) {
         if (this.isFree) return;
-        this._logMap.set(`itself${key}`, msg);
+        let prefix = 'it';
+        if (key === '') {
+            prefix = 'itself';
+        }
+        this._logMap[`${prefix}${key}`] = msg;
     }
 
     free(callback) {
@@ -53,6 +59,10 @@ class Catcher implements IPAErrorCatcher {
 
     get currentKey() {
         return this.stack.join('');    
+    }
+
+    get hasLog() {
+        return Object.keys(this._logMap).length > 0;
     }
 }
 
