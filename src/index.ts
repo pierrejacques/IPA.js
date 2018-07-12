@@ -49,6 +49,7 @@ export default class IPA extends IPALike {
     
     public static onError = (f: Function) => {
         IPA.errorHandler = f;
+        return IPA;
     };
 
     private static log = (instance?: IPA, method?: string, input?: any) => {
@@ -121,5 +122,6 @@ export default class IPA extends IPALike {
 
     onError(f: Function) {
         this.errorHandler = f;
+        return this;
     }
 }

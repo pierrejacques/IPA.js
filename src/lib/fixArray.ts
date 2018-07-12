@@ -9,11 +9,13 @@ const fixLength = (len, item) => {
     if (!item.isFree) {
         catcher.log(item.key, 'length unmatch');
     }
-    if (arr.length > len) {
-        arr.splice(len);
-    } else {
-        arr.push(...times(len - arr.length, mocker));
-    }
+    catcher.free(() => {
+        if (arr.length > len) {
+            arr.splice(len);
+        } else {
+            arr.push(...times(len - arr.length, mocker));
+        }
+    });
 };
 
 const strategies = {

@@ -162,12 +162,14 @@ var fixLength = function (len, item) {
     if (!item.isFree) {
         catcher.log(item.key, 'length unmatch');
     }
-    if (arr.length > len) {
-        arr.splice(len);
-    }
-    else {
-        arr.push.apply(arr, lodash.times(len - arr.length, mocker));
-    }
+    catcher.free(function () {
+        if (arr.length > len) {
+            arr.splice(len);
+        }
+        else {
+            arr.push.apply(arr, lodash.times(len - arr.length, mocker));
+        }
+    });
 };
 var strategies = {
     most: function (val) {
@@ -362,18 +364,14 @@ var arrayCompiler = {
                 guarantee: function (valIn, strict) {
                     var val = valIn;
                     var isFree = false;
-                    var process = function () {
-                        val.forEach(function (item, idx) {
-                            val[idx] = catcher.wrap(idx, function () { return compiled.guarantee(item, strict); });
-                        });
-                    };
                     if (!catcher.catch('an array', lodash.isArray(valIn))) {
                         val = [];
                         isFree = true;
-                        catcher.free(process);
                     }
                     else {
-                        process();
+                        val.forEach(function (item, idx) {
+                            val[idx] = catcher.wrap(idx, function () { return compiled.guarantee(item, strict); });
+                        });
                     }
                     if (l !== undefined) {
                         privateCache.push(l, {
@@ -757,6 +755,7 @@ var IPA = /** @class */ (function (_super) {
     };
     IPA.prototype.onError = function (f) {
         this.errorHandler = f;
+        return this;
     };
     IPA.errorHandler = null;
     IPA.isProductionEnv = false;
@@ -785,6 +784,7 @@ var IPA = /** @class */ (function (_super) {
     };
     IPA.onError = function (f) {
         IPA.errorHandler = f;
+        return IPA;
     };
     IPA.log = function (instance, method, input) {
         privateCache.reset();

@@ -32,20 +32,16 @@ const arrayCompiler: IPACompiler = {
                 guarantee(valIn, strict) {
                     let val = valIn;
                     let isFree = false;
-                    const process = () => {
+                    if (!catcher.catch('an array', isArray(valIn))) {
+                        val = [];
+                        isFree = true;
+                    } else {
                         val.forEach((item, idx) => {
                             val[idx] = catcher.wrap(
                                 idx,
                                 () => compiled.guarantee(item, strict),
                             );
                         });
-                    }
-                    if (!catcher.catch('an array', isArray(valIn))) {
-                        val = [];
-                        isFree = true;
-                        catcher.free(process);
-                    } else {
-                        process();
                     }
                     if (l !== undefined) {
                         privateCache.push(l, {
