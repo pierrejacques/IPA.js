@@ -1,4 +1,4 @@
-import { IPACore, IPAStrategy, IPAErrorLog } from './interface';
+import { IPACore, IPAStrategy, IPAErrorLog, IPACompileFunction } from './interface';
 
 import IPALike from './lib/ipa-like';
 import { cloneDeep, isPlainObject } from 'lodash';
@@ -41,7 +41,7 @@ export default class IPA extends IPALike {
             return i;
         });
     };
-    public static $compile = compile;
+    public static $compile: IPACompileFunction = compile;
     public static install = (v: Function): void => {
         v.prototype.$ipa = IPA.getInstance;
         v.prototype.$brew = IPA.$compile;
