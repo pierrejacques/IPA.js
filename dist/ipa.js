@@ -467,10 +467,19 @@ var objectCompiler = {
                         catcher.catch('a correct object', every(Object.keys(compiled), function (key) { return catcher.wrap(key, function () { return compiled[key].check(val[key]); }); }));
                 },
                 guarantee: function (valIn, strict) {
-                    var val = catcher.catch('a plain object', lodash.isPlainObject(valIn)) ? valIn : {};
-                    Object.keys(compiled).forEach(function (key) {
-                        val[key] = catcher.wrap(key, function () { return compiled[key].guarantee(val[key], strict); });
-                    });
+                    var val = valIn;
+                    var process = function () {
+                        Object.keys(compiled).forEach(function (key) {
+                            val[key] = catcher.wrap(key, function () { return compiled[key].guarantee(val[key], strict); });
+                        });
+                    };
+                    if (!catcher.catch('a plain object', lodash.isPlainObject(valIn))) {
+                        val = {};
+                        catcher.free(process);
+                    }
+                    else {
+                        process();
+                    }
                     return val;
                 },
                 mock: function (prod) {
@@ -655,7 +664,7 @@ var Each = (function (template, strictLength) {
                         val[idx] = catcher.wrap(idx, function () { return item.guarantee(val[idx], strict); });
                     });
                 };
-                if (!lodash.isArray(valIn)) {
+                if (!catcher.catch('an array', lodash.isArray(valIn))) {
                     val = [];
                     catcher.free(process);
                     return val;

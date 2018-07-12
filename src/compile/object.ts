@@ -22,10 +22,18 @@ const objectCompiler: IPACompiler = {
                     ));
                 },
                 guarantee(valIn, strict) {
-                    const val = catcher.catch('a plain object', isPlainObject(valIn)) ? valIn : {};
-                    Object.keys(compiled).forEach((key) => {
-                        val[key] = catcher.wrap(key, () => compiled[key].guarantee(val[key], strict));
-                    });
+                    let val = valIn;
+                    const process = () => {
+                        Object.keys(compiled).forEach((key) => {
+                            val[key] = catcher.wrap(key, () => compiled[key].guarantee(val[key], strict));
+                        });
+                    }
+                    if (!catcher.catch('a plain object', isPlainObject(valIn))) {
+                        val = {};
+                        catcher.free(process);
+                    } else {
+                        process();
+                    }
                     return val;
                 },
                 mock(prod) {

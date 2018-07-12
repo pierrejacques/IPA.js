@@ -8,7 +8,8 @@
         "build": "node_modules/rollup/bin/rollup -c",
         "test": "node_modules/rollup/bin/rollup -c; mocha test/index.js",
         "script": "node_modules/rollup/bin/rollup -c; node test/script.js",
-        "pure-test": "mocha test/index.js"
+        "pure-test": "mocha test/index.js",
+        "pure-script": "node test/script.js"
     },
     "repository": {
         "type": "git",

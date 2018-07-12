@@ -27,7 +27,7 @@ export default (template: Array<any>, strictLength: boolean = true) => {
                         );
                     });
                 }
-                if (!isArray(valIn)) {
+                if (!catcher.catch('an array', isArray(valIn))) {
                     val = [];
                     catcher.free(process);
                     return val;
