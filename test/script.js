@@ -1,10 +1,6 @@
 const IPA = require('../dist/ipa.js');
 const { From } = IPA;
 
-IPA.onError((err) => {
-    console.log('from class:', err);
-});
-
 const basicSchema = new IPA({
     key: String,
     title: String,
@@ -26,7 +22,10 @@ const ipa = new IPA(({ catcher }) => {
                 () => {
                     const v = basicSchema.guarantee(item);
                     if (v.children) {
-                        v.children = guaranteeProvider(v.children);
+                        v.children = catcher.wrap(
+                            'children',
+                            () => guaranteeProvider(v.children),
+                        );
                         return v;
                     }
                     return leafSchema.guarantee(v);
@@ -39,7 +38,7 @@ const ipa = new IPA(({ catcher }) => {
         guarantee: guaranteeProvider,
     };
 }).onError((err) => {
-    console.log('from instance:', err);
+    console.log(err);
 });
 
 const data =  [
@@ -52,7 +51,7 @@ const data =  [
                 title: '二级1',
                 children: [
                     {
-                        key: '$0',
+                        key: 0,
                         title: '城市a他娘的特别长，能起这么长名字的城市肯定都是傻逼，真的很长',
                         valueType: 'number',
                         isLeaf: null
@@ -85,13 +84,13 @@ const data =  [
                         key: '$5',
                         title: '城市f',
                         valueType: 'number',
-                        isLeaf: true                       
+                        isLeaf: null                       
                     }
                 ]
             },
             {
-                key: '2',
-                title: '二级2',
+                key: 2,
+                title: 2,
                 children: [
                     {
                         key: '$2',

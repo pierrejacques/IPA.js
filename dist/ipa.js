@@ -85,10 +85,10 @@ var publicCache = new Cache();
 
 var Catcher = /** @class */ (function () {
     function Catcher() {
+        this.user = null;
         this._logMap = {};
         this.stack = [];
         this.isFree = false;
-        this.clear();
     }
     Catcher.prototype.clear = function () {
         this._logMap = {};
@@ -117,11 +117,7 @@ var Catcher = /** @class */ (function () {
     Catcher.prototype.log = function (suffix, msg) {
         if (this.isFree)
             return;
-        var prefix = 'it';
-        if (suffix === '') {
-            prefix = 'itself';
-        }
-        var key = "" + prefix + suffix;
+        var key = "input" + suffix;
         if (this._logMap[key]) {
             this._logMap[key] += " && " + msg;
         }
@@ -134,6 +130,14 @@ var Catcher = /** @class */ (function () {
         var result = callback();
         this.isFree = false;
         return result;
+    };
+    Catcher.prototype.subscribe = function (instance) {
+        if (!this.user) {
+            this.user = instance;
+        }
+    };
+    Catcher.prototype.isUsedBy = function (instance) {
+        return instance === this.user;
     };
     Object.defineProperty(Catcher.prototype, "logMap", {
         get: function () {
@@ -745,6 +749,7 @@ var IPA = /** @class */ (function (_super) {
         return _this;
     }
     IPA.prototype.check = function (data) {
+        catcher.subscribe(this);
         var output = and(this.core.check(data), checkLength());
         IPA.log(this, 'check', data);
         return output;
@@ -757,6 +762,7 @@ var IPA = /** @class */ (function (_super) {
     IPA.prototype.guarantee = function (data, isCopy, strict) {
         if (isCopy === void 0) { isCopy = true; }
         if (strict === void 0) { strict = false; }
+        catcher.subscribe(this);
         var copy = isCopy ? lodash.cloneDeep(data) : data;
         var output = this.core.guarantee(copy, strict);
         fixer(this.strategy);
@@ -817,7 +823,9 @@ var IPA = /** @class */ (function (_super) {
     IPA.log = function (instance, method, input) {
         privateCache.reset();
         publicCache.reset();
-        if (instance && catcher.hasLog) {
+        if (!instance || !catcher.isUsedBy(instance))
+            return;
+        if (catcher.hasLog) {
             var log = new IPAError(method, catcher.logMap, input);
             instance.errorHandler && instance.errorHandler(log);
             IPA.errorHandler && IPA.errorHandler(log);

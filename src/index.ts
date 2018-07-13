@@ -56,7 +56,8 @@ export default class IPA extends IPALike {
     private static log = (instance?: IPA, method?: string, input?: any) => {
         privateCache.reset();
         publicCache.reset();
-        if (instance && catcher.hasLog) {
+        if (!instance || !catcher.isUsedBy(instance)) return;
+        if (catcher.hasLog) {
             const log = new IPAError(method, catcher.logMap, input);
             instance.errorHandler && instance.errorHandler(log);
             IPA.errorHandler && IPA.errorHandler(log);
@@ -83,6 +84,7 @@ export default class IPA extends IPALike {
     }
 
     check(data) {
+        catcher.subscribe(this);
         const output = and(this.core.check(data), checkLength())
         IPA.log(this, 'check', data);
         return output;
@@ -94,6 +96,7 @@ export default class IPA extends IPALike {
      * @param {whether to use the strict mode} strict
      */
     guarantee(data, isCopy = true, strict = false) {
+        catcher.subscribe(this);
         const copy = isCopy ? cloneDeep(data) : data;
         const output = this.core.guarantee(copy, strict);
         fixArray(this.strategy);

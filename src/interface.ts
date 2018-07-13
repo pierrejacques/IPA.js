@@ -34,6 +34,7 @@ export interface IPAContext {
     cache: IPACache;
     catcher: IPAErrorCatcher;
 }
+
 export interface IPAErrorCatcher {
     hasLog: boolean;
     logMap: IPAErrorDict;
@@ -45,6 +46,8 @@ export interface IPAErrorCatcher {
     catch(msg: string, result?: boolean): boolean;
     log(key: string, msg: string): void;
     free(callback: () => any): any;
+    subscribe(user: any): void;
+    isUsedBy(user: any): boolean;
 }
 
 export interface IPAErrorDict {

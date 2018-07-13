@@ -1,13 +1,13 @@
 import { IPAErrorCatcher, IPAErrorDict } from "../interface";
+import IPALike from "./ipa-like";
 
 class Catcher implements IPAErrorCatcher {
+    private user: IPALike = null;
     private _logMap: IPAErrorDict = {};
     private stack: Array<string> = [];
     private isFree: boolean = false;
 
-    constructor() {
-        this.clear();
-    }
+    constructor() {}
 
     clear(): void {
         this._logMap = {};
@@ -39,11 +39,7 @@ class Catcher implements IPAErrorCatcher {
 
     log(suffix: string, msg: string) {
         if (this.isFree) return;
-        let prefix = 'it';
-        if (suffix === '') {
-            prefix = 'itself';
-        }
-        const key = `${prefix}${suffix}`;
+        const key = `input${suffix}`;
         if (this._logMap[key]) {
             this._logMap[key] += ` && ${msg}`;
         } else {
@@ -56,6 +52,16 @@ class Catcher implements IPAErrorCatcher {
         const result = callback();
         this.isFree = false;
         return result;
+    }
+
+    subscribe(instance: IPALike) {
+        if (!this.user) {
+            this.user = instance;
+        }
+    }
+
+    isUsedBy(instance: IPALike) {
+        return instance === this.user;
     }
 
     get logMap() {
