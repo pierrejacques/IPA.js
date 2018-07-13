@@ -160,6 +160,19 @@ var Catcher = /** @class */ (function () {
 }());
 var catcher = new Catcher();
 
+var IPAError = /** @class */ (function () {
+    function IPAError(method, exceptions, input) {
+        this.method = method;
+        this.exceptions = exceptions;
+        this.input = input;
+    }
+    IPAError.prototype.has = function (deepKey) {
+        // TODO: 对exceptions的搜索逻辑
+        return true;
+    };
+    return IPAError;
+}());
+
 var fixLength = function (len, item) {
     var arr = item.target;
     var mocker = item.mocker;
@@ -805,11 +818,7 @@ var IPA = /** @class */ (function (_super) {
         privateCache.reset();
         publicCache.reset();
         if (instance && catcher.hasLog) {
-            var log = {
-                method: method,
-                input: input,
-                exceptions: catcher.logMap,
-            };
+            var log = new IPAError(method, catcher.logMap, input);
             instance.errorHandler && instance.errorHandler(log);
             IPA.errorHandler && IPA.errorHandler(log);
         }
