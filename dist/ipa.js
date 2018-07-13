@@ -164,6 +164,14 @@ var Catcher = /** @class */ (function () {
 }());
 var catcher = new Catcher();
 
+function match(key, deepKey) {
+    var result = key.indexOf(deepKey);
+    var len = deepKey.length;
+    console.log('key: ', key);
+    console.log('deep-key: ', deepKey);
+    return key === deepKey || (result === 0 &&
+        /[.\[]/.test(key[len]));
+}
 var IPAError = /** @class */ (function () {
     function IPAError(method, exceptions, input) {
         this.method = method;
@@ -171,8 +179,7 @@ var IPAError = /** @class */ (function () {
         this.input = input;
     }
     IPAError.prototype.has = function (deepKey) {
-        // TODO: 对exceptions的搜索逻辑
-        return true;
+        return Object.keys(this.exceptions).some(function (key) { return match(key, "input" + deepKey); });
     };
     return IPAError;
 }());
