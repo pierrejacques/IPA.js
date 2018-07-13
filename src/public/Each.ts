@@ -9,13 +9,10 @@ export default (template: Array<any>, strictLength: boolean = true) => {
         return {
             check: val => catcher.catch('an array', isArray(val)) && and(
                 catcher.catch(`with length of ${len}`, !strictLength || val.length === len),
-                catcher.catch(
-                    'a correct array',
-                    every(compiled, (item, i) => catcher.wrap(
-                        i,
-                        () => item.check(val[i])
-                    )),
-                ),
+                every(compiled, (item, i) => catcher.wrap(
+                    i,
+                    () => item.check(val[i])
+                )),
             ),
             guarantee(valIn, strict) {
                 let val = valIn;

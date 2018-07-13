@@ -380,9 +380,7 @@ var arrayCompiler = {
                             key: catcher.currentKey,
                         });
                     }
-                    return catcher.catch('a correct array', every(val, function (item, index) {
-                        return catcher.wrap(index, function () { return compiled.check(item); });
-                    }));
+                    return every(val, function (item, index) { return catcher.wrap(index, function () { return compiled.check(item); }); });
                 },
                 guarantee: function (valIn, strict) {
                     var val = valIn;
@@ -487,7 +485,7 @@ var objectCompiler = {
             return {
                 check: function (val) {
                     return catcher.catch('a plain object', lodash.isPlainObject(val)) &&
-                        catcher.catch('a correct object', every(Object.keys(compiled), function (key) { return catcher.wrap(key, function () { return compiled[key].check(val[key]); }); }));
+                        every(Object.keys(compiled), function (key) { return catcher.wrap(key, function () { return compiled[key].check(val[key]); }); });
                 },
                 guarantee: function (valIn, strict) {
                     var val = valIn;
@@ -584,7 +582,7 @@ var Dict = (function (template) { return function (_a) {
     return {
         check: function (val) {
             return catcher.catch('a plain object', lodash.isPlainObject(val)) &&
-                catcher.catch('a dictionary object', every(Object.keys(val), function (k) { return catcher.wrap(k, function () { return compiled.check(val[k]); }); }));
+                every(Object.keys(val), function (k) { return catcher.wrap(k, function () { return compiled.check(val[k]); }); });
         },
         guarantee: function (val, strict) {
             if (!catcher.catch('a plain object', lodash.isPlainObject(val)))
@@ -679,7 +677,7 @@ var Each = (function (template, strictLength) {
         var compile = _a.compile, catcher = _a.catcher;
         var compiled = template.map(function (item) { return compile(item); });
         return {
-            check: function (val) { return catcher.catch('an array', lodash.isArray(val)) && and(catcher.catch("with length of " + len, !strictLength || val.length === len), catcher.catch('a correct array', every(compiled, function (item, i) { return catcher.wrap(i, function () { return item.check(val[i]); }); }))); },
+            check: function (val) { return catcher.catch('an array', lodash.isArray(val)) && and(catcher.catch("with length of " + len, !strictLength || val.length === len), every(compiled, function (item, i) { return catcher.wrap(i, function () { return item.check(val[i]); }); })); },
             guarantee: function (valIn, strict) {
                 var val = valIn;
                 var process = function () {
@@ -714,10 +712,11 @@ var From = (function () {
         return lodash.cloneDeep(v);
     };
     var getFirst = function () { return lodash.cloneDeep(set[0]); };
+    var msg = set.length > 1 ? "from " + set : set[0].toString();
     return function (_a) {
         var catcher = _a.catcher;
         return ({
-            check: function (val) { return catcher.catch("from " + set, set.findIndex(function (item) { return lodash.isEqual(item, val); }) !== -1); },
+            check: function (val) { return catcher.catch(msg, set.findIndex(function (item) { return lodash.isEqual(item, val); }) !== -1); },
             guarantee: function (val, strict) {
                 return this.check(val) ? val : strict ? set[0] : getRandom();
             },

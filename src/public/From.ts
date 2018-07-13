@@ -6,8 +6,9 @@ export default (...set) => {
         return cloneDeep(v);
     };
     const getFirst = () => cloneDeep(set[0]);
+    const msg = set.length > 1 ? `from ${set}` : set[0].toString();
     return ({ catcher }) => ({
-        check: val => catcher.catch(`from ${set}`, set.findIndex(item => isEqual(item, val)) !== -1),
+        check: val => catcher.catch(msg, set.findIndex(item => isEqual(item, val)) !== -1),
         guarantee(val, strict) {
             return this.check(val) ? val : strict ? set[0] : getRandom();
         },

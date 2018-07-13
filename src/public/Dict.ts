@@ -7,12 +7,9 @@ export default template => ({ compile, catcher }) => {
     return {
         check: val => {
             return catcher.catch('a plain object', isPlainObject(val)) &&
-            catcher.catch(
-                'a dictionary object',
-                every(Object.keys(val), k => catcher.wrap(
-                    k,
-                    () => compiled.check(val[k]))
-                )
+            every(Object.keys(val), k => catcher.wrap(
+                k,
+                () => compiled.check(val[k]))
             );
         },
         guarantee(val, strict) {

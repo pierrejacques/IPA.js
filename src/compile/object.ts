@@ -16,10 +16,10 @@ const objectCompiler: IPACompiler = {
             return {
                 check: val => {
                     return catcher.catch('a plain object', isPlainObject(val)) &&
-                    catcher.catch('a correct object', every(Object.keys(compiled), (key) => catcher.wrap(
+                    every(Object.keys(compiled), (key) => catcher.wrap(
                         key,
                         () => compiled[key].check(val[key])),
-                    ));
+                    );
                 },
                 guarantee(valIn, strict) {
                     let val = valIn;

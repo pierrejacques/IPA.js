@@ -25,9 +25,7 @@ const arrayCompiler: IPACompiler = {
                             key: catcher.currentKey,
                         });
                     }
-                    return catcher.catch('a correct array', every(val, (item, index) => {
-                        return catcher.wrap(index, () => compiled.check(item));
-                    }));
+                    return every(val, (item, index) => catcher.wrap(index, () => compiled.check(item)));
                 },
                 guarantee(valIn, strict) {
                     let val = valIn;
