@@ -1,14 +1,15 @@
-import { IPACore, IPAStrategy, IPAErrorLog, IPACompileFunction } from './interface';
+import { IPACore, IPAStrategy, IPAErrorLog, IPACompileFunction, IPAErrorSubscriber } from './interface';
 
 import IPALike from './lib/ipa-like';
 import { cloneDeep, isPlainObject } from 'lodash';
 import { privateCache, publicCache } from './lib/cache';
 import catcher from './lib/catcher';
+import IPAError from './lib/error';
 
 import fixArray from './lib/fixArray';
 import checkLength from './lib/checkLength';
 import createProxy from './lib/createProxy';
-import compile from './compile/index';
+import compile from './compile';
 import {
     asClass,
     assemble,
@@ -18,13 +19,13 @@ import {
     Integer,
     or,
     Range,
-} from './public/index';
+} from './public';
 import and from './lib/and';
 
 export default class IPA extends IPALike {
-    private static errorHandler = null;
-    public static isProductionEnv = false;
-    public static instances = new Map();
+    private static errorHandler: IPAErrorSubscriber = null;
+    public static isProductionEnv: boolean = false;
+    private static instances: Map<any, IPA> = new Map();
 
     public static inject = (name: any, template: any): void => {
         if (IPA.instances.has(name) && !IPA.isProductionEnv) {
@@ -47,7 +48,7 @@ export default class IPA extends IPALike {
         v.prototype.$brew = IPA.$compile;
     };
     
-    public static onError = (f: Function) => {
+    public static onError = (f: IPAErrorSubscriber) => {
         IPA.errorHandler = f;
         return IPA;
     };
@@ -56,11 +57,7 @@ export default class IPA extends IPALike {
         privateCache.reset();
         publicCache.reset();
         if (instance && catcher.hasLog) {
-            const log: IPAErrorLog = {
-                method,
-                input,
-                exceptions: catcher.logMap,
-            };
+            const log = new IPAError(method, catcher.logMap, input);
             instance.errorHandler && instance.errorHandler(log);
             IPA.errorHandler && IPA.errorHandler(log);
         }
@@ -76,7 +73,7 @@ export default class IPA extends IPALike {
     public static or = or;
     public static Range = Range;
 
-    private errorHandler = null;
+    private errorHandler: IPAErrorSubscriber = null;
     public core: IPACore = null;
     public strategy: IPAStrategy = IPAStrategy.Shortest;
 
@@ -108,7 +105,7 @@ export default class IPA extends IPALike {
      * @param {the mock setting for array length} settings 
      * @param {whether it's in production environment} prod 
      */
-    mock(settingsIn = {}, prod = IPA.isProductionEnv) {
+    mock(settingsIn = {}, prod: boolean = IPA.isProductionEnv) {
         let settings = settingsIn;
         if (!isPlainObject(settings)) {
             if (!IPA.isProductionEnv) throw new Error('mocking setting  a plain object');
@@ -120,7 +117,7 @@ export default class IPA extends IPALike {
         return output;
     }
 
-    onError(f: Function) {
+    onError(f: IPAErrorSubscriber) {
         this.errorHandler = f;
         return this;
     }

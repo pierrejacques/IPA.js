@@ -52,9 +52,10 @@ export interface IPAErrorDict {
 }
 
 export interface IPAErrorLog {
-    exceptions: IPAErrorDict,
-    method: string,
-    input: any,
+    exceptions: IPAErrorDict;
+    method: string;
+    input: any;
+    has(deepKey: string): boolean;
 }
 
 export interface IPACache {
