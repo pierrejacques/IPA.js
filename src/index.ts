@@ -1,14 +1,12 @@
 import { IPACore, IPAStrategy, IPAErrorLog, IPACompileFunction, IPAErrorSubscriber } from './interface';
 
-import IPALike from './lib/ipa-like';
 import { cloneDeep, isPlainObject } from 'lodash';
-import { privateCache, publicCache } from './lib/cache';
+import callers from './lib/callers';
 import catcher from './lib/catcher';
-import IPAError from './lib/error';
-
-import fixArray from './lib/fixArray';
-import checkLength from './lib/checkLength';
-import createProxy from './lib/createProxy';
+import cache from './lib/cache';
+import { and } from './lib/logics';
+import lengthManager from './lib/length-manager';
+import { IPALike, IPAProxy } from './lib/peer-classes';
 import compile from './compile';
 import {
     asClass,
@@ -20,7 +18,6 @@ import {
     or,
     Range,
 } from './public';
-import and from './lib/and';
 
 export default class IPA extends IPALike {
     private static errorHandler: IPAErrorSubscriber = null;
@@ -35,17 +32,17 @@ export default class IPA extends IPALike {
     };
     public static getInstance = (name: any): IPALike => {
         let i = null;
-        return createProxy(() => {
+        return new IPAProxy(() => {
             if (i) return i;
             i = IPA.instances.get(name);
             if (i === undefined) throw new Error('in getInstance: IPA instance called before injected');
             return i;
         });
     };
-    public static $compile: IPACompileFunction = compile;
+    public static compile: IPACompileFunction = compile;
     public static install = (v: Function): void => {
         v.prototype.$ipa = IPA.getInstance;
-        v.prototype.$brew = IPA.$compile;
+        v.prototype.$brew = compile;
     };
     
     public static onError = (f: IPAErrorSubscriber) => {
@@ -54,15 +51,13 @@ export default class IPA extends IPALike {
     };
 
     private static log = (instance?: IPA, method?: string, input?: any) => {
-        privateCache.reset();
-        publicCache.reset();
-        if (!instance || !catcher.isUsedBy(instance)) return;
-        if (catcher.hasLog) {
-            const log = new IPAError(method, catcher.logMap, input);
-            instance.errorHandler && instance.errorHandler(log);
-            IPA.errorHandler && IPA.errorHandler(log);
+        const errorLog = catcher.getError(method, input);
+        if (errorLog) {
+            instance.errorHandler && instance.errorHandler(errorLog);
+            IPA.errorHandler && IPA.errorHandler(errorLog);
         }
-        catcher.clear();
+        [lengthManager, cache, catcher].forEach(clearable => clearable.clear());
+        callers.pop();
     };
 
     public static asClass = asClass;
@@ -84,8 +79,8 @@ export default class IPA extends IPALike {
     }
 
     check(data) {
-        catcher.subscribe(this);
-        const output = and(this.core.check(data), checkLength())
+        callers.push(this);
+        const output = and(this.core.check(data), lengthManager.check());
         IPA.log(this, 'check', data);
         return output;
     }
@@ -96,10 +91,10 @@ export default class IPA extends IPALike {
      * @param {whether to use the strict mode} strict
      */
     guarantee(data, isCopy = true, strict = false) {
-        catcher.subscribe(this);
+        callers.push(this);
         const copy = isCopy ? cloneDeep(data) : data;
         const output = this.core.guarantee(copy, strict);
-        fixArray(this.strategy);
+        lengthManager.fix();
         IPA.log(this, 'guarantee', data);
         return output;
     }
@@ -109,12 +104,13 @@ export default class IPA extends IPALike {
      * @param {whether it's in production environment} prod 
      */
     mock(settingsIn = {}, prod: boolean = IPA.isProductionEnv) {
+        callers.push(this);
         let settings = settingsIn;
         if (!isPlainObject(settings)) {
             if (!IPA.isProductionEnv) throw new Error('mocking setting  a plain object');
             settings = {};
         }
-        privateCache.digest(settings);
+        lengthManager.digest(settings);
         const output = this.core.mock(prod);
         IPA.log();
         return output;

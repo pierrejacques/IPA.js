@@ -1,80 +1,91 @@
-import { IPAErrorCatcher, IPAErrorDict } from "../interface";
-import IPALike from "./ipa-like";
+import { IPAErrorCatcher, IPAExceptions, IPAErrorLog } from "../interface";
+import callers from './callers';
 
-class Catcher implements IPAErrorCatcher {
-    private user: IPALike = null;
-    private _logMap: IPAErrorDict = {};
-    private stack: Array<string> = [];
-    private isFree: boolean = false;
+let exceptions: IPAExceptions = {};
+let stack: Array<string> = [];
+let isFree: boolean = false;
 
-    constructor() {}
+function match(key: string, deepKey: string): boolean {
+    const result = key.indexOf(deepKey);
+    const len = deepKey.length;
 
-    clear(): void {
-        this._logMap = {};
-        this.stack = [];
+    return key === deepKey || (
+        result === 0 &&
+        /[.\[]/.test(key[len])
+    );
+}
+class IPAError implements IPAErrorLog {
+    constructor(
+        public method: string,
+        public exceptions: IPAExceptions,
+        public input: any
+    ) {}
+    
+    has(deepKey) {
+        return Object.keys(this.exceptions).some(key => match(key, `input${deepKey}`));
     }
+}
+
+const catcher: IPAErrorCatcher = {
+    clear() {
+        if (callers.root === callers.current) {
+            exceptions = {};
+            stack = [];
+        }
+    },
 
     pop() {
-        this.stack.pop();
-    }
+        stack.pop();
+    },
 
     push(key: any) {
         const keyStr = typeof key === 'string' ? `.${key}` : `[${key}]`;
-        this.stack.push(keyStr);
-    }
+        stack.push(keyStr);
+    },
 
     catch(msg: string, result: boolean = false) {
         if (!result) {
             this.log(this.currentKey, `should be ${msg}`);
         }
         return result;
-    }
+    },
 
     wrap(key, getResult) {
         this.push(key);
         const result = getResult();
         this.pop();
         return result;
-    }
+    },
 
     log(suffix: string, msg: string) {
-        if (this.isFree) return;
+        if (isFree) return;
         const key = `input${suffix}`;
-        if (this._logMap[key]) {
-            this._logMap[key] += ` && ${msg}`;
+        if (exceptions[key]) {
+            exceptions[key] += ` && ${msg}`;
         } else {
-            this._logMap[key] = msg;
+            exceptions[key] = msg;
         }
-    }
+    },
 
     free(callback) {
-        this.isFree = true;
+        isFree = true;
         const result = callback();
-        this.isFree = false;
+        isFree = false;
         return result;
-    }
+    },
 
-    subscribe(instance: IPALike) {
-        if (!this.user) {
-            this.user = instance;
-        }
-    }
-
-    isUsedBy(instance: IPALike) {
-        return instance === this.user;
-    }
-
-    get logMap() {
-        return this._logMap;
-    }
+    getError(method: string, input: any) {
+        if (callers.root !== callers.current) return null;
+        return Object.keys(exceptions).length ? new IPAError(
+            method,
+            exceptions,
+            input,
+        ) : null;
+    },
 
     get currentKey() {
-        return this.stack.join('');    
-    }
-
-    get hasLog() {
-        return Object.keys(this._logMap).length > 0;
-    }
+        return stack.join('');    
+    },
 }
 
-export default new Catcher();
+export default catcher;

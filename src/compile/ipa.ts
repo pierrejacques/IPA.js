@@ -1,4 +1,4 @@
-import IPALike from "../lib/ipa-like";
+import { IPALike } from "../lib/peer-classes";
 import { IPACompiler } from "../interface";
 
 const ipaInstanceCompiler: IPACompiler = {

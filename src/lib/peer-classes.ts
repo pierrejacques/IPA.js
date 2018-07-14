@@ -1,6 +1,17 @@
-import IPALike from './ipa-like';
+import { IPAStrategy, IPAMockConfig, IPACore } from "../interface";
 
-class IPAProxy extends IPALike {
+export class IPALike {
+    public core: IPACore;
+    public strategy: IPAStrategy;
+
+    check(data?: any): boolean { return true; }
+    
+    guarantee(data?: any, isDeep?: boolean, isStrict?: boolean): any {}
+
+    mock(config?: IPAMockConfig, isProdEnv?: boolean): any {}
+}
+
+export class IPAProxy extends IPALike {
     constructor(private getInstance: () => IPALike) {
         super();
     }
@@ -29,5 +40,3 @@ class IPAProxy extends IPALike {
         return this.getInstance().mock(...params);
     }
 }
-
-export default (getInstance: () => IPALike): IPALike => new IPAProxy(getInstance);

@@ -1,6 +1,6 @@
 import { isPlainObject, range, random } from 'lodash';
 import randStr from '../lib/randStr';
-import every from '../lib/every';
+import { every } from '../lib/logics';
 
 export default template => ({ compile, catcher }) => {
     const compiled = compile(template);

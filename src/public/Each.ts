@@ -1,6 +1,5 @@
 import { isArray } from 'lodash';
-import every from '../lib/every';
-import and from '../lib/and';
+import { every, and } from '../lib/logics';
 
 export default (template: Array<any>, strictLength: boolean = true) => {
     const len = template.length;

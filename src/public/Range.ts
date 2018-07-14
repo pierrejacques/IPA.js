@@ -1,5 +1,5 @@
 import { isNumber, toNumber, random } from 'lodash';
-import and from '../lib/and';
+import { and } from '../lib/logics';
 
 export default (min: number, max: number, isFloat: boolean = false) => {
     if (min > max) {

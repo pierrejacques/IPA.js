@@ -1,7 +1,7 @@
 import { isPlainObject } from 'lodash';
 import { IPACompiler } from '../interface';
-import IPALike from '../lib/ipa-like';
-import every from '../lib/every';
+import { IPALike } from '../lib/peer-classes';
+import { every } from '../lib/logics';
 
 const objectCompiler: IPACompiler = {
     condition(template) {

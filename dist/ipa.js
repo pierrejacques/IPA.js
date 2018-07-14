@@ -37,138 +37,28 @@ var IPAStrategy;
     IPAStrategy["Least"] = "least";
 })(IPAStrategy || (IPAStrategy = {}));
 
-var IPALike = /** @class */ (function () {
-    function IPALike() {
-    }
-    IPALike.prototype.check = function (data) { return true; };
-    IPALike.prototype.guarantee = function (data, isDeep, isStrict) { };
-    IPALike.prototype.mock = function (config, isProdEnv) { };
-    return IPALike;
-}());
+var callers = [];
+var callers$1 = {
+    get root() {
+        return callers[0];
+    },
+    get current() {
+        return callers[callers.length - 1];
+    },
+    push: function (caller) {
+        callers.push(caller);
+    },
+    pop: function () {
+        callers.pop();
+    },
+};
 
-var _a;
-var _cache_ = Symbol('cache');
-var Cache = /** @class */ (function () {
-    function Cache() {
-        this[_a] = new Map();
-    }
-    Cache.prototype.push = function (name, item) {
-        if (!lodash.isArray(this[_cache_].get(name))) {
-            this[_cache_].set(name, []);
-        }
-        this[_cache_].get(name).push(item);
-    };
-    Cache.prototype.set = function (name, value) {
-        this[_cache_].set(name, value);
-    };
-    Cache.prototype.get = function (name) {
-        return this[_cache_].get(name);
-    };
-    Cache.prototype.forEach = function (cb) {
-        this[_cache_].forEach(cb);
-    };
-    Cache.prototype.reset = function () {
-        this[_cache_].clear();
-    };
-    Cache.prototype.digest = function (settings) {
-        var _this = this;
-        this.reset();
-        Object.keys(settings).forEach(function (key) {
-            _this.set(key, settings[key]);
-        });
-    };
-    return Cache;
-}());
-_a = _cache_;
-var privateCache = new Cache();
-var publicCache = new Cache();
-
-var Catcher = /** @class */ (function () {
-    function Catcher() {
-        this.user = null;
-        this._logMap = {};
-        this.stack = [];
-        this.isFree = false;
-    }
-    Catcher.prototype.clear = function () {
-        this._logMap = {};
-        this.stack = [];
-    };
-    Catcher.prototype.pop = function () {
-        this.stack.pop();
-    };
-    Catcher.prototype.push = function (key) {
-        var keyStr = typeof key === 'string' ? "." + key : "[" + key + "]";
-        this.stack.push(keyStr);
-    };
-    Catcher.prototype.catch = function (msg, result) {
-        if (result === void 0) { result = false; }
-        if (!result) {
-            this.log(this.currentKey, "should be " + msg);
-        }
-        return result;
-    };
-    Catcher.prototype.wrap = function (key, getResult) {
-        this.push(key);
-        var result = getResult();
-        this.pop();
-        return result;
-    };
-    Catcher.prototype.log = function (suffix, msg) {
-        if (this.isFree)
-            return;
-        var key = "input" + suffix;
-        if (this._logMap[key]) {
-            this._logMap[key] += " && " + msg;
-        }
-        else {
-            this._logMap[key] = msg;
-        }
-    };
-    Catcher.prototype.free = function (callback) {
-        this.isFree = true;
-        var result = callback();
-        this.isFree = false;
-        return result;
-    };
-    Catcher.prototype.subscribe = function (instance) {
-        if (!this.user) {
-            this.user = instance;
-        }
-    };
-    Catcher.prototype.isUsedBy = function (instance) {
-        return instance === this.user;
-    };
-    Object.defineProperty(Catcher.prototype, "logMap", {
-        get: function () {
-            return this._logMap;
-        },
-        enumerable: true,
-        configurable: true
-    });
-    Object.defineProperty(Catcher.prototype, "currentKey", {
-        get: function () {
-            return this.stack.join('');
-        },
-        enumerable: true,
-        configurable: true
-    });
-    Object.defineProperty(Catcher.prototype, "hasLog", {
-        get: function () {
-            return Object.keys(this._logMap).length > 0;
-        },
-        enumerable: true,
-        configurable: true
-    });
-    return Catcher;
-}());
-var catcher = new Catcher();
-
+var exceptions = {};
+var stack = [];
+var isFree = false;
 function match(key, deepKey) {
     var result = key.indexOf(deepKey);
     var len = deepKey.length;
-    console.log('key: ', key);
-    console.log('deep-key: ', deepKey);
     return key === deepKey || (result === 0 &&
         /[.\[]/.test(key[len]));
 }
@@ -183,24 +73,100 @@ var IPAError = /** @class */ (function () {
     };
     return IPAError;
 }());
-
-var fixLength = function (len, item) {
-    var arr = item.target;
-    var mocker = item.mocker;
-    if (arr.length === len)
-        return;
-    if (!item.isFree) {
-        catcher.log(item.key, 'length unmatch');
-    }
-    catcher.free(function () {
-        if (arr.length > len) {
-            arr.splice(len);
+var catcher = {
+    clear: function () {
+        if (callers$1.root === callers$1.current) {
+            exceptions = {};
+            stack = [];
+        }
+    },
+    pop: function () {
+        stack.pop();
+    },
+    push: function (key) {
+        var keyStr = typeof key === 'string' ? "." + key : "[" + key + "]";
+        stack.push(keyStr);
+    },
+    catch: function (msg, result) {
+        if (result === void 0) { result = false; }
+        if (!result) {
+            this.log(this.currentKey, "should be " + msg);
+        }
+        return result;
+    },
+    wrap: function (key, getResult) {
+        this.push(key);
+        var result = getResult();
+        this.pop();
+        return result;
+    },
+    log: function (suffix, msg) {
+        if (isFree)
+            return;
+        var key = "input" + suffix;
+        if (exceptions[key]) {
+            exceptions[key] += " && " + msg;
         }
         else {
-            arr.push.apply(arr, lodash.times(len - arr.length, mocker));
+            exceptions[key] = msg;
         }
-    });
+    },
+    free: function (callback) {
+        isFree = true;
+        var result = callback();
+        isFree = false;
+        return result;
+    },
+    getError: function (method, input) {
+        if (callers$1.root !== callers$1.current)
+            return null;
+        return Object.keys(exceptions).length ? new IPAError(method, exceptions, input) : null;
+    },
+    get currentKey() {
+        return stack.join('');
+    },
 };
+
+var runtimeCacheMap = new Map();
+var cache = {
+    get cache() {
+        var caller = callers$1.current;
+        if (!runtimeCacheMap.has(caller)) {
+            runtimeCacheMap.set(caller, new Map());
+        }
+        return runtimeCacheMap.get(caller);
+    },
+    has: function (key) {
+        return this.cache.has(key);
+    },
+    delete: function (key) {
+        return this.cache.delete(key);
+    },
+    clear: function () {
+        return runtimeCacheMap.delete(callers$1.current);
+    },
+    set: function (key, value) {
+        return this.cache.set(key, value);
+    },
+    get: function (key) {
+        return this.cache.get(key);
+    },
+};
+
+// full checked AND logic
+var and = function () {
+    var bools = [];
+    for (var _i = 0; _i < arguments.length; _i++) {
+        bools[_i] = arguments[_i];
+    }
+    return bools.every(function (i) { return i; });
+};
+// full checked every method
+var every = function (arr, handler) {
+    return arr.map(handler).every(function (v) { return v; });
+};
+
+var lengthCacheMap = new Map();
 var strategies = {
     most: function (val) {
         var lengths = val.map(function (item) { return item.target.length; });
@@ -230,38 +196,91 @@ var strategies = {
         return Math.ceil(average);
     },
 };
-var fixer = function (strategyIn) {
-    var strategy = strategies[strategyIn] || strategies.shortest;
-    privateCache.forEach(function (value, key) {
-        var targetLen = lodash.isNumber(key) ? key : strategy(value);
-        value.forEach(function (item) {
-            fixLength(targetLen, item);
+var lengthManager = {
+    get cache() {
+        var caller = callers$1.current;
+        if (!lengthCacheMap.has(caller)) {
+            lengthCacheMap.set(caller, new Map());
+        }
+        return lengthCacheMap.get(caller);
+    },
+    push: function (name, item) {
+        if (!lodash.isArray(this.cache.get(name))) {
+            this.cache.set(name, []);
+        }
+        this.cache.get(name).push(item);
+    },
+    set: function (name, value) {
+        this.cache.set(name, value);
+    },
+    get: function (name) {
+        return this.cache.get(name);
+    },
+    forEach: function (cb) {
+        this.cache.forEach(cb);
+    },
+    clear: function () {
+        lengthCacheMap.delete(callers$1.current);
+    },
+    digest: function (settings) {
+        var _this = this;
+        Object.keys(settings).forEach(function (key) {
+            _this.set(key, settings[key]);
         });
-    });
+    },
+    check: function () {
+        var result = true;
+        this.cache.forEach(function (value, key) {
+            if (lodash.isNumber(key)) {
+                value.forEach(function (item) {
+                    if (item.length !== key) {
+                        catcher.log(item.key, "length unequals to " + key);
+                        result = false;
+                    }
+                });
+            }
+            else {
+                var lengths = value.map(function (item) { return item.length; });
+                if (lodash.min(lengths) !== lodash.max(lengths)) {
+                    result = false;
+                    value.forEach(function (item) { return catcher.log(item.key, 'length unmatched'); });
+                }
+            }
+        });
+        return result;
+    },
+    fix: function () {
+        var strategy = strategies[callers$1.current.strategy] || strategies.shortest;
+        this.cache.forEach(function (value, key) {
+            var len = lodash.isNumber(key) ? key : strategy(value);
+            value.forEach(function (item) {
+                var arr = item.target, mocker = item.mocker;
+                if (arr.length === len)
+                    return;
+                if (!item.isFree) {
+                    catcher.log(item.key, 'length unmatch');
+                }
+                catcher.free(function () {
+                    if (arr.length > len) {
+                        arr.splice(len);
+                    }
+                    else {
+                        arr.push.apply(arr, lodash.times(len - arr.length, mocker));
+                    }
+                });
+            });
+        });
+    }
 };
 
-var checkLength = (function () {
-    var result = true;
-    privateCache.forEach(function (value, key) {
-        if (lodash.isNumber(key)) {
-            value.forEach(function (item) {
-                if (item.length !== key) {
-                    catcher.log(item.key, "length unequals to " + key);
-                    result = false;
-                }
-            });
-        }
-        else {
-            var lengths = value.map(function (item) { return item.length; });
-            if (lodash.min(lengths) !== lodash.max(lengths)) {
-                result = false;
-                value.forEach(function (item) { return catcher.log(item.key, 'length unmatched'); });
-            }
-        }
-    });
-    return result;
-});
-
+var IPALike = /** @class */ (function () {
+    function IPALike() {
+    }
+    IPALike.prototype.check = function (data) { return true; };
+    IPALike.prototype.guarantee = function (data, isDeep, isStrict) { };
+    IPALike.prototype.mock = function (config, isProdEnv) { };
+    return IPALike;
+}());
 var IPAProxy = /** @class */ (function (_super) {
     __extends(IPAProxy, _super);
     function IPAProxy(getInstance) {
@@ -312,7 +331,6 @@ var IPAProxy = /** @class */ (function (_super) {
     };
     return IPAProxy;
 }(IPALike));
-var createProxy = (function (getInstance) { return new IPAProxy(getInstance); });
 
 var bypasser = {
     check: function () { return true; },
@@ -359,11 +377,6 @@ var ipaInstanceCompiler = {
     },
 };
 
-// full checked every method
-var every = (function (arr, handler) {
-    return arr.map(handler).every(function (v) { return v; });
-});
-
 var arrayCompiler = {
     condition: function (template) {
         return lodash.isArray(template);
@@ -382,7 +395,7 @@ var arrayCompiler = {
                         return catcher.catch('array');
                     }
                     if (l !== undefined) {
-                        privateCache.push(l, {
+                        lengthManager.push(l, {
                             length: val.length,
                             key: catcher.currentKey,
                         });
@@ -402,7 +415,7 @@ var arrayCompiler = {
                         });
                     }
                     if (l !== undefined) {
-                        privateCache.push(l, {
+                        lengthManager.push(l, {
                             target: val,
                             key: catcher.currentKey,
                             isFree: isFree,
@@ -416,11 +429,11 @@ var arrayCompiler = {
                     if (lodash.isNumber(l))
                         length = l;
                     if (lodash.isString(l)) {
-                        if (lodash.isNumber(privateCache.get(l))) {
-                            length = privateCache.get(l);
+                        if (lodash.isNumber(lengthManager.get(l))) {
+                            length = lengthManager.get(l);
                         }
                         else {
-                            privateCache.set(l, length);
+                            lengthManager.set(l, length);
                         }
                     }
                     return lodash.times(length, function () { return compiled.mock.call(compiled, prod); });
@@ -554,7 +567,7 @@ var compilers = [
 ];
 var context = {
     compile: null,
-    cache: publicCache,
+    cache: cache,
     catcher: catcher,
 };
 var compile = function (template) {
@@ -640,15 +653,6 @@ var or = (function () {
             },
         };
     };
-});
-
-// full checked AND logic
-var and = (function () {
-    var bools = [];
-    for (var _i = 0; _i < arguments.length; _i++) {
-        bools[_i] = arguments[_i];
-    }
-    return bools.every(function (i) { return i; });
 });
 
 var Range = (function (min, max, isFloat) {
@@ -755,8 +759,8 @@ var IPA = /** @class */ (function (_super) {
         return _this;
     }
     IPA.prototype.check = function (data) {
-        catcher.subscribe(this);
-        var output = and(this.core.check(data), checkLength());
+        callers$1.push(this);
+        var output = and(this.core.check(data), lengthManager.check());
         IPA.log(this, 'check', data);
         return output;
     };
@@ -768,10 +772,10 @@ var IPA = /** @class */ (function (_super) {
     IPA.prototype.guarantee = function (data, isCopy, strict) {
         if (isCopy === void 0) { isCopy = true; }
         if (strict === void 0) { strict = false; }
-        catcher.subscribe(this);
+        callers$1.push(this);
         var copy = isCopy ? lodash.cloneDeep(data) : data;
         var output = this.core.guarantee(copy, strict);
-        fixer(this.strategy);
+        lengthManager.fix();
         IPA.log(this, 'guarantee', data);
         return output;
     };
@@ -782,13 +786,14 @@ var IPA = /** @class */ (function (_super) {
     IPA.prototype.mock = function (settingsIn, prod) {
         if (settingsIn === void 0) { settingsIn = {}; }
         if (prod === void 0) { prod = IPA.isProductionEnv; }
+        callers$1.push(this);
         var settings = settingsIn;
         if (!lodash.isPlainObject(settings)) {
             if (!IPA.isProductionEnv)
                 throw new Error('mocking setting  a plain object');
             settings = {};
         }
-        privateCache.digest(settings);
+        lengthManager.digest(settings);
         var output = this.core.mock(prod);
         IPA.log();
         return output;
@@ -808,7 +813,7 @@ var IPA = /** @class */ (function (_super) {
     };
     IPA.getInstance = function (name) {
         var i = null;
-        return createProxy(function () {
+        return new IPAProxy(function () {
             if (i)
                 return i;
             i = IPA.instances.get(name);
@@ -817,26 +822,23 @@ var IPA = /** @class */ (function (_super) {
             return i;
         });
     };
-    IPA.$compile = compile;
+    IPA.compile = compile;
     IPA.install = function (v) {
         v.prototype.$ipa = IPA.getInstance;
-        v.prototype.$brew = IPA.$compile;
+        v.prototype.$brew = compile;
     };
     IPA.onError = function (f) {
         IPA.errorHandler = f;
         return IPA;
     };
     IPA.log = function (instance, method, input) {
-        privateCache.reset();
-        publicCache.reset();
-        if (!instance || !catcher.isUsedBy(instance))
-            return;
-        if (catcher.hasLog) {
-            var log = new IPAError(method, catcher.logMap, input);
-            instance.errorHandler && instance.errorHandler(log);
-            IPA.errorHandler && IPA.errorHandler(log);
+        var errorLog = catcher.getError(method, input);
+        if (errorLog) {
+            instance.errorHandler && instance.errorHandler(errorLog);
+            IPA.errorHandler && IPA.errorHandler(errorLog);
         }
-        catcher.clear();
+        [lengthManager, cache, catcher].forEach(function (clearable) { return clearable.clear(); });
+        callers$1.pop();
     };
     IPA.asClass = asClass;
     IPA.assemble = assemble;

@@ -36,8 +36,6 @@ export interface IPAContext {
 }
 
 export interface IPAErrorCatcher {
-    hasLog: boolean;
-    logMap: IPAErrorDict;
     currentKey: string;
     clear(): void;
     push(key: any): void;
@@ -46,30 +44,29 @@ export interface IPAErrorCatcher {
     catch(msg: string, result?: boolean): boolean;
     log(key: string, msg: string): void;
     free(callback: () => any): any;
-    subscribe(user: any): void;
-    isUsedBy(user: any): boolean;
+    getError(method: string, input: any): IPAErrorLog;
 }
 
-export interface IPAErrorDict {
+export interface IPAExceptions {
     [key: string]: string;
 }
 
 export interface IPAErrorLog {
-    exceptions: IPAErrorDict;
+    exceptions: IPAExceptions;
     method: string;
     input: any;
     has(deepKey: string): boolean;
 }
 
-export interface IPACache {
-    push(name: string, item: any): void;
-    set(name: string, value: any): void;
-    get(name): any;
-    forEach(item?: any, index?: number): any;
-    reset(): void;
-    digest(Object): void;
-}
-
 export interface IPAErrorSubscriber {
     (log: IPAErrorLog): void;
+}
+
+export interface IPACache {
+    cache: Map<any, any>;
+    has(key: any): boolean;
+    delete(key: any): boolean;
+    clear(): boolean;
+    set(key: any, value: any): boolean;
+    get(key: any): any;
 }

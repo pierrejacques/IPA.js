@@ -1,6 +1,6 @@
 import { IPACompiler, IPAContext, IPACompileFunction } from '../interface';
 
-import { publicCache } from '../lib/cache';
+import cache from '../lib/cache';
 import catcher from '../lib/catcher';
 
 import funcComp from './function';
@@ -27,7 +27,7 @@ const compilers: Array<IPACompiler> = [
 
 const context: IPAContext = {
     compile: null,
-    cache: publicCache,
+    cache,
     catcher,
 };
 

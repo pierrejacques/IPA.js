@@ -1,43 +1,37 @@
-import { isArray } from 'lodash';
+import callers from './callers';
+import { IPALike } from './peer-classes';
 import { IPACache } from '../interface';
 
-const _cache_ = Symbol('cache');
+const runtimeCacheMap: Map<IPALike, Map<any, any>> = new Map();
 
-class Cache implements IPACache {
-    private [_cache_]: Map<string, any> = new Map();
-
-    constructor() {}
-
-    push(name, item) {
-        if (!isArray(this[_cache_].get(name))) {
-            this[_cache_].set(name, []);
+const cache: IPACache  = {
+    get cache() {
+        const caller = callers.current;
+        if (!runtimeCacheMap.has(caller)) {
+            runtimeCacheMap.set(caller, new Map());
         }
-        this[_cache_].get(name).push(item);
-    }
+        return runtimeCacheMap.get(caller);
+    },
 
-    set(name, value) {
-        this[_cache_].set(name, value);
-    }
+    has(key: any) {
+        return this.cache.has(key);
+    },
 
-    get(name) {
-        return this[_cache_].get(name);
-    }
+    delete(key: any) {
+        return this.cache.delete(key);
+    },
 
-    forEach(cb) {
-        this[_cache_].forEach(cb);
-    }
+    clear() {
+        return runtimeCacheMap.delete(callers.current);
+    },
 
-    reset() {
-        this[_cache_].clear();
-    }
+    set(key: any, value: any) {
+        return this.cache.set(key, value);
+    },
+    
+    get(key: any) {
+        return this.cache.get(key);
+    },
+};
 
-    digest(settings) {
-        this.reset();
-        Object.keys(settings).forEach((key) => {
-            this.set(key, settings[key]);
-        });
-    }
-}
-
-export const privateCache = new Cache();
-export const publicCache = new Cache();
+export default cache;

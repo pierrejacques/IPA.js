@@ -1,7 +1,7 @@
 import { isArray, isNumber, isString, times, random } from 'lodash';
-import { privateCache } from '../lib/cache';
+import lengthManager from '../lib/length-manager';
 import { IPACompiler } from '../interface';
-import every from '../lib/every';
+import { every } from '../lib/logics';
 
 const arrayCompiler: IPACompiler = {
     condition(template) {
@@ -20,7 +20,7 @@ const arrayCompiler: IPACompiler = {
                         return catcher.catch('array');
                     }
                     if (l !== undefined) {
-                        privateCache.push(l, {
+                        lengthManager.push(l, {
                             length: val.length,
                             key: catcher.currentKey,
                         });
@@ -42,7 +42,7 @@ const arrayCompiler: IPACompiler = {
                         });
                     }
                     if (l !== undefined) {
-                        privateCache.push(l, {
+                        lengthManager.push(l, {
                             target: val,
                             key: catcher.currentKey,
                             isFree,
@@ -55,10 +55,10 @@ const arrayCompiler: IPACompiler = {
                     let length = prod ? 0 : random(0, 10);
                     if (isNumber(l)) length = l;
                     if (isString(l)) {
-                        if (isNumber(privateCache.get(l))) {
-                            length = privateCache.get(l);
+                        if (isNumber(lengthManager.get(l))) {
+                            length = lengthManager.get(l);
                         } else {
-                            privateCache.set(l, length);
+                            lengthManager.set(l, length);
                         }
                     }
                     return times(length, () => compiled.mock.call(compiled, prod));
