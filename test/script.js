@@ -38,7 +38,7 @@ const ipa = new IPA(({ catcher }) => {
         guarantee: guaranteeProvider,
     };
 }).onError((err) => {
-    console.log(err.has('[0].children[0]'));
+    console.log(err);
 });
 
 const data =  [
