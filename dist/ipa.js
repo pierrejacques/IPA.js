@@ -603,14 +603,18 @@ var undefinedCompiler = {
 var stringCompiler = {
     condition: lodash.isString,
     execute: function (template) { return function (_a) {
-        var catcher = _a.catcher;
-        return ({
+        var catcher = _a.catcher, cache = _a.cache;
+        var recurserScope = cache.get('$$recurseScope');
+        if (recurserScope && recurserScope.marker === template) {
+            return recurserScope.asset;
+        }
+        return {
             check: function (v) { return catcher.catch('string', lodash.isString(v)); },
             guarantee: function (v) {
                 return this.check(v) ? v : template;
             },
             mock: function (prod) { return prod ? template : randStr(); },
-        });
+        };
     }; },
 };
 
@@ -808,6 +812,27 @@ var assemble = (function (c, g, m) { return function (_a) {
     };
 }; });
 
+var recurse = (function (subTemplate, options) { return function (_a) {
+    var compile = _a.compile, cache = _a.cache;
+    var _b = options || {}, _c = _b.marker, marker = _c === void 0 ? '$$' : _c, _d = _b.allow, allow = _d === void 0 ? From(null) : _d;
+    var allowed = compile(allow);
+    var compiled = null;
+    var asset = {
+        check: function (v) { return allowed.check.call(allowed, v) || compiled.check.call(compiled, v); },
+        guarantee: function (v) {
+            return this.check(v) ? compiled.guarantee.call(compiled, v) : v;
+        },
+        mock: function () { return lodash.random(1) === 0 ? allowed.mock.call(allowed) : compiled.mock.call(compiled); },
+    };
+    cache.set('$$recurseScope', {
+        marker: marker,
+        asset: asset,
+    });
+    compiled = compile(subTemplate);
+    cache.delete('$$recurseScope');
+    return compiled;
+}; });
+
 var IPA = /** @class */ (function (_super) {
     __extends(IPA, _super);
     function IPA(template) {
@@ -908,6 +933,7 @@ var IPA = /** @class */ (function (_super) {
     IPA.Integer = Integer;
     IPA.or = or;
     IPA.Range = Range;
+    IPA.recurse = recurse;
     return IPA;
 }(IPALike));
 

@@ -17,6 +17,7 @@ import {
     Integer,
     or,
     Range,
+    recurse,
 } from './public';
 
 export default class IPA extends IPALike {
@@ -68,6 +69,7 @@ export default class IPA extends IPALike {
     public static Integer = Integer;
     public static or = or;
     public static Range = Range;
+    public static recurse = recurse;
 
     private errorHandler: IPAErrorSubscriber = null;
     public core: IPACore = null;
