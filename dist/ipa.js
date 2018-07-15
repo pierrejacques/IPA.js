@@ -196,6 +196,37 @@ var strategies = {
         return Math.ceil(average);
     },
 };
+var staticRules = [{
+        match: /^(==)?(\d{1,})$/,
+        check: function (arr, len) { return arr.length === len; },
+        target: function (len) { return len; },
+        generate: function (len) { return len; },
+        msg: 'equal to',
+    }, {
+        match: /^>(\d{1,})$/,
+        check: function (arr, len) { return arr.length > len; },
+        target: function (len) { return len + 1; },
+        generate: function (len) { return lodash.random(len + 1, len + 6); },
+        msg: 'strictly longer than',
+    }, {
+        match: /^>=(\d{1,})$/,
+        check: function (arr, len) { return arr.length >= len; },
+        target: function (len) { return len; },
+        generate: function (len) { return lodash.random(len, len + 5); },
+        msg: 'longer than',
+    }, {
+        match: /^<(\d{1,})$/,
+        check: function (arr, len) { return arr.length < len; },
+        target: function (len) { return len - 1; },
+        generate: function (len) { return lodash.random(0, len - 1); },
+        msg: 'strictly shorter than'
+    }, {
+        match: /^<=(\d{1,})$/,
+        check: function (arr, len) { return arr.length <= len; },
+        target: function (len) { return len; },
+        generate: function (len) { return lodash.random(0, len); },
+        msg: 'shorter than',
+    }];
 var lengthManager = {
     get cache() {
         var caller = callers$1.current;
@@ -231,20 +262,28 @@ var lengthManager = {
     check: function () {
         var result = true;
         this.cache.forEach(function (value, key) {
-            if (lodash.isNumber(key)) {
-                value.forEach(function (item) {
-                    if (item.length !== key) {
-                        catcher.log(item.key, "length unequals to " + key);
-                        result = false;
-                    }
-                });
-            }
-            else {
-                var lengths = value.map(function (item) { return item.length; });
-                if (lodash.min(lengths) !== lodash.max(lengths)) {
-                    result = false;
-                    value.forEach(function (item) { return catcher.log(item.key, 'length unmatched'); });
+            var _loop_1 = function (match, check, msg) {
+                if (match.test(key)) {
+                    var len_1 = extract(match, key);
+                    value.forEach(function (item) {
+                        if (!check(item, len_1)) {
+                            catcher.log(item.key, "length should be " + msg + " " + len_1);
+                            result = false;
+                        }
+                    });
+                    return { value: void 0 };
                 }
+            };
+            for (var _i = 0, staticRules_1 = staticRules; _i < staticRules_1.length; _i++) {
+                var _a = staticRules_1[_i], match = _a.match, check = _a.check, msg = _a.msg;
+                var state_1 = _loop_1(match, check, msg);
+                if (typeof state_1 === "object")
+                    return state_1.value;
+            }
+            var lengths = value.map(function (item) { return item.length; });
+            if (lodash.min(lengths) !== lodash.max(lengths)) {
+                result = false;
+                value.forEach(function (item) { return catcher.log(item.key, 'length unmatched'); });
             }
         });
         return result;
@@ -252,26 +291,57 @@ var lengthManager = {
     fix: function () {
         var strategy = strategies[callers$1.current.strategy] || strategies.shortest;
         this.cache.forEach(function (value, key) {
-            var len = lodash.isNumber(key) ? key : strategy(value);
-            value.forEach(function (item) {
-                var arr = item.target, mocker = item.mocker;
-                if (arr.length === len)
-                    return;
-                if (!item.isFree) {
-                    catcher.log(item.key, 'length unmatch');
+            var _loop_2 = function (match, target, check) {
+                if (match.test(key)) {
+                    var l_1 = extract(match, key);
+                    fix(value.filter(function (i) { return !check(i.target, l_1); }), target(l_1));
+                    return { value: void 0 };
                 }
-                catcher.free(function () {
-                    if (arr.length > len) {
-                        arr.splice(len);
-                    }
-                    else {
-                        arr.push.apply(arr, lodash.times(len - arr.length, mocker));
-                    }
-                });
-            });
+            };
+            for (var _i = 0, staticRules_2 = staticRules; _i < staticRules_2.length; _i++) {
+                var _a = staticRules_2[_i], match = _a.match, target = _a.target, check = _a.check;
+                var state_2 = _loop_2(match, target, check);
+                if (typeof state_2 === "object")
+                    return state_2.value;
+            }
+            fix(value, strategy(value));
         });
+    },
+    generate: function (key, isProd) {
+        for (var _i = 0, staticRules_3 = staticRules; _i < staticRules_3.length; _i++) {
+            var _a = staticRules_3[_i], match = _a.match, target = _a.target, generate = _a.generate;
+            if (match.test(key)) {
+                var l = extract(match, key);
+                return isProd ? target(l) : generate(l);
+            }
+        }
+        if (!lodash.isNumber(this.get(key)))
+            this.set(key, isProd ? 0 : lodash.random(0, 10));
+        return this.get(key);
     }
 };
+function fix(toBeFixed, len) {
+    toBeFixed.forEach(function (item) {
+        var arr = item.target, mocker = item.mocker;
+        if (arr.length === len)
+            return;
+        if (!item.isFree) {
+            catcher.log(item.key, 'length unmatch');
+        }
+        catcher.free(function () {
+            if (arr.length > len) {
+                arr.splice(len);
+            }
+            else {
+                arr.push.apply(arr, lodash.times(len - arr.length, mocker));
+            }
+        });
+    });
+}
+function extract(regExp, string) {
+    var matched = regExp.exec(string);
+    return matched && parseInt(matched[matched.length - 1], 10);
+}
 
 var IPALike = /** @class */ (function () {
     function IPALike() {
@@ -386,6 +456,7 @@ var arrayCompiler = {
         if (l !== undefined && !lodash.isNumber(l) && !lodash.isString(l)) {
             throw new Error('compile failed: the 2nd parameter for array can only be String or Number');
         }
+        l = l && l.toString();
         return function (_a) {
             var compile = _a.compile, catcher = _a.catcher;
             var compiled = compile(template[0]);
@@ -425,18 +496,7 @@ var arrayCompiler = {
                     return val;
                 },
                 mock: function (prod) {
-                    var length = prod ? 0 : lodash.random(0, 10);
-                    if (lodash.isNumber(l))
-                        length = l;
-                    if (lodash.isString(l)) {
-                        if (lodash.isNumber(lengthManager.get(l))) {
-                            length = lengthManager.get(l);
-                        }
-                        else {
-                            lengthManager.set(l, length);
-                        }
-                    }
-                    return lodash.times(length, function () { return compiled.mock.call(compiled, prod); });
+                    return lodash.times(lengthManager.generate(l, prod), function () { return compiled.mock.call(compiled, prod); });
                 },
             };
         };

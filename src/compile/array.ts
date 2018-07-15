@@ -1,4 +1,4 @@
-import { isArray, isNumber, isString, times, random } from 'lodash';
+import { isArray, isNumber, isString, times } from 'lodash';
 import lengthManager from '../lib/length-manager';
 import { IPACompiler } from '../interface';
 import { every } from '../lib/logics';
@@ -8,10 +8,11 @@ const arrayCompiler: IPACompiler = {
         return isArray(template);
     },
     execute(template) {
-        const l = template[1];
+        let l = template[1];
         if (l !== undefined && !isNumber(l) && !isString(l)) {
             throw new Error('compile failed: the 2nd parameter for array can only be String or Number');
         }
+        l = l && l.toString();
         return ({ compile, catcher }) => {
             const compiled = compile(template[0]);
             return {
@@ -52,16 +53,10 @@ const arrayCompiler: IPACompiler = {
                     return val;
                 },
                 mock(prod) {
-                    let length = prod ? 0 : random(0, 10);
-                    if (isNumber(l)) length = l;
-                    if (isString(l)) {
-                        if (isNumber(lengthManager.get(l))) {
-                            length = lengthManager.get(l);
-                        } else {
-                            lengthManager.set(l, length);
-                        }
-                    }
-                    return times(length, () => compiled.mock.call(compiled, prod));
+                    return times(
+                        lengthManager.generate(l, prod),
+                        () => compiled.mock.call(compiled, prod)
+                    );
                 },
             };
         };

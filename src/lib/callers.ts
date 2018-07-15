@@ -1,4 +1,6 @@
-const callers = [];
+import { IPALike } from "./peer-classes";
+
+const callers: Array<IPALike> = [];
 
 export default {
     get root() {

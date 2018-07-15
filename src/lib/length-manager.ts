@@ -1,4 +1,4 @@
-import { isArray, isNumber, min, max, mean, times } from 'lodash';
+import { isArray, random, min, max, mean, times, isNumber } from 'lodash';
 import catcher from './catcher';
 import callers from './callers';
 import { IPALike } from './peer-classes';
@@ -34,6 +34,38 @@ const strategies = {
         return Math.ceil(average);
     },
 };
+
+const staticRules = [{
+    match: /^(==)?(\d{1,})$/,
+    check: (arr, len) => arr.length === len,
+    target: len => len,
+    generate: len => len,
+    msg: 'equal to',
+}, {
+    match: /^>(\d{1,})$/,
+    check: (arr, len) => arr.length > len,
+    target: len => len + 1,
+    generate: len => random(len + 1, len + 6),
+    msg: 'strictly longer than',
+}, {
+    match: /^>=(\d{1,})$/,
+    check: (arr, len) => arr.length >= len,
+    target: len => len,
+    generate: len => random(len, len + 5),
+    msg: 'longer than',
+}, {
+    match: /^<(\d{1,})$/,
+    check: (arr, len) => arr.length < len,
+    target: len => len - 1,
+    generate: len => random(0, len - 1),
+    msg: 'strictly shorter than'
+}, {
+    match: /^<=(\d{1,})$/,
+    check: (arr, len) => arr.length <= len,
+    target: len => len,
+    generate: len => random(0, len),
+    msg: 'shorter than',
+}];
 
 const lengthManager = {
     get cache() {
@@ -76,19 +108,22 @@ const lengthManager = {
     check() {
         let result = true;
         this.cache.forEach((value, key) => {
-            if (isNumber(key)) {
-                value.forEach(item => {
-                    if (item.length !== key) {
-                        catcher.log(item.key, `length unequals to ${key}`);
-                        result = false;
-                    }
-                });
-            } else {
-                const lengths = value.map(item => item.length);
-                if (min(lengths) !== max(lengths)) {
-                    result = false;
-                    value.forEach((item) => catcher.log(item.key, 'length unmatched'));
+            for (const { match, check, msg } of staticRules) {
+                if (match.test(key)) {
+                    const len = extract(match, key);
+                    value.forEach(item => {
+                        if (!check(item, len)) {
+                            catcher.log(item.key, `length should be ${msg} ${len}`);
+                            result = false;
+                        }
+                    });
+                    return;
                 }
+            }
+            const lengths = value.map(item => item.length);
+            if (min(lengths) !== max(lengths)) {
+                result = false;
+                value.forEach((item) => catcher.log(item.key, 'length unmatched'));
             }
         });
         return result;
@@ -97,23 +132,49 @@ const lengthManager = {
     fix() {
         const strategy = strategies[callers.current.strategy] || strategies.shortest;
         this.cache.forEach((value, key) => {
-            const len = isNumber(key) ? key : strategy(value);
-            value.forEach((item) => {
-                const { target: arr, mocker } = item;
-                if (arr.length === len) return;
-                if (!item.isFree) {
-                    catcher.log(item.key, 'length unmatch');
+            for (const { match, target, check } of staticRules) {
+                if (match.test(key)) {
+                    const l = extract(match, key);
+                    fix(value.filter(i => !check(i.target, l)), target(l));
+                    return;
                 }
-                catcher.free(() => {
-                    if (arr.length > len) {
-                        arr.splice(len);
-                    } else {
-                        arr.push(...times(len - arr.length, mocker));
-                    }
-                });
-            });
+            }
+            fix(value, strategy(value));
         });
+    },
+
+    generate(key: string, isProd: boolean) {
+        for (const { match, target, generate } of staticRules) {
+            if (match.test(key)) {
+                const l = extract(match, key);
+                return isProd ? target(l) : generate(l);
+            }
+        }
+        if (!isNumber(this.get(key))) this.set(key, isProd ? 0 : random(0, 10));
+        return this.get(key);
     }
+}
+
+function fix (toBeFixed: Array<any>, len: number) {
+    toBeFixed.forEach((item) => {
+        const { target: arr, mocker } = item;
+        if (arr.length === len) return;
+        if (!item.isFree) {
+            catcher.log(item.key, 'length unmatch');
+        }
+        catcher.free(() => {
+            if (arr.length > len) {
+                arr.splice(len);
+            } else {
+                arr.push(...times(len - arr.length, mocker));
+            }
+        });
+    });
+}
+
+function extract(regExp, string) {
+    const matched = regExp.exec(string);
+    return matched && parseInt(matched[matched.length - 1], 10);
 }
 
 export default lengthManager;
