@@ -6,7 +6,7 @@ export default (...set) => {
         return cloneDeep(v);
     };
     const getFirst = () => cloneDeep(set[0]);
-    const msg = set.length > 1 ? `from ${set}` : set[0].toString();
+    const msg = set.length > 1 ? `from ${set}` : `${set[0]}`;
     return ({ catcher }) => ({
         check: val => catcher.catch(msg, set.findIndex(item => isEqual(item, val)) !== -1),
         guarantee(val, strict) {

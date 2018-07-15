@@ -74,5 +74,6 @@ describe(`
         ...require('./public/Integer')(IPA),
         ...require('./public/Range')(IPA),
         ...require('./public/assemble')(IPA),
+        ...require('./public/recurse')(IPA),
     ]);
 });

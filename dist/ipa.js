@@ -787,7 +787,7 @@ var From = (function () {
         return lodash.cloneDeep(v);
     };
     var getFirst = function () { return lodash.cloneDeep(set[0]); };
-    var msg = set.length > 1 ? "from " + set : set[0].toString();
+    var msg = set.length > 1 ? "from " + set : "" + set[0];
     return function (_a) {
         var catcher = _a.catcher;
         return ({
@@ -820,7 +820,7 @@ var recurse = (function (subTemplate, options) { return function (_a) {
     var asset = {
         check: function (v) { return allowed.check.call(allowed, v) || compiled.check.call(compiled, v); },
         guarantee: function (v) {
-            return this.check(v) ? compiled.guarantee.call(compiled, v) : v;
+            return this.check(v) ? v : compiled.guarantee.call(compiled, v);
         },
         mock: function () { return lodash.random(1) === 0 ? allowed.mock.call(allowed) : compiled.mock.call(compiled); },
     };

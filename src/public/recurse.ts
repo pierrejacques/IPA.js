@@ -8,7 +8,7 @@ export default (subTemplate: any, options: { marker: string, allow: any }) => ({
     const asset = {
         check: v => allowed.check.call(allowed, v) || compiled.check.call(compiled, v),
         guarantee(v) {
-            return this.check(v) ? compiled.guarantee.call(compiled, v) : v;
+            return this.check(v) ? v : compiled.guarantee.call(compiled, v);
         },
         mock: () => random(1) === 0 ? allowed.mock.call(allowed) : compiled.mock.call(compiled),
     };
