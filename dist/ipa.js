@@ -854,12 +854,22 @@ var IPA = /** @class */ (function (_super) {
      * @param {whether to make a deep copy first} isCopy
      * @param {whether to use the strict mode} strict
      */
-    IPA.prototype.guarantee = function (data, isCopy, strict) {
-        if (isCopy === void 0) { isCopy = true; }
+    IPA.prototype.guarantee = function (data, optionsOrIsCopy, strict) {
+        if (optionsOrIsCopy === void 0) { optionsOrIsCopy = true; }
         if (strict === void 0) { strict = false; }
+        var isCopy = optionsOrIsCopy;
+        var isStrict = strict;
+        if (lodash.isPlainObject(optionsOrIsCopy)) {
+            var options = Object.assign({
+                copy: true,
+                strict: false,
+            }, optionsOrIsCopy);
+            isCopy = options.copy;
+            isStrict = options.strict;
+        }
         callers$1.push(this);
         var copy = isCopy ? lodash.cloneDeep(data) : data;
-        var output = this.core.guarantee(copy, strict);
+        var output = this.core.guarantee(copy, isStrict);
         lengthManager.fix();
         IPA.$emit(this, 'guarantee', data);
         return output;

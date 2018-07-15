@@ -1,4 +1,4 @@
-import { IPACore, IPAStrategy, IPAErrorLog, IPACompileFunction, IPAErrorSubscriber } from './interface';
+import { IPACore, IPAStrategy, IPACompileFunction, IPAErrorSubscriber } from './interface';
 
 import { cloneDeep, isPlainObject } from 'lodash';
 import callers from './lib/callers';
@@ -92,10 +92,20 @@ export default class IPA extends IPALike {
      * @param {whether to make a deep copy first} isCopy
      * @param {whether to use the strict mode} strict
      */
-    guarantee(data, isCopy = true, strict = false) {
+    guarantee(data, optionsOrIsCopy: boolean | Object = true, strict: boolean = false) {
+        let isCopy = optionsOrIsCopy;
+        let isStrict = strict;
+        if (isPlainObject(optionsOrIsCopy)) {
+            const options = Object.assign({
+                copy: true,
+                strict: false,
+            }, optionsOrIsCopy);
+            isCopy = options.copy;
+            isStrict = options.strict;
+        }
         callers.push(this);
         const copy = isCopy ? cloneDeep(data) : data;
-        const output = this.core.guarantee(copy, strict);
+        const output = this.core.guarantee(copy, isStrict);
         lengthManager.fix();
         IPA.$emit(this, 'guarantee', data);
         return output;
