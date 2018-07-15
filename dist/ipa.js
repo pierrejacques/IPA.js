@@ -821,7 +821,7 @@ var IPA = /** @class */ (function (_super) {
     IPA.prototype.check = function (data) {
         callers$1.push(this);
         var output = and(this.core.check(data), lengthManager.check());
-        IPA.log(this, 'check', data);
+        IPA.$emit(this, 'check', data);
         return output;
     };
     /**
@@ -836,7 +836,7 @@ var IPA = /** @class */ (function (_super) {
         var copy = isCopy ? lodash.cloneDeep(data) : data;
         var output = this.core.guarantee(copy, strict);
         lengthManager.fix();
-        IPA.log(this, 'guarantee', data);
+        IPA.$emit(this, 'guarantee', data);
         return output;
     };
     /**
@@ -855,7 +855,7 @@ var IPA = /** @class */ (function (_super) {
         }
         lengthManager.digest(settings);
         var output = this.core.mock(prod);
-        IPA.log();
+        IPA.$emit();
         return output;
     };
     IPA.prototype.onError = function (f) {
@@ -891,7 +891,7 @@ var IPA = /** @class */ (function (_super) {
         IPA.errorHandler = f;
         return IPA;
     };
-    IPA.log = function (instance, method, input) {
+    IPA.$emit = function (instance, method, input) {
         var errorLog = catcher.getError(method, input);
         if (errorLog) {
             instance.errorHandler && instance.errorHandler(errorLog);

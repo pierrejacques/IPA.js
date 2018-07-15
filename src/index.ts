@@ -50,7 +50,7 @@ export default class IPA extends IPALike {
         return IPA;
     };
 
-    private static log = (instance?: IPA, method?: string, input?: any) => {
+    private static $emit = (instance?: IPA, method?: string, input?: any) => {
         const errorLog = catcher.getError(method, input);
         if (errorLog) {
             instance.errorHandler && instance.errorHandler(errorLog);
@@ -81,7 +81,7 @@ export default class IPA extends IPALike {
     check(data) {
         callers.push(this);
         const output = and(this.core.check(data), lengthManager.check());
-        IPA.log(this, 'check', data);
+        IPA.$emit(this, 'check', data);
         return output;
     }
 
@@ -95,7 +95,7 @@ export default class IPA extends IPALike {
         const copy = isCopy ? cloneDeep(data) : data;
         const output = this.core.guarantee(copy, strict);
         lengthManager.fix();
-        IPA.log(this, 'guarantee', data);
+        IPA.$emit(this, 'guarantee', data);
         return output;
     }
 
@@ -112,7 +112,7 @@ export default class IPA extends IPALike {
         }
         lengthManager.digest(settings);
         const output = this.core.mock(prod);
-        IPA.log();
+        IPA.$emit();
         return output;
     }
 
