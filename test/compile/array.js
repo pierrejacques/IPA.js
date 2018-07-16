@@ -28,7 +28,7 @@ module.exports = [
     },
     {
         desc: 'When template = [null, 3]',
-        template: [null, 3],
+        template: [null, '3'],
         situations: [{
             name: 'inputting: right length',
             input: [1, 'str', false],
@@ -50,8 +50,8 @@ module.exports = [
         }],
     },
     {
-        desc: 'When template = [undefined, 3]',
-        template: [undefined, 3],
+        desc: 'When template = [null, "==3"]',
+        template: [null, '==3'],
         situations: [{
             name: 'inputting: right length',
             input: [1, 'str', false],
@@ -68,8 +68,77 @@ module.exports = [
             name: 'inputting: too short',
             input: [1, 'str'],
             check: false,
-            guarantee: [1, 'str', undefined],
-            strict: [1, 'str', undefined],
+            guarantee: [1, 'str', null],
+            strict: [1, 'str', null],
+        }],
+    },
+    {
+        desc: 'When template = [undefined, "<3"]',
+        template: [undefined, '<3'],
+        situations: [{
+            name: 'inputting: right length',
+            input: [1, 'str'],
+            check: true,
+            guarantee: [1, 'str'],
+            strict: [1, 'str'],
+        }, {
+            name: 'inputting: too long',
+            input: [1, 'str', false],
+            check: false,
+            guarantee: [1, 'str'],
+            strict: [1, 'str'],
+        }, {
+            name: 'inputting: shorter',
+            input: [1],
+            check: true,
+            guarantee: [1],
+            strict: [1],
+        }],
+    },
+    {
+        desc: 'When template = [undefined, "<=3"]',
+        template: [undefined, '<=3'],
+        situations: [{
+            name: 'inputting: right length',
+            input: [1, 'str', 2],
+            check: true,
+            guarantee: [1, 'str', 2],
+            strict: [1, 'str', 2],
+        }, {
+            name: 'inputting: too long',
+            input: [1, 'str', false, true],
+            check: false,
+            guarantee: [1, 'str', false],
+            strict: [1, 'str', false],
+        }, {
+            name: 'inputting: shorter',
+            input: [1],
+            check: true,
+            guarantee: [1],
+            strict: [1],
+        }],
+    },
+    {
+        desc: 'When template = [undefined, ">3"]',
+        template: [undefined, '>3'],
+        situations: [{
+            name: 'inputting: right length',
+            input: [1, 'str', 2, false],
+            check: true,
+            guarantee: [1, 'str', 2, false],
+            strict: [1, 'str', 2, false],
+        }, {
+            name: 'inputting: too short',
+            input: [1, 'str', false],
+            check: false,
+            guarantee: [1, 'str', false, undefined],
+            strict: [1, 'str', false, undefined],
+        }, {
+            name: 'inputting: longer',
+            input: [1, 1, 1, 1, 1],
+            check: true,
+            guarantee: [1, 1, 1, 1, 1],
+            strict: [1, 1, 1, 1, 1],
         }],
     },
     {

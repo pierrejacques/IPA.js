@@ -812,17 +812,26 @@ var assemble = (function (c, g, m) { return function (_a) {
     };
 }; });
 
+function getDefaultCondition(temp) {
+    if (lodash.isPlainObject(temp))
+        return lodash.isPlainObject;
+    if (lodash.isArray(temp) && temp[1] === undefined)
+        return lodash.isArray;
+    return function () { return false; };
+}
 var recurse = (function (subTemplate, options) { return function (_a) {
     var compile = _a.compile, cache = _a.cache;
-    var _b = options || {}, _c = _b.marker, marker = _c === void 0 ? '$$' : _c, _d = _b.allow, allow = _d === void 0 ? From(null) : _d;
-    var allowed = compile(allow);
+    var _b = options || {}, _c = _b.marker, marker = _c === void 0 ? '$$' : _c, _d = _b.border, border = _d === void 0 ? From(null) : _d, _e = _b.condition, condition = _e === void 0 ? getDefaultCondition(subTemplate) : _e;
+    var borderCompiled = compile(border);
     var compiled = null;
     var asset = {
-        check: function (v) { return allowed.check.call(allowed, v) || compiled.check.call(compiled, v); },
+        check: function (v) { return borderCompiled.check.call(borderCompiled, v) || compiled.check.call(compiled, v); },
         guarantee: function (v) {
-            return this.check(v) ? v : compiled.guarantee.call(compiled, v);
+            if (this.check(v))
+                return v;
+            return condition(v) ? compiled.guarantee.call(compiled, v) : borderCompiled.guarantee.call(borderCompiled, v);
         },
-        mock: function () { return lodash.random(1) === 0 ? allowed.mock.call(allowed) : compiled.mock.call(compiled); },
+        mock: function () { return lodash.random(1) === 0 ? borderCompiled.mock.call(borderCompiled) : compiled.mock.call(compiled); },
     };
     cache.set('$$recurseScope', {
         marker: marker,
