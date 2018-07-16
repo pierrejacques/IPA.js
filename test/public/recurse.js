@@ -14,10 +14,10 @@ module.exports = IPA => [
             strict: { key: { key: { key: null }}},
         }, {
             name: 'inputting: false recursive object',
-            input: { key: [] },
+            input: { key: { key: { key: [] }}},
             check: false,
-            guarantee: { key: { key: null }},
-            
+            guarantee: { key: { key: { key: null}}},
+            strict: { key: { key: { key: null}}}, 
         }],
     }
 ]

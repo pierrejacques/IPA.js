@@ -3,7 +3,7 @@ const { recurse } = IPA;
 
 const ipa = new IPA(IPA.recurse({
     key: '$$'
-}));
+})); // FIXME: 带长度的数组报错
 
 console.log(
     ipa.guarantee({
