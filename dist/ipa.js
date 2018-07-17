@@ -265,7 +265,9 @@ var lengthManager = {
             var _loop_1 = function (match, check, msg) {
                 if (match.test(key)) {
                     var len_1 = extract(match, key);
-                    value.forEach(function (item) {
+                    value
+                        .filter(function (i) { return i.method === 'check'; })
+                        .forEach(function (item) {
                         if (!check(item, len_1)) {
                             catcher.log(item.key, "length should be " + msg + " " + len_1);
                             result = false;
@@ -294,7 +296,9 @@ var lengthManager = {
             var _loop_2 = function (match, target, check) {
                 if (match.test(key)) {
                     var l_1 = extract(match, key);
-                    fix(value.filter(function (i) { return !check(i.target, l_1); }), target(l_1));
+                    fix(value
+                        .filter(function (i) { return i.method === 'fix'; })
+                        .filter(function (i) { return !check(i.target, l_1); }), target(l_1));
                     return { value: void 0 };
                 }
             };
@@ -469,6 +473,7 @@ var arrayCompiler = {
                         lengthManager.push(l, {
                             length: val.length,
                             key: catcher.currentKey,
+                            method: 'check',
                         });
                     }
                     return every(val, function (item, index) { return catcher.wrap(index, function () { return compiled.check(item); }); });
@@ -491,6 +496,7 @@ var arrayCompiler = {
                             key: catcher.currentKey,
                             isFree: isFree,
                             mocker: function () { return compiled.guarantee.call(compiled, undefined, strict); },
+                            method: 'fix',
                         });
                     }
                     return val;
@@ -815,9 +821,12 @@ var assemble = (function (c, g, m) { return function (_a) {
 function getDefaultCondition(temp) {
     if (lodash.isPlainObject(temp))
         return lodash.isPlainObject;
-    if (lodash.isArray(temp) && temp[1] === undefined)
+    if (!lodash.isArray(temp))
+        return function () { return false; };
+    var convergeList = [/^0{1,}$/, /^>=0{1,}$/, /^<=?\d{1,}$/]; // 收敛名单
+    if (!temp[1] && convergeList.some(function (i) { return i.test(temp[1]); }))
         return lodash.isArray;
-    return function () { return false; };
+    return function (v) { return lodash.isArray(v) && v.length > 0; };
 }
 var recurse = (function (subTemplate, options) { return function (_a) {
     var compile = _a.compile, cache = _a.cache;

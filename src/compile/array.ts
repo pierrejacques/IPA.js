@@ -24,6 +24,7 @@ const arrayCompiler: IPACompiler = {
                         lengthManager.push(l, {
                             length: val.length,
                             key: catcher.currentKey,
+                            method: 'check',
                         });
                     }
                     return every(val, (item, index) => catcher.wrap(index, () => compiled.check(item)));
@@ -48,6 +49,7 @@ const arrayCompiler: IPACompiler = {
                             key: catcher.currentKey,
                             isFree,
                             mocker: () => compiled.guarantee.call(compiled, undefined, strict),
+                            method: 'fix',
                         });
                     }
                     return val;

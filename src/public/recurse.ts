@@ -3,12 +3,14 @@ import From from "./From";
 
 function getDefaultCondition (temp) {
     if (isPlainObject(temp)) return isPlainObject;
-    if (isArray(temp) && temp[1] === undefined) return isArray;
-    return () => false;
+    if (!isArray(temp)) return () => false;
+    const convergeList = [/^0{1,}$/, /^>=0{1,}$/, /^<=?\d{1,}$/]; // 收敛名单
+    if (!temp[1] && convergeList.some(i => i.test(temp[1]))) return isArray;
+    return v => isArray(v) && v.length > 0;
 }
 
 export default (
-        subTemplate: any, 
+        subTemplate: any,
         options: { 
             marker: string;
             border: any;

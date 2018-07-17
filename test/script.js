@@ -1,21 +1,5 @@
 const IPA = require('../dist/ipa.js');
 const { recurse } = IPA;
-
-const ipa = new IPA(IPA.recurse({
-    key: '$$'
-})); // FIXME: 带长度的数组报错
-
-console.log(
-    ipa.guarantee({
-        key: {
-            key: {
-                key: []
-            },
-        }
-    })
-);
-
-
 // const basicSchema = new IPA({
 //     key: String,
 //     title: String,

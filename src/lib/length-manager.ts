@@ -111,7 +111,9 @@ const lengthManager = {
             for (const { match, check, msg } of staticRules) {
                 if (match.test(key)) {
                     const len = extract(match, key);
-                    value.forEach(item => {
+                    value
+                    .filter(i => i.method === 'check')
+                    .forEach(item => {
                         if (!check(item, len)) {
                             catcher.log(item.key, `length should be ${msg} ${len}`);
                             result = false;
@@ -135,7 +137,11 @@ const lengthManager = {
             for (const { match, target, check } of staticRules) {
                 if (match.test(key)) {
                     const l = extract(match, key);
-                    fix(value.filter(i => !check(i.target, l)), target(l));
+                    fix(
+                        value
+                        .filter(i => i.method === 'fix')
+                        .filter(i => !check(i.target, l)), target(l)
+                    );
                     return;
                 }
             }
