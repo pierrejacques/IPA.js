@@ -1,5 +1,5 @@
 Arguments: 
-  /Users/jinchenhao/.nvm/versions/node/v8.11.3/bin/node /Users/jinchenhao/.yarn/bin/yarn.js script
+  /Users/jinchenhao/.nvm/versions/node/v8.11.3/bin/node /Users/jinchenhao/.yarn/bin/yarn.js build
 
 PATH: 
   /Users/jinchenhao/.yarn/bin:/Users/jinchenhao/.config/yarn/global/node_modules/.bin:/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin:/usr/local/go/bin:/usr/local/MacGPG2/bin:/Users/jinchenhao/.yarn/bin:/Users/jinchenhao/.config/yarn/global/node_modules/.bin:/Users/jinchenhao/.nvm/versions/node/v8.11.3/bin
@@ -16,7 +16,7 @@ Platform:
 npm manifest: 
   {
       "name": "ipa.js",
-      "version": "4.0.2",
+      "version": "4.1.0",
       "description": "IPA interface manager",
       "main": "./dist/ipa.js",
       "types": "./dist/index.d.ts",
@@ -529,7 +529,7 @@ Trace:
   Error: Command failed.
   Exit code: 1
   Command: sh
-  Arguments: -c node_modules/rollup/bin/rollup -c; node test/script.js
+  Arguments: -c node_modules/rollup/bin/rollup -c
   Directory: /Users/jinchenhao/Documents/codes/self/ipa
   Output:
   
