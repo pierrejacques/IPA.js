@@ -25,7 +25,14 @@ export default (
     const borderCompiled = compile(border);
     let compiled = null;
     const asset = {
-        check: v => borderCompiled.check.call(borderCompiled, v) || compiled.check.call(compiled, v),
+        check: v => {
+            return catcher.catch(
+                'matched with one of the rules',
+                catcher.free(
+                    () => borderCompiled.check.call(borderCompiled, v) || compiled.check.call(compiled, v)
+                )
+            );
+        },
         guarantee(v) {
             if (catcher.free(() => this.check(v))) return v;
             return condition(v) ? compiled.guarantee.call(compiled, v) : borderCompiled.guarantee.call(borderCompiled, v);
@@ -36,7 +43,7 @@ export default (
         marker,
         asset,
     });
-    compiled = compile(subTemplate);
+    compiled = compile(subTemplate)
     cache.delete('$$recurseScope');
     return compiled;
 }

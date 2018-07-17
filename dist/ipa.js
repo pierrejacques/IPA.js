@@ -836,7 +836,9 @@
         var borderCompiled = compile(border);
         var compiled = null;
         var asset = {
-            check: function (v) { return borderCompiled.check.call(borderCompiled, v) || compiled.check.call(compiled, v); },
+            check: function (v) {
+                return catcher.catch('matched with one of the rules', catcher.free(function () { return borderCompiled.check.call(borderCompiled, v) || compiled.check.call(compiled, v); }));
+            },
             guarantee: function (v) {
                 var _this = this;
                 if (catcher.free(function () { return _this.check(v); }))

@@ -145,5 +145,5 @@ const data = [
     }
 ];
 
-ipa.guarantee(data);
-ipa2.guarantee(data);
+// ipa.check(data);
+ipa2.check(data);
