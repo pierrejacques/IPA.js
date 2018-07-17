@@ -16,7 +16,7 @@ export default (
             border: any;
             condition(input: any): boolean;
         }
-    ) => ({ compile, cache }) => {
+    ) => ({ compile, cache, catcher }) => {
     const {
         marker = '$$',
         border = From(null),
@@ -27,7 +27,7 @@ export default (
     const asset = {
         check: v => borderCompiled.check.call(borderCompiled, v) || compiled.check.call(compiled, v),
         guarantee(v) {
-            if (this.check(v)) return v;
+            if (catcher.free(() => this.check(v))) return v;
             return condition(v) ? compiled.guarantee.call(compiled, v) : borderCompiled.guarantee.call(borderCompiled, v);
         },
         mock: () => random(1) === 0 ? borderCompiled.mock.call(borderCompiled) : compiled.mock.call(compiled),

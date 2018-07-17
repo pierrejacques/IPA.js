@@ -831,14 +831,15 @@
         return function (v) { return lodash.isArray(v) && v.length > 0; };
     }
     var recurse = (function (subTemplate, options) { return function (_a) {
-        var compile = _a.compile, cache = _a.cache;
+        var compile = _a.compile, cache = _a.cache, catcher = _a.catcher;
         var _b = options || {}, _c = _b.marker, marker = _c === void 0 ? '$$' : _c, _d = _b.border, border = _d === void 0 ? From(null) : _d, _e = _b.condition, condition = _e === void 0 ? getDefaultCondition(subTemplate) : _e;
         var borderCompiled = compile(border);
         var compiled = null;
         var asset = {
             check: function (v) { return borderCompiled.check.call(borderCompiled, v) || compiled.check.call(compiled, v); },
             guarantee: function (v) {
-                if (this.check(v))
+                var _this = this;
+                if (catcher.free(function () { return _this.check(v); }))
                     return v;
                 return condition(v) ? compiled.guarantee.call(compiled, v) : borderCompiled.guarantee.call(borderCompiled, v);
             },
