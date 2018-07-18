@@ -18,7 +18,7 @@ import {
     or,
     Range,
     recurse,
-} from './public';
+} from './static';
 
 export default class IPA extends IPALike {
     private static errorHandler: IPAErrorSubscriber = null;
