@@ -6,7 +6,8 @@ import Range from './Range';
 import Each from './Each';
 import From from './From';
 import assemble from './assemble';
-import recurse from './recurse'
+import recurse from './recurse';
+import Increaser from './Increaser';
 
 export {
     asClass,

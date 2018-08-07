@@ -1,4 +1,5 @@
 import { random, isPlainObject, isArray } from 'lodash';
+import { recurserSymbol } from '../lib/symbols';
 import From from "./From";
 
 function getDefaultCondition (temp) {
@@ -39,11 +40,11 @@ export default (
         },
         mock: () => random(1) === 0 ? borderCompiled.mock.call(borderCompiled) : compiled.mock.call(compiled),
     };
-    cache.set('$$recurseScope', {
+    cache.set(recurserSymbol, {
         marker,
         asset,
     });
     compiled = compile(subTemplate)
-    cache.delete('$$recurseScope');
+    cache.delete(recurserSymbol);
     return compiled;
 }
