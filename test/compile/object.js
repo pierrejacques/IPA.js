@@ -44,6 +44,81 @@ module.exports = [
         }],
     },
     {
+        desc: 'When template = { obj: { prop: Number } }',
+        template: { obj: { prop: Number } },
+        situations: [{
+            name: 'inputting: right object',
+            input: { obj: { prop: 12 } },
+            check: true,
+            guarantee: { obj: { prop: 12 } },
+            strict: { obj: { prop: 12 } },
+        }, {
+            name: 'inputting: first layer error',
+            input: {},
+            check: false,
+            guarantee: { obj: { prop: 0 } },
+            strict: { obj: { prop: 0 } },
+        }, {
+            name: 'inputing: second layer error',
+            input: { obj: [] },
+            check: false,
+            guarantee: { obj: { prop: 0 } },
+            strict: { obj: { prop: 0 } },
+        }],
+    },
+    {
+        desc: 'When template = { required: Number, unrequired?: String }',
+        template: { required: Number, 'unrequired?': String },
+        situations: [{
+            name: 'inputting: all provided',
+            input: { required: 12, unrequired: '12' },
+            check: true,
+            guarantee: { required: 12, unrequired: '12' }, 
+            strict: { required: 12, unrequired: '12' }, 
+        }, {
+            name: 'inputting: unrequired absent',
+            input: { required: 12 },
+            check: true,
+            guarantee: { required: 12 }, 
+            strict: { required: 12 },    
+        }, {
+            name: 'inputting: unrequired undefined',
+            input: { required: 12, unrequired: undefined },
+            check: true,
+            guarantee: { required: 12, unrequired: undefined }, 
+            strict: { required: 12, unrequired: undefined },      
+        }, {
+            name: 'inputting: unrequired null',
+            input: { required: 12, unrequired: null },
+            check: true,
+            guarantee: { required: 12, unrequired: null }, 
+            strict: { required: 12, unrequired: null },      
+        }, {
+            name: 'inputting: unrequired wrong',
+            input: { required: 12, unrequired: 12 },
+            check: false,
+            guarantee: { required: 12, unrequired: '12' }, 
+            strict: { required: 12, unrequired: '' },     
+        }],
+    },
+    {
+        desc: 'When template = { stillRequired\\?: Number }',
+        template: { 'stillRequired\\?': Number },
+        situations: [{
+            name: 'inputting: right',
+            input: { 'stillRequired?': 123 },
+            check: true,
+            guarantee: { 'stillRequired?': 123 },
+            strict: { 'stillRequired?': 123 },
+        }, {
+            name: 'inputting: wrong',
+            input: { 'stillRequired?': '123' },
+            check: false,
+            guarantee: { 'stillRequired?': 123 },
+            strict: { 'stillRequired?': 0 },       
+        }],
+    },
+    {
         desc: 'When template = { a: { a: { a: String}}}',
         template: { a: { a: { a: String}}},
         situations: [{

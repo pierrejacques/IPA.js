@@ -1,4 +1,4 @@
-import { isPlainObject } from 'lodash';
+import { isPlainObject, isString } from 'lodash';
 import { IPACompiler } from '../interface';
 import { IPALike } from '../lib/peer-classes';
 import { every } from '../lib/logics';
@@ -10,8 +10,24 @@ const objectCompiler: IPACompiler = {
     execute(template) {
         return ({ compile, catcher }) => {
             const compiled = {};
-            Object.keys(template).forEach((key) => {
-                compiled[key] = compile(template[key]);
+            const notRequiredExp = /^(.{1,})\?$/;
+            const stillRequiredExp = /^.{0,}\\\?$/;
+            const isAbsent = v => v === undefined || v === null;
+            Object.entries(template).forEach(([key, value]) => {
+                const rule = compile(value);
+                if (!isString(key) || !notRequiredExp.test(key)) {
+                    compiled[key] = rule; 
+                    return;
+                }
+                if (stillRequiredExp.test(key)) {
+                    compiled[key.slice(0, -2) + '?'] = rule;
+                    return;
+                }
+                compiled[notRequiredExp.exec(key)[1]] = {
+                    check: v => isAbsent(v) || rule.check.call(rule, v),
+                    guarantee: (v, s) => isAbsent(v) ? v : rule.guarantee.call(rule, v, s),
+                    mock: rule.mock.bind(rule),
+                };
             });
             return {
                 check: val => {
@@ -25,7 +41,10 @@ const objectCompiler: IPACompiler = {
                     let val = valIn;
                     const process = () => {
                         Object.keys(compiled).forEach((key) => {
-                            val[key] = catcher.wrap(key, () => compiled[key].guarantee(val[key], strict));
+                            const absent = !val.hasOwnProperty(key);
+                            const result = catcher.wrap(key, () => compiled[key].guarantee(val[key], strict));
+                            if (absent && result === undefined) return;
+                            val[key] = result;
                         });
                     }
                     if (!catcher.catch('a plain object', isPlainObject(valIn))) {

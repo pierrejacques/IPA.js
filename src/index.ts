@@ -80,9 +80,12 @@ export default class IPA extends IPALike {
         this.core = compile(template);
     }
 
-    check(data) {
+    check(data, onError?: Function) {
         callers.push(this);
         const output = and(this.core.check(data), lengthManager.check());
+        if (!output && onError) {
+            onError(catcher.getError('check', data));
+        }
         IPA.$emit(this, 'check', data);
         return output;
     }

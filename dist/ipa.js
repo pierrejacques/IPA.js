@@ -567,8 +567,25 @@
             return function (_a) {
                 var compile = _a.compile, catcher = _a.catcher;
                 var compiled = {};
-                Object.keys(template).forEach(function (key) {
-                    compiled[key] = compile(template[key]);
+                var notRequiredExp = /^(.{1,})\?$/;
+                var stillRequiredExp = /^.{0,}\\\?$/;
+                var isAbsent = function (v) { return v === undefined || v === null; };
+                Object.entries(template).forEach(function (_a) {
+                    var key = _a[0], value = _a[1];
+                    var rule = compile(value);
+                    if (!lodash.isString(key) || !notRequiredExp.test(key)) {
+                        compiled[key] = rule;
+                        return;
+                    }
+                    if (stillRequiredExp.test(key)) {
+                        compiled[key.slice(0, -2) + '?'] = rule;
+                        return;
+                    }
+                    compiled[notRequiredExp.exec(key)[1]] = {
+                        check: function (v) { return isAbsent(v) || rule.check.call(rule, v); },
+                        guarantee: function (v, s) { return isAbsent(v) ? v : rule.guarantee.call(rule, v, s); },
+                        mock: rule.mock.bind(rule),
+                    };
                 });
                 return {
                     check: function (val) {
@@ -579,7 +596,11 @@
                         var val = valIn;
                         var process = function () {
                             Object.keys(compiled).forEach(function (key) {
-                                val[key] = catcher.wrap(key, function () { return compiled[key].guarantee(val[key], strict); });
+                                var absent = !val.hasOwnProperty(key);
+                                var result = catcher.wrap(key, function () { return compiled[key].guarantee(val[key], strict); });
+                                if (absent && result === undefined)
+                                    return;
+                                val[key] = result;
                             });
                         };
                         if (!catcher.catch('a plain object', lodash.isPlainObject(valIn))) {
@@ -866,9 +887,12 @@
             _this.core = compile(template);
             return _this;
         }
-        IPA.prototype.check = function (data) {
+        IPA.prototype.check = function (data, onError) {
             callers$1.push(this);
             var output = and(this.core.check(data), lengthManager.check());
+            if (!output && onError) {
+                onError(catcher.getError('check', data));
+            }
             IPA.$emit(this, 'check', data);
             return output;
         };
