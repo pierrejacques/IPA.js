@@ -14,18 +14,15 @@ function test(cases) {
                     const mocked = instance.mock();
                     const prodMock = instance.mock({}, true);
                     expect(instance.check(mocked)).to.be.equal(true);
-                    skipDeepTest || expect(instance.guarantee(mocked, true, false)).to.deep.equal(mocked);
-                    skipDeepTest || expect(instance.guarantee(mocked, { copy: true, strict: false})).to.deep.equal(mocked);
-                    expect(instance.guarantee(mocked, false, false)).to.be.equal(mocked);
-                    expect(instance.guarantee(mocked, { copy: false, strict: false })).to.be.equal(mocked);
-                    skipDeepTest || expect(instance.guarantee(mocked, true, true)).to.deep.equal(mocked);
-                    skipDeepTest || expect(instance.guarantee(mocked, { copy: true, strict: true })).to.deep.equal(mocked);
+                    skipDeepTest || expect(instance.guarantee(mocked)).to.deep.equal(mocked);
+                    expect(instance.guarantee(mocked, { copy: false })).to.be.equal(mocked);
+                    skipDeepTest || expect(instance.guarantee(mocked, { strict: true })).to.deep.equal(mocked);
                     expect(instance.guarantee(mocked, { copy: false, strict: true })).to.be.equal(mocked);
                     expect(instance.check(prodMock)).to.be.equal(true);
-                    skipDeepTest || expect(instance.guarantee(prodMock, true, false)).to.deep.equal(prodMock);
-                    expect(instance.guarantee(prodMock, false, false)).to.be.equal(prodMock);
-                    skipDeepTest || expect(instance.guarantee(prodMock, true, true)).to.deep.equal(prodMock);
-                    expect(instance.guarantee(prodMock, false, true)).to.be.equal(prodMock);
+                    skipDeepTest || expect(instance.guarantee(prodMock)).to.deep.equal(prodMock);
+                    expect(instance.guarantee(prodMock, { copy: false })).to.be.equal(prodMock);
+                    skipDeepTest || expect(instance.guarantee(prodMock, { strict: true })).to.deep.equal(prodMock);
+                    expect(instance.guarantee(prodMock, { copy: false, strict: true })).to.be.equal(prodMock);
                 });
             });
             item.situations.forEach(situation => {
@@ -38,7 +35,7 @@ function test(cases) {
                     inputs.forEach(input => {
                         expect(instance.check(input)).to.be.equal(cRes);
                         skipDeepTest || expect(instance.guarantee(input)).to.deep.equal(gRes);
-                        skipDeepTest || expect(instance.guarantee(input, true, true)).to.deep.equal(sRes);
+                        skipDeepTest || expect(instance.guarantee(input, { strict: true })).to.deep.equal(sRes);
                     });
                 });
             })

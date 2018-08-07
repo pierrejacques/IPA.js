@@ -1,4 +1,4 @@
-import { IPAStrategy, IPAMockConfig, IPACore } from "../interface";
+import { IPAStrategy, IPAMockConfig, IPACore, IPAGuaranteeOptions, IPAErrorSubscriber } from "../interface";
 
 export class IPALike {
     public core: IPACore;
@@ -6,7 +6,7 @@ export class IPALike {
 
     check(data?: any): boolean { return true; }
     
-    guarantee(data?: any, isDeep?: boolean, isStrict?: boolean): any {}
+    guarantee(data?: any, options?: IPAGuaranteeOptions | IPAErrorSubscriber, onError?: IPAErrorSubscriber): any {}
 
     mock(config?: IPAMockConfig, isProdEnv?: boolean): any {}
 }

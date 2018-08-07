@@ -73,6 +73,9 @@
         IPAError.prototype.has = function (deepKey) {
             return Object.keys(this.exceptions).some(function (key) { return match(key, "input" + deepKey); });
         };
+        IPAError.prototype.stopPropagation = function () {
+            catcher.clear();
+        };
         return IPAError;
     }());
     var catcher = {
@@ -353,7 +356,7 @@
         function IPALike() {
         }
         IPALike.prototype.check = function (data) { return true; };
-        IPALike.prototype.guarantee = function (data, isDeep, isStrict) { };
+        IPALike.prototype.guarantee = function (data, options, onError) { };
         IPALike.prototype.mock = function (config, isProdEnv) { };
         return IPALike;
     }());
@@ -890,34 +893,35 @@
         IPA.prototype.check = function (data, onError) {
             callers$1.push(this);
             var output = and(this.core.check(data), lengthManager.check());
-            if (!output && onError) {
-                onError(catcher.getError('check', data));
-            }
+            var errorLog = catcher.getError('check', data);
+            errorLog && onError && onError(catcher.getError('check', data));
             IPA.$emit(this, 'check', data);
             return output;
         };
         /**
          * @param {the inputting data to be guaranteed} data
-         * @param {whether to make a deep copy first} isCopy
-         * @param {whether to use the strict mode} strict
+         * @param {guarantee Options} isCopy
+         * @param {method level errorHandler} onError
          */
-        IPA.prototype.guarantee = function (data, optionsOrIsCopy, strict) {
-            if (optionsOrIsCopy === void 0) { optionsOrIsCopy = true; }
-            if (strict === void 0) { strict = false; }
-            var isCopy = optionsOrIsCopy;
-            var isStrict = strict;
-            if (lodash.isPlainObject(optionsOrIsCopy)) {
-                var options = Object.assign({
-                    copy: true,
-                    strict: false,
-                }, optionsOrIsCopy);
-                isCopy = options.copy;
-                isStrict = options.strict;
+        IPA.prototype.guarantee = function (data, options, onError) {
+            var opt, onErr;
+            if (lodash.isPlainObject(options)) {
+                opt = options;
+                onErr = onError;
             }
+            else {
+                onErr = options;
+            }
+            var _a = Object.assign({
+                copy: true,
+                strict: false,
+            }, opt || {}), isCopy = _a.copy, isStrict = _a.strict;
             callers$1.push(this);
             var copy = isCopy ? lodash.cloneDeep(data) : data;
             var output = this.core.guarantee(copy, isStrict);
             lengthManager.fix();
+            var errorLog = catcher.getError('check', data);
+            errorLog && onErr && onErr(catcher.getError('check', data));
             IPA.$emit(this, 'guarantee', data);
             return output;
         };
@@ -975,10 +979,9 @@
         };
         IPA.$emit = function (instance, method, input) {
             var errorLog = catcher.getError(method, input);
-            if (errorLog) {
-                instance.errorHandler && instance.errorHandler(errorLog);
-                IPA.errorHandler && IPA.errorHandler(errorLog);
-            }
+            errorLog && instance.errorHandler && instance.errorHandler(errorLog);
+            errorLog = catcher.getError(method, input);
+            errorLog && IPA.errorHandler && IPA.errorHandler(errorLog);
             [lengthManager, cache, catcher].forEach(function (clearable) { return clearable.clear(); });
             callers$1.pop();
         };

@@ -12,6 +12,11 @@ export interface IPACore {
     mock(isProdEnv: boolean): any;
 }
 
+export interface IPAGuaranteeOptions {
+    copy?: boolean;
+    strict?: boolean;
+}
+
 export interface IPAMockConfig {
     [key: string]: number;
 }
@@ -56,6 +61,7 @@ export interface IPAErrorLog {
     method: string;
     input: any;
     has(deepKey: string): boolean;
+    stopPropagation(): void;
 }
 
 export interface IPAErrorSubscriber {

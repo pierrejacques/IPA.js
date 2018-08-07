@@ -24,6 +24,10 @@ class IPAError implements IPAErrorLog {
     has(deepKey) {
         return Object.keys(this.exceptions).some(key => match(key, `input${deepKey}`));
     }
+
+    stopPropagation() {
+        catcher.clear();
+    }
 }
 
 const catcher: IPAErrorCatcher = {
