@@ -1,5 +1,5 @@
 Arguments: 
-  /Users/jinchenhao/.nvm/versions/node/v8.11.3/bin/node /Users/jinchenhao/.yarn/bin/yarn.js dev
+  /Users/jinchenhao/.nvm/versions/node/v8.11.3/bin/node /Users/jinchenhao/.yarn/bin/yarn.js tets
 
 PATH: 
   /Users/jinchenhao/.yarn/bin:/Users/jinchenhao/.config/yarn/global/node_modules/.bin:/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin:/usr/local/go/bin:/usr/local/MacGPG2/bin:/Users/jinchenhao/.yarn/bin:/Users/jinchenhao/.config/yarn/global/node_modules/.bin:/Users/jinchenhao/.nvm/versions/node/v8.11.3/bin
@@ -526,7 +526,7 @@ Lockfile:
     resolved "http://r.cnpmjs.org/wrappy/download/wrappy-1.0.2.tgz#b5243d8f3ec1aa35f1364605bc0d1036e30ab69f"
 
 Trace: 
-  Error: Command "dev" not found.
+  Error: Command "tets" not found.
       at new MessageError (/Users/jinchenhao/.yarn/lib/cli.js:186:110)
       at /Users/jinchenhao/.yarn/lib/cli.js:87307:17
       at Generator.next (<anonymous>)

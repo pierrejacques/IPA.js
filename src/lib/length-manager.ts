@@ -1,9 +1,8 @@
 import { isArray, random, min, max, mean, times, isNumber } from 'lodash';
 import catcher from './catcher';
 import callers from './callers';
-import { IPALike } from './peer-classes';
-
-const lengthCacheMap: Map<IPALike, Map<any, any>> = new Map();
+import cache from './cache';
+import { lengthManagerSymbol } from './symbols';
 
 const strategies = {
     most(val) {
@@ -68,46 +67,29 @@ const staticRules = [{
 }];
 
 const lengthManager = {
-    get cache() {
-        const caller = callers.current;
-        if (!lengthCacheMap.has(caller)) {
-            lengthCacheMap.set(caller, new Map());
+    get scope() {
+        if (!cache.has(lengthManagerSymbol)) {
+            cache.set(lengthManagerSymbol, new Map());
         }
-        return lengthCacheMap.get(caller);
+        return cache.get(lengthManagerSymbol);
     },
 
     push(name, item) {
-        if (!isArray(this.cache.get(name))) {
-            this.cache.set(name, []);
+        if (!isArray(this.scope.get(name))) {
+            this.scope.set(name, []);
         }
-        this.cache.get(name).push(item);
-    },
-
-    set(name, value) {
-        this.cache.set(name, value);
-    },
-
-    get(name) {
-        return this.cache.get(name);
-    },
-
-    forEach(cb) {
-        this.cache.forEach(cb);
-    },
-
-    clear() {
-        lengthCacheMap.delete(callers.current);
+        this.scope.get(name).push(item);
     },
 
     digest(settings) {
         Object.keys(settings).forEach((key) => {
-            this.set(key, settings[key]);
+            this.scope.set(key, settings[key]);
         });
     },
 
     check() {
         let result = true;
-        this.cache.forEach((value, key) => {
+        this.scope.forEach((value, key) => {
             for (const { match, check, msg } of staticRules) {
                 if (match.test(key)) {
                     const len = extract(match, key);
@@ -133,7 +115,7 @@ const lengthManager = {
 
     fix() {
         const strategy = strategies[callers.current.strategy] || strategies.shortest;
-        this.cache.forEach((value, key) => {
+        this.scope.forEach((value, key) => {
             for (const { match, target, check } of staticRules) {
                 if (match.test(key)) {
                     const l = extract(match, key);
@@ -156,8 +138,8 @@ const lengthManager = {
                 return isProd ? target(l) : generate(l);
             }
         }
-        if (!isNumber(this.get(key))) this.set(key, isProd ? 0 : random(0, 10));
-        return this.get(key);
+        if (!isNumber(this.scope.get(key))) this.scope.set(key, isProd ? 0 : random(0, 10));
+        return this.scope.get(key);
     }
 }
 

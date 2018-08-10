@@ -56,7 +56,7 @@ export default class IPA extends IPALike {
         errorLog && instance.errorHandler && instance.errorHandler(errorLog);
         errorLog = catcher.getError(method, input);
         errorLog && IPA.errorHandler && IPA.errorHandler(errorLog);
-        [lengthManager, cache, catcher].forEach(clearable => clearable.clear());
+        [cache, catcher].forEach(clearable => clearable.clear());
         callers.pop();
     };
 

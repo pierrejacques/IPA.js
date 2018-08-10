@@ -171,7 +171,9 @@
         return arr.map(handler).every(function (v) { return v; });
     };
 
-    var lengthCacheMap = new Map();
+    var lengthManagerSymbol = Symbol('lengthManagerScope') || '$$lengthManagerScope';
+    var recurserSymbol = Symbol('recurseScope') || '$$recurseScope';
+
     var strategies = {
         most: function (val) {
             var lengths = val.map(function (item) { return item.target.length; });
@@ -233,40 +235,27 @@
             msg: 'shorter than',
         }];
     var lengthManager = {
-        get cache() {
-            var caller = callers$1.current;
-            if (!lengthCacheMap.has(caller)) {
-                lengthCacheMap.set(caller, new Map());
+        get scope() {
+            if (!cache.has(lengthManagerSymbol)) {
+                cache.set(lengthManagerSymbol, new Map());
             }
-            return lengthCacheMap.get(caller);
+            return cache.get(lengthManagerSymbol);
         },
         push: function (name, item) {
-            if (!lodash.isArray(this.cache.get(name))) {
-                this.cache.set(name, []);
+            if (!lodash.isArray(this.scope.get(name))) {
+                this.scope.set(name, []);
             }
-            this.cache.get(name).push(item);
-        },
-        set: function (name, value) {
-            this.cache.set(name, value);
-        },
-        get: function (name) {
-            return this.cache.get(name);
-        },
-        forEach: function (cb) {
-            this.cache.forEach(cb);
-        },
-        clear: function () {
-            lengthCacheMap.delete(callers$1.current);
+            this.scope.get(name).push(item);
         },
         digest: function (settings) {
             var _this = this;
             Object.keys(settings).forEach(function (key) {
-                _this.set(key, settings[key]);
+                _this.scope.set(key, settings[key]);
             });
         },
         check: function () {
             var result = true;
-            this.cache.forEach(function (value, key) {
+            this.scope.forEach(function (value, key) {
                 var _loop_1 = function (match, check, msg) {
                     if (match.test(key)) {
                         var len_1 = extract(match, key);
@@ -297,7 +286,7 @@
         },
         fix: function () {
             var strategy = strategies[callers$1.current.strategy] || strategies.shortest;
-            this.cache.forEach(function (value, key) {
+            this.scope.forEach(function (value, key) {
                 var _loop_2 = function (match, target, check) {
                     if (match.test(key)) {
                         var l_1 = extract(match, key);
@@ -324,9 +313,9 @@
                     return isProd ? target(l) : generate(l);
                 }
             }
-            if (!lodash.isNumber(this.get(key)))
-                this.set(key, isProd ? 0 : lodash.random(0, 10));
-            return this.get(key);
+            if (!lodash.isNumber(this.scope.get(key)))
+                this.scope.set(key, isProd ? 0 : lodash.random(0, 10));
+            return this.scope.get(key);
         }
     };
     function fix(toBeFixed, len) {
@@ -636,7 +625,7 @@
         condition: lodash.isString,
         execute: function (template) { return function (_a) {
             var catcher = _a.catcher, cache = _a.cache;
-            var recurserScope = cache.get('$$recurseScope');
+            var recurserScope = cache.get(recurserSymbol);
             if (recurserScope && recurserScope.marker === template) {
                 return recurserScope.asset;
             }
@@ -871,12 +860,12 @@
             },
             mock: function () { return lodash.random(1) === 0 ? borderCompiled.mock.call(borderCompiled) : compiled.mock.call(compiled); },
         };
-        cache.set('$$recurseScope', {
+        cache.set(recurserSymbol, {
             marker: marker,
             asset: asset,
         });
         compiled = compile(subTemplate);
-        cache.delete('$$recurseScope');
+        cache.delete(recurserSymbol);
         return compiled;
     }; });
 
@@ -982,7 +971,7 @@
             errorLog && instance.errorHandler && instance.errorHandler(errorLog);
             errorLog = catcher.getError(method, input);
             errorLog && IPA.errorHandler && IPA.errorHandler(errorLog);
-            [lengthManager, cache, catcher].forEach(function (clearable) { return clearable.clear(); });
+            [cache, catcher].forEach(function (clearable) { return clearable.clear(); });
             callers$1.pop();
         };
         IPA.asClass = asClass;
