@@ -171,8 +171,8 @@
         return arr.map(handler).every(function (v) { return v; });
     };
 
-    var lengthManagerSymbol = Symbol('lengthManagerScope') || '$$lengthManagerScope';
-    var recurserSymbol = Symbol('recurseScope') || '$$recurseScope';
+    var lengthManagerSymbol = Symbol('lengthManagerScope');
+    var recurserSymbol = Symbol('recurseScope');
 
     var strategies = {
         most: function (val) {
@@ -626,8 +626,13 @@
         execute: function (template) { return function (_a) {
             var catcher = _a.catcher, cache = _a.cache;
             var recurserScope = cache.get(recurserSymbol);
-            if (recurserScope && recurserScope.marker === template) {
-                return recurserScope.asset;
+            if (recurserScope) {
+                for (var _i = 0, recurserScope_1 = recurserScope; _i < recurserScope_1.length; _i++) {
+                    var item = recurserScope_1[_i];
+                    if (item.marker === template) {
+                        return item.asset;
+                    }
+                }
             }
             return {
                 check: function (v) { return catcher.catch('string', lodash.isString(v)); },
@@ -848,6 +853,7 @@
         var _b = options || {}, _c = _b.marker, marker = _c === void 0 ? '$$' : _c, _d = _b.border, border = _d === void 0 ? From(null) : _d, _e = _b.condition, condition = _e === void 0 ? getDefaultCondition(subTemplate) : _e;
         var borderCompiled = compile(border);
         var compiled = null;
+        var counterKey = Symbol('recurserCounter');
         var asset = {
             check: function (v) {
                 return catcher.catch('matched with one of the rules', catcher.free(function () { return borderCompiled.check.call(borderCompiled, v) || compiled.check.call(compiled, v); }));
@@ -858,14 +864,25 @@
                     return v;
                 return condition(v) ? compiled.guarantee.call(compiled, v) : borderCompiled.guarantee.call(borderCompiled, v);
             },
-            mock: function () { return lodash.random(1) === 0 ? borderCompiled.mock.call(borderCompiled) : compiled.mock.call(compiled); },
+            mock: function (prod) {
+                if (!cache[counterKey]) {
+                    cache[counterKey] = 1;
+                }
+                var count = cache[counterKey];
+                var result = !prod && count < 10 && lodash.random(count) === 0 ?
+                    compiled.mock.call(compiled) : borderCompiled.mock.call(borderCompiled);
+                cache[counterKey] += 1;
+                return result;
+            },
         };
-        cache.set(recurserSymbol, {
-            marker: marker,
-            asset: asset,
-        });
+        if (!cache.get(recurserSymbol))
+            cache.set(recurserSymbol, []);
+        var stack = cache.get(recurserSymbol);
+        stack.unshift({ marker: marker, asset: asset });
         compiled = compile(subTemplate);
-        cache.delete(recurserSymbol);
+        stack.shift();
+        if (!stack.length)
+            cache.delete(recurserSymbol);
         return compiled;
     }; });
 

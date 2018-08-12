@@ -62,18 +62,18 @@ describe(`
 
 describe(`
 
-===== | TESTING PUBLICS | =====
+===== | TESTING STATICS | =====
 
 `, () => {
     test([
-        ...require('./public/or')(IPA),
-        ...require('./public/asClass')(IPA),
-        ...require('./public/Dict')(IPA),
-        ...require('./public/Each')(IPA),
-        ...require('./public/From')(IPA),
-        ...require('./public/Integer')(IPA),
-        ...require('./public/Range')(IPA),
-        ...require('./public/assemble')(IPA),
-        ...require('./public/recurse')(IPA),
+        ...require('./static/or')(IPA),
+        ...require('./static/asClass')(IPA),
+        ...require('./static/Dict')(IPA),
+        ...require('./static/Each')(IPA),
+        ...require('./static/From')(IPA),
+        ...require('./static/Integer')(IPA),
+        ...require('./static/Range')(IPA),
+        ...require('./static/assemble')(IPA),
+        ...require('./static/recurse')(IPA),
     ]);
 });

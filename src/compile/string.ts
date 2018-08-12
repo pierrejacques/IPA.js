@@ -7,8 +7,12 @@ const stringCompiler: IPACompiler = {
     condition: isString,
     execute: template => ({ catcher, cache }) => {
         const recurserScope = cache.get(recurserSymbol);
-        if (recurserScope && recurserScope.marker === template) {
-            return recurserScope.asset;
+        if (recurserScope) {
+            for (const item of recurserScope) {
+                if (item.marker === template) {
+                    return item.asset;
+                }
+            }
         }
         return {
             check: (v) => catcher.catch('string', isString(v)),

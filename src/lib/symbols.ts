@@ -1,3 +1,3 @@
-export const lengthManagerSymbol = Symbol('lengthManagerScope') || '$$lengthManagerScope';
+export const lengthManagerSymbol = Symbol('lengthManagerScope');
 
-export const recurserSymbol = Symbol('recurseScope') || '$$recurseScope';
+export const recurserSymbol = Symbol('recurseScope');
