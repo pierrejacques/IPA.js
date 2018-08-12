@@ -1,8 +1,8 @@
 (function (global, factory) {
-    typeof exports === 'object' && typeof module !== 'undefined' ? module.exports = factory(require('lodash')) :
-    typeof define === 'function' && define.amd ? define(['lodash'], factory) :
-    (global.IPA = factory(null));
-}(this, (function (lodash) { 'use strict';
+    typeof exports === 'object' && typeof module !== 'undefined' ? module.exports = factory() :
+    typeof define === 'function' && define.amd ? define(factory) :
+    (global.IPA = factory());
+}(this, (function () { 'use strict';
 
     /*! *****************************************************************************
     Copyright (c) Microsoft Corporation. All rights reserved.
@@ -38,6 +38,26 @@
         IPAStrategy["Average"] = "average";
         IPAStrategy["Least"] = "least";
     })(IPAStrategy || (IPAStrategy = {}));
+
+    var cloneDeep = require('lodash/cloneDeep');
+    var isArray = require('lodash/isArray');
+    var isBoolean = require('lodash/isBoolean');
+    var isEqual = require('lodash/isEqual');
+    var isFunction = require('lodash/isFunction');
+    var isInteger = require('lodash/isInteger');
+    var isNumber = require('lodash/isNumber');
+    var isPlainObject = require('lodash/isPlainObject');
+    var isString = require('lodash/isString');
+    var max = require('lodash/max');
+    var mean = require('lodash/mean');
+    var min = require('lodash/min');
+    var random = require('lodash/random');
+    var range = require('lodash/range');
+    var times = require('lodash/times');
+    var toArray = require('lodash/toArray');
+    var toInteger = require('lodash/toInteger');
+    var toNumber = require('lodash/toNumber');
+    var toString = require('lodash/toString');
 
     var callers = [];
     var callers$1 = {
@@ -199,7 +219,7 @@
             return Math.max.apply(Math, val.map(function (item) { return item.target.length; }));
         },
         average: function (val) {
-            var average = lodash.mean(val.map(function (item) { return item.target.length; }));
+            var average = mean(val.map(function (item) { return item.target.length; }));
             return Math.ceil(average);
         },
     };
@@ -213,25 +233,25 @@
             match: /^>(\d{1,})$/,
             check: function (arr, len) { return arr.length > len; },
             target: function (len) { return len + 1; },
-            generate: function (len) { return lodash.random(len + 1, len + 6); },
+            generate: function (len) { return random(len + 1, len + 6); },
             msg: 'strictly longer than',
         }, {
             match: /^>=(\d{1,})$/,
             check: function (arr, len) { return arr.length >= len; },
             target: function (len) { return len; },
-            generate: function (len) { return lodash.random(len, len + 5); },
+            generate: function (len) { return random(len, len + 5); },
             msg: 'longer than',
         }, {
             match: /^<(\d{1,})$/,
             check: function (arr, len) { return arr.length < len; },
             target: function (len) { return len - 1; },
-            generate: function (len) { return lodash.random(0, len - 1); },
+            generate: function (len) { return random(0, len - 1); },
             msg: 'strictly shorter than'
         }, {
             match: /^<=(\d{1,})$/,
             check: function (arr, len) { return arr.length <= len; },
             target: function (len) { return len; },
-            generate: function (len) { return lodash.random(0, len); },
+            generate: function (len) { return random(0, len); },
             msg: 'shorter than',
         }];
     var lengthManager = {
@@ -242,7 +262,7 @@
             return cache.get(lengthManagerSymbol);
         },
         push: function (name, item) {
-            if (!lodash.isArray(this.scope.get(name))) {
+            if (!isArray(this.scope.get(name))) {
                 this.scope.set(name, []);
             }
             this.scope.get(name).push(item);
@@ -277,7 +297,7 @@
                         return state_1.value;
                 }
                 var lengths = value.map(function (item) { return item.length; });
-                if (lodash.min(lengths) !== lodash.max(lengths)) {
+                if (min(lengths) !== max(lengths)) {
                     result = false;
                     value.forEach(function (item) { return catcher.log(item.key, 'length unmatched'); });
                 }
@@ -313,8 +333,8 @@
                     return isProd ? target(l) : generate(l);
                 }
             }
-            if (!lodash.isNumber(this.scope.get(key)))
-                this.scope.set(key, isProd ? 0 : lodash.random(0, 10));
+            if (!isNumber(this.scope.get(key)))
+                this.scope.set(key, isProd ? 0 : random(0, 10));
             return this.scope.get(key);
         }
     };
@@ -331,7 +351,7 @@
                     arr.splice(len);
                 }
                 else {
-                    arr.push.apply(arr, lodash.times(len - arr.length, mocker));
+                    arr.push.apply(arr, times(len - arr.length, mocker));
                 }
             });
         });
@@ -408,7 +428,7 @@
 
     var dict = 'ad,aliqua,amet,anim,aute,cillum,commodo,culpa,do,dolor,duis,elit,enim,esse,est,et,ex,fugiat,id,in,ipsum,irure,labore,lorem,magna,minim,mollit,nisi,non,nulla,officia,pariatur,quis,sint,sit,sunt,tempor,ut,velit,veniam'
         .split(',');
-    var randStr = (function () { return dict[lodash.random(0, dict.length - 1)]; });
+    var randStr = (function () { return dict[random(0, dict.length - 1)]; });
 
     var Strat = function (ck, cvt, dft, mk, describe) { return function (_a) {
         var catcher = _a.catcher;
@@ -421,14 +441,14 @@
         });
     }; };
     var functionCompilerMap = new Map()
-        .set(String, Strat(lodash.isString, lodash.toString, '', randStr, 'a string'))
-        .set(Number, Strat(lodash.isNumber, function (v) { return +v || 0; }, 0, function () { return lodash.random(0, 100); }, 'a number'))
-        .set(Boolean, Strat(lodash.isBoolean, function (v) { return !!v; }, false, function () { return !lodash.random(0, 1); }, 'a boolean'))
-        .set(Array, Strat(lodash.isArray, lodash.toArray, [], function () { return []; }, 'an array'))
-        .set(Object, Strat(lodash.isPlainObject, function () { return ({}); }, {}, function () { return ({}); }, 'a plain object'))
-        .set(Function, Strat(lodash.isFunction, function () { return function () { }; }, function () { }, function () { return function () { }; }, 'a function'));
+        .set(String, Strat(isString, toString, '', randStr, 'a string'))
+        .set(Number, Strat(isNumber, function (v) { return +v || 0; }, 0, function () { return random(0, 100); }, 'a number'))
+        .set(Boolean, Strat(isBoolean, function (v) { return !!v; }, false, function () { return !random(0, 1); }, 'a boolean'))
+        .set(Array, Strat(isArray, toArray, [], function () { return []; }, 'an array'))
+        .set(Object, Strat(isPlainObject, function () { return ({}); }, {}, function () { return ({}); }, 'a plain object'))
+        .set(Function, Strat(isFunction, function () { return function () { }; }, function () { }, function () { return function () { }; }, 'a function'));
     var funcComp = {
-        condition: lodash.isFunction,
+        condition: isFunction,
         execute: function (template) {
             if (functionCompilerMap.has(template))
                 return functionCompilerMap.get(template);
@@ -447,11 +467,11 @@
 
     var arrayCompiler = {
         condition: function (template) {
-            return lodash.isArray(template);
+            return isArray(template);
         },
         execute: function (template) {
             var l = template[1];
-            if (l !== undefined && !lodash.isNumber(l) && !lodash.isString(l)) {
+            if (l !== undefined && !isNumber(l) && !isString(l)) {
                 throw new Error('compile failed: the 2nd parameter for array can only be String or Number');
             }
             l = l && l.toString();
@@ -460,7 +480,7 @@
                 var compiled = compile(template[0]);
                 return {
                     check: function (val) {
-                        if (!lodash.isArray(val)) {
+                        if (!isArray(val)) {
                             return catcher.catch('array');
                         }
                         if (l !== undefined) {
@@ -475,7 +495,7 @@
                     guarantee: function (valIn, strict) {
                         var val = valIn;
                         var isFree = false;
-                        if (!catcher.catch('an array', lodash.isArray(valIn))) {
+                        if (!catcher.catch('an array', isArray(valIn))) {
                             val = [];
                             isFree = true;
                         }
@@ -496,7 +516,7 @@
                         return val;
                     },
                     mock: function (prod) {
-                        return lodash.times(lengthManager.generate(l, prod), function () { return compiled.mock.call(compiled, prod); });
+                        return times(lengthManager.generate(l, prod), function () { return compiled.mock.call(compiled, prod); });
                     },
                 };
             };
@@ -504,16 +524,16 @@
     };
 
     var booleanCompiler = {
-        condition: lodash.isBoolean,
+        condition: isBoolean,
         execute: function (template) {
             return function (_a) {
                 var catcher = _a.catcher;
                 return ({
-                    check: function (v) { return catcher.catch('boolean', lodash.isBoolean(v)); },
+                    check: function (v) { return catcher.catch('boolean', isBoolean(v)); },
                     guarantee: function (v) {
                         return this.check(v) ? v : template;
                     },
-                    mock: function (prod) { return prod ? template : !lodash.random(0, 1); },
+                    mock: function (prod) { return prod ? template : !random(0, 1); },
                 });
             };
         },
@@ -536,16 +556,16 @@
     };
 
     var numberCompiler = {
-        condition: lodash.isNumber,
+        condition: isNumber,
         execute: function (template) {
             return function (_a) {
                 var catcher = _a.catcher;
                 return ({
-                    check: function (v) { return catcher.catch('a number', lodash.isNumber(v)); },
+                    check: function (v) { return catcher.catch('a number', isNumber(v)); },
                     guarantee: function (v) {
                         return this.check(v) ? v : template;
                     },
-                    mock: function (prod) { return prod ? template : lodash.random(0, 100); },
+                    mock: function (prod) { return prod ? template : random(0, 100); },
                 });
             };
         },
@@ -553,7 +573,7 @@
 
     var objectCompiler = {
         condition: function (template) {
-            return lodash.isPlainObject(template) && !(template instanceof IPALike);
+            return isPlainObject(template) && !(template instanceof IPALike);
         },
         execute: function (template) {
             return function (_a) {
@@ -565,7 +585,7 @@
                 Object.entries(template).forEach(function (_a) {
                     var key = _a[0], value = _a[1];
                     var rule = compile(value);
-                    if (!lodash.isString(key) || !notRequiredExp.test(key)) {
+                    if (!isString(key) || !notRequiredExp.test(key)) {
                         compiled[key] = rule;
                         return;
                     }
@@ -581,7 +601,7 @@
                 });
                 return {
                     check: function (val) {
-                        return catcher.catch('a plain object', lodash.isPlainObject(val)) &&
+                        return catcher.catch('a plain object', isPlainObject(val)) &&
                             every(Object.keys(compiled), function (key) { return catcher.wrap(key, function () { return compiled[key].check(val[key]); }); });
                     },
                     guarantee: function (valIn, strict) {
@@ -595,7 +615,7 @@
                                 val[key] = result;
                             });
                         };
-                        if (!catcher.catch('a plain object', lodash.isPlainObject(valIn))) {
+                        if (!catcher.catch('a plain object', isPlainObject(valIn))) {
                             val = {};
                             catcher.free(process);
                         }
@@ -622,7 +642,7 @@
     };
 
     var stringCompiler = {
-        condition: lodash.isString,
+        condition: isString,
         execute: function (template) { return function (_a) {
             var catcher = _a.catcher, cache = _a.cache;
             var recurserScope = cache.get(recurserSymbol);
@@ -635,7 +655,7 @@
                 }
             }
             return {
-                check: function (v) { return catcher.catch('string', lodash.isString(v)); },
+                check: function (v) { return catcher.catch('string', isString(v)); },
                 guarantee: function (v) {
                     return this.check(v) ? v : template;
                 },
@@ -691,11 +711,11 @@
         var compiled = compile(template);
         return {
             check: function (val) {
-                return catcher.catch('a plain object', lodash.isPlainObject(val)) &&
+                return catcher.catch('a plain object', isPlainObject(val)) &&
                     every(Object.keys(val), function (k) { return catcher.wrap(k, function () { return compiled.check(val[k]); }); });
             },
             guarantee: function (val, strict) {
-                if (!catcher.catch('a plain object', lodash.isPlainObject(val)))
+                if (!catcher.catch('a plain object', isPlainObject(val)))
                     return {};
                 Object.keys(val).forEach(function (key) {
                     val[key] = catcher.wrap(key, function () { return compiled.guarantee(val[key], strict); });
@@ -704,7 +724,7 @@
             },
             mock: function (prod) {
                 var output = {};
-                lodash.range(0, prod ? 0 : lodash.random(1, 10)).forEach(function () {
+                range(0, prod ? 0 : random(1, 10)).forEach(function () {
                     output[randStr()] = compiled.mock(prod);
                 });
                 return output;
@@ -715,11 +735,11 @@
     var Integer = (function (_a) {
         var catcher = _a.catcher;
         return ({
-            check: function (v) { return catcher.catch('an integer', lodash.isInteger(v)); },
+            check: function (v) { return catcher.catch('an integer', isInteger(v)); },
             guarantee: function (v, strict) {
-                return this.check(v) ? v : strict ? 0 : lodash.toInteger(v);
+                return this.check(v) ? v : strict ? 0 : toInteger(v);
             },
-            mock: function (prod) { return prod ? 0 : lodash.random(0, 100); },
+            mock: function (prod) { return prod ? 0 : random(0, 100); },
         });
     });
 
@@ -745,28 +765,28 @@
         };
     });
 
-    var Range = (function (min, max, isFloat) {
+    var Range = (function (min$$1, max$$1, isFloat) {
         if (isFloat === void 0) { isFloat = false; }
-        if (min > max) {
+        if (min$$1 > max$$1) {
             throw new Error('in function "Range", min(1st param) must be no larger than max(2st param)');
         }
         return function (_a) {
             var compile = _a.compile, catcher = _a.catcher;
             return {
-                check: function (val) { return and(catcher.catch('a number', lodash.isNumber(val)), catcher.catch("in range [" + min + ", " + max + "]", val >= min && val <= max)); },
+                check: function (val) { return and(catcher.catch('a number', isNumber(val)), catcher.catch("in range [" + min$$1 + ", " + max$$1 + "]", val >= min$$1 && val <= max$$1)); },
                 guarantee: function (val, strict) {
                     if (this.check(val))
                         return val;
                     return catcher.free(function () {
                         var v = compile(Number).guarantee(val, strict);
-                        if (v < min)
-                            return min;
-                        if (v > max)
-                            return max;
+                        if (v < min$$1)
+                            return min$$1;
+                        if (v > max$$1)
+                            return max$$1;
                         return v;
                     });
                 },
-                mock: function (prod) { return prod ? min : lodash.random(min, max, isFloat); },
+                mock: function (prod) { return prod ? min$$1 : random(min$$1, max$$1, isFloat); },
             };
         };
     });
@@ -778,7 +798,7 @@
             var compile = _a.compile, catcher = _a.catcher;
             var compiled = template.map(function (item) { return compile(item); });
             return {
-                check: function (val) { return catcher.catch('an array', lodash.isArray(val)) && and(catcher.catch("with length of " + len, !strictLength || val.length === len), every(compiled, function (item, i) { return catcher.wrap(i, function () { return item.check(val[i]); }); })); },
+                check: function (val) { return catcher.catch('an array', isArray(val)) && and(catcher.catch("with length of " + len, !strictLength || val.length === len), every(compiled, function (item, i) { return catcher.wrap(i, function () { return item.check(val[i]); }); })); },
                 guarantee: function (valIn, strict) {
                     var val = valIn;
                     var process = function () {
@@ -786,7 +806,7 @@
                             val[idx] = catcher.wrap(idx, function () { return item.guarantee(val[idx], strict); });
                         });
                     };
-                    if (!catcher.catch('an array', lodash.isArray(valIn))) {
+                    if (!catcher.catch('an array', isArray(valIn))) {
                         val = [];
                         catcher.free(process);
                         return val;
@@ -809,15 +829,15 @@
             set[_i] = arguments[_i];
         }
         var getRandom = function () {
-            var v = set[lodash.random(0, set.length - 1)];
-            return lodash.cloneDeep(v);
+            var v = set[random(0, set.length - 1)];
+            return cloneDeep(v);
         };
-        var getFirst = function () { return lodash.cloneDeep(set[0]); };
+        var getFirst = function () { return cloneDeep(set[0]); };
         var msg = set.length > 1 ? "from " + set : "" + set[0];
         return function (_a) {
             var catcher = _a.catcher;
             return ({
-                check: function (val) { return catcher.catch(msg, set.findIndex(function (item) { return lodash.isEqual(item, val); }) !== -1); },
+                check: function (val) { return catcher.catch(msg, set.findIndex(function (item) { return isEqual(item, val); }) !== -1); },
                 guarantee: function (val, strict) {
                     return this.check(val) ? val : strict ? set[0] : getRandom();
                 },
@@ -839,14 +859,14 @@
     }; });
 
     function getDefaultCondition(temp) {
-        if (lodash.isPlainObject(temp))
-            return lodash.isPlainObject;
-        if (!lodash.isArray(temp))
+        if (isPlainObject(temp))
+            return isPlainObject;
+        if (!isArray(temp))
             return function () { return false; };
         var convergeList = [/^0{1,}$/, /^>=0{1,}$/, /^<=?\d{1,}$/]; // 收敛名单
         if (!temp[1] && convergeList.some(function (i) { return i.test(temp[1]); }))
-            return lodash.isArray;
-        return function (v) { return lodash.isArray(v) && v.length > 0; };
+            return isArray;
+        return function (v) { return isArray(v) && v.length > 0; };
     }
     var recurse = (function (subTemplate, options) { return function (_a) {
         var compile = _a.compile, cache = _a.cache, catcher = _a.catcher;
@@ -869,7 +889,7 @@
                     cache[counterKey] = 1;
                 }
                 var count = cache[counterKey];
-                var result = !prod && count < 10 && lodash.random(count) === 0 ?
+                var result = !prod && count < 10 && random(count) === 0 ?
                     compiled.mock.call(compiled) : borderCompiled.mock.call(borderCompiled);
                 cache[counterKey] += 1;
                 return result;
@@ -911,7 +931,7 @@
          */
         IPA.prototype.guarantee = function (data, options, onError) {
             var opt, onErr;
-            if (lodash.isPlainObject(options)) {
+            if (isPlainObject(options)) {
                 opt = options;
                 onErr = onError;
             }
@@ -923,7 +943,7 @@
                 strict: false,
             }, opt || {}), isCopy = _a.copy, isStrict = _a.strict;
             callers$1.push(this);
-            var copy = isCopy ? lodash.cloneDeep(data) : data;
+            var copy = isCopy ? cloneDeep(data) : data;
             var output = this.core.guarantee(copy, isStrict);
             lengthManager.fix();
             var errorLog = catcher.getError('check', data);
@@ -940,7 +960,7 @@
             if (prod === void 0) { prod = IPA.isProductionEnv; }
             callers$1.push(this);
             var settings = settingsIn;
-            if (!lodash.isPlainObject(settings)) {
+            if (!isPlainObject(settings)) {
                 if (!IPA.isProductionEnv)
                     throw new Error('mocking setting  a plain object');
                 settings = {};

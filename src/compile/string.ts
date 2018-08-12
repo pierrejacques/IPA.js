@@ -1,4 +1,4 @@
-import { isString } from 'lodash';
+import { isString } from '../lib/_';
 import randStr from '../lib/randStr';
 import { recurserSymbol } from '../lib/symbols';
 import { IPACompiler } from '../interface';

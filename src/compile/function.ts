@@ -8,7 +8,7 @@ import {
     isString,
     toString,
     random,
-} from 'lodash';
+} from '../lib/_';
 import bypasser from './util.bypasser';
 import randStr from '../lib/randStr';
 import { IPAFunction  } from '../interface';

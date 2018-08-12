@@ -1,4 +1,4 @@
-import { isArray, random, min, max, mean, times, isNumber } from 'lodash';
+import { isArray, random, min, max, mean, times, isNumber } from './_';
 import catcher from './catcher';
 import callers from './callers';
 import cache from './cache';

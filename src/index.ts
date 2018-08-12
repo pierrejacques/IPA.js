@@ -1,6 +1,6 @@
 import { IPACore, IPAStrategy, IPACompileFunction, IPAErrorSubscriber, IPAGuaranteeOptions } from './interface';
 
-import { cloneDeep, isPlainObject } from 'lodash';
+import { cloneDeep, isPlainObject } from './lib/_';
 import callers from './lib/callers';
 import catcher from './lib/catcher';
 import cache from './lib/cache';

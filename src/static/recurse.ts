@@ -1,4 +1,4 @@
-import { random, isPlainObject, isArray } from 'lodash';
+import { random, isPlainObject, isArray } from '../lib/_';
 import { recurserSymbol } from '../lib/symbols';
 import From from "./From";
 

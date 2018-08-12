@@ -1,4 +1,4 @@
-import { isArray, isNumber, isString, times } from 'lodash';
+import { isArray, isNumber, isString, times } from '../lib/_';
 import lengthManager from '../lib/length-manager';
 import { IPACompiler } from '../interface';
 import { every } from '../lib/logics';

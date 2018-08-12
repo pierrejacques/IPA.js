@@ -1,4 +1,4 @@
-import { isNumber, toNumber, random } from 'lodash';
+import { isNumber, toNumber, random } from '../lib/_';
 import { and } from '../lib/logics';
 
 export default (min: number, max: number, isFloat: boolean = false) => {

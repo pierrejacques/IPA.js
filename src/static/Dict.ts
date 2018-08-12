@@ -1,4 +1,4 @@
-import { isPlainObject, range, random } from 'lodash';
+import { isPlainObject, range, random } from '../lib/_';
 import randStr from '../lib/randStr';
 import { every } from '../lib/logics';
 

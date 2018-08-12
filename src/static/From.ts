@@ -1,4 +1,4 @@
-import { cloneDeep, random, isEqual } from 'lodash';
+import { cloneDeep, random, isEqual } from '../lib/_';
 
 export default (...set) => {
     const getRandom = () => {

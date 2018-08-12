@@ -1,4 +1,4 @@
-import { isArray } from 'lodash';
+import { isArray } from '../lib/_';
 import { every, and } from '../lib/logics';
 
 export default (template: Array<any>, strictLength: boolean = true) => {

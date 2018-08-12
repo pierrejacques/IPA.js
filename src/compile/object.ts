@@ -1,4 +1,4 @@
-import { isPlainObject, isString } from 'lodash';
+import { isPlainObject, isString } from '../lib/_';
 import { IPACompiler } from '../interface';
 import { IPALike } from '../lib/peer-classes';
 import { every } from '../lib/logics';

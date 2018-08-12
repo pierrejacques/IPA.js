@@ -1,4 +1,4 @@
-import { isBoolean, random } from 'lodash';
+import { isBoolean, random } from '../lib/_';
 import { IPACompiler } from '../interface';
 
 const booleanCompiler: IPACompiler = {
