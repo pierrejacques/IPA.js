@@ -9,6 +9,8 @@ const Judger = (type: string, tag?: string) => (v: any): boolean => {
     const t = getType(v);
     return t === type || tag && t !== null && t === 'object' && getTag(v) === tag;
 };
+const dict: Array<string> = 'ad,aliqua,amet,anim,aute,cillum,commodo,culpa,do,dolor,duis,elit,enim,esse,est,et,ex,fugiat,id,in,ipsum,irure,labore,lorem,magna,minim,mollit,nisi,non,nulla,officia,pariatur,quis,sint,sit,sunt,tempor,ut,velit,veniam'
+    .split(',');
 
 // is
 
@@ -46,32 +48,6 @@ export const times = (n: number, iteratee: (index?: number) => any): Array<any> 
     return arr;
 };
 
-export const max = (arr: Array<number>): number => {
-    let v = -Infinity;
-    loop(arr.length, (i) => {
-        const a = arr[i];
-        if (a > v) v = a;
-    });
-    return v;
-};
-
-export const min = (arr: Array<number>): number => {
-    let v = Infinity;
-    loop(arr.length, (i) => {
-        const a = arr[i];
-        if (a < v) v = a;
-    });
-    return v;
-};
-
-export const mean = (arr: Array<number>): number => {
-    let s = 0;
-    loop(arr.length, (i) => {
-        s += arr[i];
-    });
-    return s / arr.length;
-};
-
 // transfer
 
 export const toNumber = v => {
@@ -94,3 +70,21 @@ export const toArray = v => {
     }
     return result;
 };
+export const randStr = () => dict[random(0, dict.length - 1)];
+
+// logics
+export const and = (...bools: Array<boolean>): boolean => {
+    let flag = true;
+    loop(bools.length, (i) => {
+        if (!bools[i]) flag = false;
+    });
+    return flag;
+};
+
+export const every = (arr: Array<any>, handler: (item: any, index: number) => boolean ): boolean => {
+    let flag = true;
+    loop(arr.length, (i) => {
+        if (!handler(arr[i], i)) flag = false;
+    });
+    return flag;
+}

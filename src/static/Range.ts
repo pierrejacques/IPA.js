@@ -1,5 +1,4 @@
-import { isNumber, toNumber, random } from '../lib/_';
-import { and } from '../lib/logics';
+import { isNumber, toNumber, random, and } from '../lib/_';
 
 export default (min: number, max: number, isFloat: boolean = false) => {
     if (min > max) {

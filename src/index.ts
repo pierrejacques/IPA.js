@@ -1,10 +1,9 @@
 import { IPACore, IPAStrategy, IPACompileFunction, IPAErrorSubscriber, IPAGuaranteeOptions } from './interface';
 
-import { cloneDeep, isPlainObject } from './lib/_';
+import { cloneDeep, isPlainObject, and } from './lib/_';
 import callers from './lib/callers';
 import catcher from './lib/catcher';
 import cache from './lib/cache';
-import { and } from './lib/logics';
 import lengthManager from './lib/length-manager';
 import { IPALike, IPAProxy } from './lib/peer-classes';
 import compile from './compile';
@@ -56,7 +55,8 @@ export default class IPA extends IPALike {
         errorLog && instance.errorHandler && instance.errorHandler(errorLog);
         errorLog = catcher.getError(method, input);
         errorLog && IPA.errorHandler && IPA.errorHandler(errorLog);
-        [cache, catcher].forEach(clearable => clearable.clear());
+        cache.clear();
+        catcher.clear();
         callers.pop();
     };
 

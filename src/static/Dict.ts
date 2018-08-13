@@ -1,6 +1,4 @@
-import { isPlainObject, loop, random } from '../lib/_';
-import randStr from '../lib/randStr';
-import { every } from '../lib/logics';
+import { isPlainObject, loop, random, randStr, every } from '../lib/_';
 
 export default template => ({ compile, catcher }) => {
     const compiled = compile(template);
@@ -14,7 +12,9 @@ export default template => ({ compile, catcher }) => {
         },
         guarantee(val, strict) {
             if (!catcher.catch('a plain object', isPlainObject(val))) return {};
-            Object.keys(val).forEach((key) => {
+            const loopee = Object.keys(val);
+            loop(loopee.length, (i) => {
+                const key = loopee[i];
                 val[key] = catcher.wrap(key, () => compiled.guarantee(val[key], strict));
             });
             return val;

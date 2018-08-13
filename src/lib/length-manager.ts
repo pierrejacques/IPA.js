@@ -1,4 +1,4 @@
-import { isArray, random, min, max, mean, times, isNumber } from './_';
+import { isArray, random, times, isNumber, loop } from './_';
 import catcher from './catcher';
 import callers from './callers';
 import cache from './cache';
@@ -6,31 +6,45 @@ import { lengthManagerSymbol } from './symbols';
 
 const strategies = {
     most(val) {
-        const lengths = val.map(item => item.target.length);
-        const freqs = new Map();
-        lengths.forEach((length) => {
-            if (freqs.get(length) === undefined) {
-                freqs.set(length, 0);
+        const freqs = {};
+        let maxFreq = 0;
+        let maxLen = null;
+        loop(val.length, (i) => {
+            const length = val[i].target.length;
+            if (freqs[length] === undefined) {
+                freqs[length] = 0;
             }
-            freqs.set(length, freqs.get(length) + 1);
-        });
-        let maxFreq = null;
-        freqs.forEach((len, freq) => {
-            if (!maxFreq || freq > maxFreq.freq) {
-                maxFreq = { len, freq };
+            const freq = ++freqs[length];
+            if (freq > maxFreq) {
+                maxFreq = freq;
+                maxLen = length;
             }
-        });
-        return maxFreq.len;
+        })
+        return maxLen;
     },
     shortest(val) {
-        return Math.min(...val.map(item => item.target.length));
+        let min = Infinity;
+        loop(val.length, (i) => {
+            const l = val[i].target.length;
+            if (l < min) min = l;
+        });
+        return min;
     },
     longest(val) {
-        return Math.max(...val.map(item => item.target.length));
+        let max = -Infinity;
+        loop(val.length, (i) => {
+            const l = val[i].target.length;
+            if (l > max) max = l;
+        });
+        return max;
     },
     average(val) {
-        const average = mean(val.map(item => item.target.length));
-        return Math.ceil(average);
+        let s = 0;
+        const n = val.length;
+        loop(n, (i) => {
+            s += val[i].target.length;
+        });
+        return Math.ceil(s / n);
     },
 };
 
@@ -82,53 +96,62 @@ const lengthManager = {
     },
 
     digest(settings) {
-        Object.keys(settings).forEach((key) => {
+        const loopee = Object.keys(settings);
+        loop(loopee.length, (i) => {
+            const key = loopee[i];
             this.scope.set(key, settings[key]);
         });
     },
 
     check() {
         let result = true;
-        this.scope.forEach((value, key) => {
+        for (const [key, value] of this.scope) {
             for (const { match, check, msg } of staticRules) {
                 if (match.test(key)) {
                     const len = extract(match, key);
-                    value
-                    .filter(i => i.method === 'check')
-                    .forEach(item => {
-                        if (!check(item, len)) {
+                    loop(value.length, (i) => {
+                        const item = value[i];
+                        if (item.method === 'check' && !check(item, len)) {
                             catcher.log(item.key, `length should be ${msg} ${len}`);
                             result = false;
                         }
                     });
-                    return;
                 }
             }
-            const lengths = value.map(item => item.length);
-            if (min(lengths) !== max(lengths)) {
-                result = false;
-                value.forEach((item) => catcher.log(item.key, 'length unmatched'));
+            let allEqual = true;
+            let l = value[0].length;
+            for (let i = 1; i < value.length; i ++) {
+                if (value[i].length !== l) {
+                    allEqual = false;
+                    break;
+                }
             }
-        });
+            if (!allEqual) {
+                result = false;
+                loop(value.length, (i) => {
+                    const item = value[i];
+                    catcher.log(item.key, 'length unmatched');
+                });
+            }
+        };
         return result;
     },
 
     fix() {
         const strategy = strategies[callers.current.strategy] || strategies.shortest;
-        this.scope.forEach((value, key) => {
+        for (const [key, value] of this.scope) {
             for (const { match, target, check } of staticRules) {
                 if (match.test(key)) {
                     const l = extract(match, key);
                     fix(
-                        value
-                        .filter(i => i.method === 'fix')
-                        .filter(i => !check(i.target, l)), target(l)
+                        value.filter(i => i.method === 'fix' && !check(i.target, l)),
+                        target(l),
                     );
                     return;
                 }
             }
             fix(value, strategy(value));
-        });
+        };
     },
 
     generate(key: string, isProd: boolean) {
@@ -144,7 +167,8 @@ const lengthManager = {
 }
 
 function fix (toBeFixed: Array<any>, len: number) {
-    toBeFixed.forEach((item) => {
+    loop(toBeFixed.length, (i) => {
+        const item = toBeFixed[i];
         const { target: arr, mocker } = item;
         if (arr.length === len) return;
         if (!item.isFree) {

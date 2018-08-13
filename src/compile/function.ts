@@ -8,9 +8,9 @@ import {
     isString,
     toString,
     random,
+    randStr,
 } from '../lib/_';
 import bypasser from './util.bypasser';
-import randStr from '../lib/randStr';
 import { IPAFunction  } from '../interface';
 
 const Strat = (

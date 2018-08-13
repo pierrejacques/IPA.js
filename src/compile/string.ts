@@ -1,5 +1,4 @@
-import { isString } from '../lib/_';
-import randStr from '../lib/randStr';
+import { isString, randStr } from '../lib/_';
 import { recurserSymbol } from '../lib/symbols';
 import { IPACompiler } from '../interface';
 

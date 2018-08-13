@@ -1,7 +1,6 @@
-import { isPlainObject, isString } from '../lib/_';
+import { isPlainObject, isString, every, loop } from '../lib/_';
 import { IPACompiler } from '../interface';
 import { IPALike } from '../lib/peer-classes';
-import { every } from '../lib/logics';
 
 const objectCompiler: IPACompiler = {
     condition(template) {
@@ -13,7 +12,9 @@ const objectCompiler: IPACompiler = {
             const notRequiredExp = /^(.{1,})\?$/;
             const stillRequiredExp = /^.{0,}\\\?$/;
             const isAbsent = v => v === undefined || v === null;
-            Object.entries(template).forEach(([key, value]) => {
+            const loopee = Object.entries(template);
+            loop(loopee.length, (i) => {
+                const [key, value] = loopee[i];
                 const rule = compile(value);
                 if (!isString(key) || !notRequiredExp.test(key)) {
                     compiled[key] = rule; 
@@ -40,12 +41,14 @@ const objectCompiler: IPACompiler = {
                 guarantee(valIn, strict) {
                     let val = valIn;
                     const process = () => {
-                        Object.keys(compiled).forEach((key) => {
+                        const loopee = Object.keys(compiled);
+                        loop(loopee.length, (i) => {
+                            const key = loopee[i];
                             const absent = !val.hasOwnProperty(key);
                             const result = catcher.wrap(key, () => compiled[key].guarantee(val[key], strict));
                             if (absent && result === undefined) return;
                             val[key] = result;
-                        });
+                        })
                     }
                     if (!catcher.catch('a plain object', isPlainObject(valIn))) {
                         val = {};
@@ -57,7 +60,9 @@ const objectCompiler: IPACompiler = {
                 },
                 mock(prod) {
                     const val = {};
-                    Object.keys(compiled).forEach((key) => {
+                    const loopee = Object.keys(compiled);
+                    loop(loopee.length, (i) => {
+                        const key = loopee[i];
                         val[key] = compiled[key].mock(prod);
                     });
                     return val;
