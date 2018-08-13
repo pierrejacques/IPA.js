@@ -1,4 +1,4 @@
-import { isPlainObject, range, random } from '../lib/_';
+import { isPlainObject, loop, random } from '../lib/_';
 import randStr from '../lib/randStr';
 import { every } from '../lib/logics';
 
@@ -21,7 +21,7 @@ export default template => ({ compile, catcher }) => {
         },
         mock(prod) {
             const output = {};
-            range(0, prod ? 0 : random(1, 10)).forEach(() => {
+            loop(prod ? 0 : random(1, 10), () => {
                 output[randStr()] = compiled.mock(prod);
             });
             return output;

@@ -44,7 +44,7 @@ export default (
                 cache[counterKey] = 1;
             }
             const count = cache[counterKey];
-            const result = !prod && count < 10 && random(count) === 0 ? 
+            const result = !prod && count < 10 && random(0, count) === 0 ? 
                 compiled.mock.call(compiled) : borderCompiled.mock.call(borderCompiled);
             cache[counterKey] += 1;
             return result;

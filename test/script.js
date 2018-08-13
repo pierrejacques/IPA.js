@@ -1,14 +1,9 @@
 const IPA = require('../dist/ipa.js');
 
-const recurse = IPA.recurse;
+const arr = new IPA(Array);
 
-const twoRecurse = new IPA({
-    tree1: recurse([{
-        name: String,
-        children: '$$',
-    }]),
-    tree2: recurse([{
-        name: String,
-        children: '$$',
-    }]),
-});
+// console.log(
+//     arr.guarantee(new Set(['1', '2']))
+// );
+
+const s = new Set(['1', '2']);
