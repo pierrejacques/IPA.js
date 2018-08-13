@@ -1,4 +1,4 @@
-import { isInteger, random, toInteger } from 'lodash';
+import { isInteger, random, toInteger } from '../lib/_';
 
 export default ({ catcher }) => ({
     check: v => catcher.catch('an integer', isInteger(v)),

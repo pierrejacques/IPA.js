@@ -1,10 +1,9 @@
-import { IPACore, IPAStrategy, IPACompileFunction, IPAErrorSubscriber } from './interface';
+import { IPACore, IPAStrategy, IPACompileFunction, IPAErrorSubscriber, IPAGuaranteeOptions } from './interface';
 
-import { cloneDeep, isPlainObject } from 'lodash';
+import { cloneDeep, isPlainObject, and } from './lib/_';
 import callers from './lib/callers';
 import catcher from './lib/catcher';
 import cache from './lib/cache';
-import { and } from './lib/logics';
 import lengthManager from './lib/length-manager';
 import { IPALike, IPAProxy } from './lib/peer-classes';
 import compile from './compile';
@@ -52,12 +51,12 @@ export default class IPA extends IPALike {
     };
 
     private static $emit = (instance?: IPA, method?: string, input?: any) => {
-        const errorLog = catcher.getError(method, input);
-        if (errorLog) {
-            instance.errorHandler && instance.errorHandler(errorLog);
-            IPA.errorHandler && IPA.errorHandler(errorLog);
-        }
-        [lengthManager, cache, catcher].forEach(clearable => clearable.clear());
+        let errorLog = catcher.getError(method, input);
+        errorLog && instance.errorHandler && instance.errorHandler(errorLog);
+        errorLog = catcher.getError(method, input);
+        errorLog && IPA.errorHandler && IPA.errorHandler(errorLog);
+        cache.clear();
+        catcher.clear();
         callers.pop();
     };
 
@@ -80,33 +79,39 @@ export default class IPA extends IPALike {
         this.core = compile(template);
     }
 
-    check(data) {
+    check(data, onError?: IPAErrorSubscriber) {
         callers.push(this);
         const output = and(this.core.check(data), lengthManager.check());
+        const errorLog = catcher.getError('check', data); 
+        errorLog && onError && onError(catcher.getError('check', data));
         IPA.$emit(this, 'check', data);
         return output;
     }
 
     /**
      * @param {the inputting data to be guaranteed} data
-     * @param {whether to make a deep copy first} isCopy
-     * @param {whether to use the strict mode} strict
+     * @param {guarantee Options} isCopy
+     * @param {method level errorHandler} onError
      */
-    guarantee(data, optionsOrIsCopy: boolean | Object = true, strict: boolean = false) {
-        let isCopy = optionsOrIsCopy;
-        let isStrict = strict;
-        if (isPlainObject(optionsOrIsCopy)) {
-            const options = Object.assign({
-                copy: true,
-                strict: false,
-            }, optionsOrIsCopy);
-            isCopy = options.copy;
-            isStrict = options.strict;
+    guarantee(data, options?: IPAGuaranteeOptions | IPAErrorSubscriber, onError?: IPAErrorSubscriber) {
+        let opt, onErr;
+        if (isPlainObject(options)) {
+            opt = options;
+            onErr = onError;
+        } else {
+            onErr = options;
         }
+        const { copy: isCopy, strict: isStrict } = Object.assign({
+            copy: true,
+            strict: false,
+        }, opt || {});
+
         callers.push(this);
         const copy = isCopy ? cloneDeep(data) : data;
-        const output = this.core.guarantee(copy, isStrict);
+        const output = this.core.guarantee(copy, isStrict as boolean);
         lengthManager.fix();
+        const errorLog = catcher.getError('check', data); 
+        errorLog && onErr && onErr(catcher.getError('check', data));
         IPA.$emit(this, 'guarantee', data);
         return output;
     }

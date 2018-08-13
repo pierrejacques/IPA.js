@@ -1,7 +1,6 @@
-import { isPlainObject } from 'lodash';
+import { isPlainObject, isString, every, loop } from '../lib/_';
 import { IPACompiler } from '../interface';
 import { IPALike } from '../lib/peer-classes';
-import { every } from '../lib/logics';
 
 const objectCompiler: IPACompiler = {
     condition(template) {
@@ -10,8 +9,26 @@ const objectCompiler: IPACompiler = {
     execute(template) {
         return ({ compile, catcher }) => {
             const compiled = {};
-            Object.keys(template).forEach((key) => {
-                compiled[key] = compile(template[key]);
+            const notRequiredExp = /^(.{1,})\?$/;
+            const stillRequiredExp = /^.{0,}\\\?$/;
+            const isAbsent = v => v === undefined || v === null;
+            const loopee = Object.entries(template);
+            loop(loopee.length, (i) => {
+                const [key, value] = loopee[i];
+                const rule = compile(value);
+                if (!isString(key) || !notRequiredExp.test(key)) {
+                    compiled[key] = rule; 
+                    return;
+                }
+                if (stillRequiredExp.test(key)) {
+                    compiled[key.slice(0, -2) + '?'] = rule;
+                    return;
+                }
+                compiled[notRequiredExp.exec(key)[1]] = {
+                    check: v => isAbsent(v) || rule.check.call(rule, v),
+                    guarantee: (v, s) => isAbsent(v) ? v : rule.guarantee.call(rule, v, s),
+                    mock: rule.mock.bind(rule),
+                };
             });
             return {
                 check: val => {
@@ -24,9 +41,14 @@ const objectCompiler: IPACompiler = {
                 guarantee(valIn, strict) {
                     let val = valIn;
                     const process = () => {
-                        Object.keys(compiled).forEach((key) => {
-                            val[key] = catcher.wrap(key, () => compiled[key].guarantee(val[key], strict));
-                        });
+                        const loopee = Object.keys(compiled);
+                        loop(loopee.length, (i) => {
+                            const key = loopee[i];
+                            const absent = !val.hasOwnProperty(key);
+                            const result = catcher.wrap(key, () => compiled[key].guarantee(val[key], strict));
+                            if (absent && result === undefined) return;
+                            val[key] = result;
+                        })
                     }
                     if (!catcher.catch('a plain object', isPlainObject(valIn))) {
                         val = {};
@@ -38,7 +60,9 @@ const objectCompiler: IPACompiler = {
                 },
                 mock(prod) {
                     const val = {};
-                    Object.keys(compiled).forEach((key) => {
+                    const loopee = Object.keys(compiled);
+                    loop(loopee.length, (i) => {
+                        const key = loopee[i];
                         val[key] = compiled[key].mock(prod);
                     });
                     return val;

@@ -1,8 +1,8 @@
 (function (global, factory) {
-    typeof exports === 'object' && typeof module !== 'undefined' ? module.exports = factory(require('lodash')) :
-    typeof define === 'function' && define.amd ? define(['lodash'], factory) :
-    (global.IPA = factory(null));
-}(this, (function (lodash) { 'use strict';
+    typeof exports === 'object' && typeof module !== 'undefined' ? module.exports = factory() :
+    typeof define === 'function' && define.amd ? define(factory) :
+    (global.IPA = factory());
+}(this, (function () { 'use strict';
 
     /*! *****************************************************************************
     Copyright (c) Microsoft Corporation. All rights reserved.
@@ -30,6 +30,40 @@
         d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
     }
 
+    function __values(o) {
+        var m = typeof Symbol === "function" && o[Symbol.iterator], i = 0;
+        if (m) return m.call(o);
+        return {
+            next: function () {
+                if (o && i >= o.length) o = void 0;
+                return { value: o && o[i++], done: !o };
+            }
+        };
+    }
+
+    function __read(o, n) {
+        var m = typeof Symbol === "function" && o[Symbol.iterator];
+        if (!m) return o;
+        var i = m.call(o), r, ar = [], e;
+        try {
+            while ((n === void 0 || n-- > 0) && !(r = i.next()).done) ar.push(r.value);
+        }
+        catch (error) { e = { error: error }; }
+        finally {
+            try {
+                if (r && !r.done && (m = i["return"])) m.call(i);
+            }
+            finally { if (e) throw e.error; }
+        }
+        return ar;
+    }
+
+    function __spread() {
+        for (var ar = [], i = 0; i < arguments.length; i++)
+            ar = ar.concat(__read(arguments[i]));
+        return ar;
+    }
+
     var IPAStrategy;
     (function (IPAStrategy) {
         IPAStrategy["Shortest"] = "shortest";
@@ -38,6 +72,104 @@
         IPAStrategy["Average"] = "average";
         IPAStrategy["Least"] = "least";
     })(IPAStrategy || (IPAStrategy = {}));
+
+    var cloneDeep = require('lodash/cloneDeep');
+    var isEqual = require('lodash/isEqual');
+    // tools
+    var getTag = function (v) { return Reflect.toString.call(v); };
+    var getType = function (v) { return typeof v; };
+    var Judger = function (type, tag) { return function (v) {
+        var t = getType(v);
+        return t === type || tag && t !== null && t === 'object' && getTag(v) === tag;
+    }; };
+    var dict = 'ad,aliqua,amet,anim,aute,cillum,commodo,culpa,do,dolor,duis,elit,enim,esse,est,et,ex,fugiat,id,in,ipsum,irure,labore,lorem,magna,minim,mollit,nisi,non,nulla,officia,pariatur,quis,sint,sit,sunt,tempor,ut,velit,veniam'
+        .split(',');
+    // is
+    var isArray = Array.isArray;
+    var isInteger = Number.isSafeInteger;
+    var isBoolean = Judger('boolean', '[object Boolean]');
+    var isPlainObject = function (v) { return getTag(v) === '[object Object]'; };
+    var isNumber = Judger('number', '[object Number]');
+    var isString = Judger('string', '[object String]');
+    var isFunction = function (v) { return getType(v) === 'function'; };
+    // random
+    var random = function (lower, upper, floating) {
+        if (floating === void 0) { floating = false; }
+        return floating ?
+            Math.random() * (upper - lower) + lower : Math.floor(Math.random() * (upper - lower + 1)) + lower;
+    };
+    // loop
+    var loop = function (n, cb) {
+        var i = 0;
+        while (i < n) {
+            cb(i);
+            i++;
+        }
+    };
+    var times = function (n, iteratee) {
+        var arr = Array(n).fill(null);
+        loop(n, function (i) {
+            arr[i] = iteratee(i);
+        });
+        return arr;
+    };
+    // transfer
+    var toNumber = function (v) {
+        var w = Number(v);
+        if (!isFinite(w)) {
+            var sign = w > 0 ? 1 : -1;
+            w = sign * Number.MAX_SAFE_INTEGER;
+        }
+        return w || 0;
+    };
+    var toString = function (v) { return v === null || v === undefined ? '' : String(v); };
+    var toInteger = function (v) { return Math.round(toNumber(v)); };
+    var toArray = function (v) {
+        var e_1, _a;
+        if (isArray(v))
+            return v;
+        if (isPlainObject(v))
+            return Object.values(v);
+        if (v === null || v === undefined || !v[Symbol.iterator])
+            return [];
+        var result = [];
+        try {
+            for (var v_1 = __values(v), v_1_1 = v_1.next(); !v_1_1.done; v_1_1 = v_1.next()) {
+                var i = v_1_1.value;
+                result.push(i);
+            }
+        }
+        catch (e_1_1) { e_1 = { error: e_1_1 }; }
+        finally {
+            try {
+                if (v_1_1 && !v_1_1.done && (_a = v_1.return)) _a.call(v_1);
+            }
+            finally { if (e_1) throw e_1.error; }
+        }
+        return result;
+    };
+    var randStr = function () { return dict[random(0, dict.length - 1)]; };
+    // logics
+    var and = function () {
+        var bools = [];
+        for (var _i = 0; _i < arguments.length; _i++) {
+            bools[_i] = arguments[_i];
+        }
+        var flag = true;
+        loop(bools.length, function (i) {
+            if (!bools[i])
+                flag = false;
+        });
+        return flag;
+    };
+    var every = function (arr, handler) {
+        var flag = true;
+        loop(arr.length, function (i) {
+            if (!handler(arr[i], i))
+                flag = false;
+        });
+        return flag;
+    };
 
     var callers = [];
     var callers$1 = {
@@ -72,6 +204,9 @@
         }
         IPAError.prototype.has = function (deepKey) {
             return Object.keys(this.exceptions).some(function (key) { return match(key, "input" + deepKey); });
+        };
+        IPAError.prototype.stopPropagation = function () {
+            catcher.clear();
         };
         return IPAError;
     }());
@@ -155,47 +290,52 @@
         },
     };
 
-    // full checked AND logic
-    var and = function () {
-        var bools = [];
-        for (var _i = 0; _i < arguments.length; _i++) {
-            bools[_i] = arguments[_i];
-        }
-        return bools.every(function (i) { return i; });
-    };
-    // full checked every method
-    var every = function (arr, handler) {
-        return arr.map(handler).every(function (v) { return v; });
-    };
+    var lengthManagerSymbol = Symbol('lengthManagerScope');
+    var recurserSymbol = Symbol('recurseScope');
 
-    var lengthCacheMap = new Map();
     var strategies = {
         most: function (val) {
-            var lengths = val.map(function (item) { return item.target.length; });
-            var freqs = new Map();
-            lengths.forEach(function (length) {
-                if (freqs.get(length) === undefined) {
-                    freqs.set(length, 0);
+            var freqs = {};
+            var maxFreq = 0;
+            var maxLen = null;
+            loop(val.length, function (i) {
+                var length = val[i].target.length;
+                if (freqs[length] === undefined) {
+                    freqs[length] = 0;
                 }
-                freqs.set(length, freqs.get(length) + 1);
-            });
-            var maxFreq = null;
-            freqs.forEach(function (len, freq) {
-                if (!maxFreq || freq > maxFreq.freq) {
-                    maxFreq = { len: len, freq: freq };
+                var freq = ++freqs[length];
+                if (freq > maxFreq) {
+                    maxFreq = freq;
+                    maxLen = length;
                 }
             });
-            return maxFreq.len;
+            return maxLen;
         },
         shortest: function (val) {
-            return Math.min.apply(Math, val.map(function (item) { return item.target.length; }));
+            var min = Infinity;
+            loop(val.length, function (i) {
+                var l = val[i].target.length;
+                if (l < min)
+                    min = l;
+            });
+            return min;
         },
         longest: function (val) {
-            return Math.max.apply(Math, val.map(function (item) { return item.target.length; }));
+            var max = -Infinity;
+            loop(val.length, function (i) {
+                var l = val[i].target.length;
+                if (l > max)
+                    max = l;
+            });
+            return max;
         },
         average: function (val) {
-            var average = lodash.mean(val.map(function (item) { return item.target.length; }));
-            return Math.ceil(average);
+            var s = 0;
+            var n = val.length;
+            loop(n, function (i) {
+                s += val[i].target.length;
+            });
+            return Math.ceil(s / n);
         },
     };
     var staticRules = [{
@@ -208,126 +348,174 @@
             match: /^>(\d{1,})$/,
             check: function (arr, len) { return arr.length > len; },
             target: function (len) { return len + 1; },
-            generate: function (len) { return lodash.random(len + 1, len + 6); },
+            generate: function (len) { return random(len + 1, len + 6); },
             msg: 'strictly longer than',
         }, {
             match: /^>=(\d{1,})$/,
             check: function (arr, len) { return arr.length >= len; },
             target: function (len) { return len; },
-            generate: function (len) { return lodash.random(len, len + 5); },
+            generate: function (len) { return random(len, len + 5); },
             msg: 'longer than',
         }, {
             match: /^<(\d{1,})$/,
             check: function (arr, len) { return arr.length < len; },
             target: function (len) { return len - 1; },
-            generate: function (len) { return lodash.random(0, len - 1); },
+            generate: function (len) { return random(0, len - 1); },
             msg: 'strictly shorter than'
         }, {
             match: /^<=(\d{1,})$/,
             check: function (arr, len) { return arr.length <= len; },
             target: function (len) { return len; },
-            generate: function (len) { return lodash.random(0, len); },
+            generate: function (len) { return random(0, len); },
             msg: 'shorter than',
         }];
     var lengthManager = {
-        get cache() {
-            var caller = callers$1.current;
-            if (!lengthCacheMap.has(caller)) {
-                lengthCacheMap.set(caller, new Map());
+        get scope() {
+            if (!cache.has(lengthManagerSymbol)) {
+                cache.set(lengthManagerSymbol, new Map());
             }
-            return lengthCacheMap.get(caller);
+            return cache.get(lengthManagerSymbol);
         },
         push: function (name, item) {
-            if (!lodash.isArray(this.cache.get(name))) {
-                this.cache.set(name, []);
+            if (!isArray(this.scope.get(name))) {
+                this.scope.set(name, []);
             }
-            this.cache.get(name).push(item);
-        },
-        set: function (name, value) {
-            this.cache.set(name, value);
-        },
-        get: function (name) {
-            return this.cache.get(name);
-        },
-        forEach: function (cb) {
-            this.cache.forEach(cb);
-        },
-        clear: function () {
-            lengthCacheMap.delete(callers$1.current);
+            this.scope.get(name).push(item);
         },
         digest: function (settings) {
             var _this = this;
-            Object.keys(settings).forEach(function (key) {
-                _this.set(key, settings[key]);
+            var loopee = Object.keys(settings);
+            loop(loopee.length, function (i) {
+                var key = loopee[i];
+                _this.scope.set(key, settings[key]);
             });
         },
         check: function () {
+            var e_1, _a;
             var result = true;
-            this.cache.forEach(function (value, key) {
-                var _loop_1 = function (match, check, msg) {
+            var _loop_1 = function (key, value) {
+                var e_2, _a;
+                var _loop_2 = function (match, check, msg) {
                     if (match.test(key)) {
                         var len_1 = extract(match, key);
-                        value
-                            .filter(function (i) { return i.method === 'check'; })
-                            .forEach(function (item) {
-                            if (!check(item, len_1)) {
+                        loop(value.length, function (i) {
+                            var item = value[i];
+                            if (item.method === 'check' && !check(item, len_1)) {
                                 catcher.log(item.key, "length should be " + msg + " " + len_1);
                                 result = false;
                             }
                         });
-                        return { value: void 0 };
                     }
                 };
-                for (var _i = 0, staticRules_1 = staticRules; _i < staticRules_1.length; _i++) {
-                    var _a = staticRules_1[_i], match = _a.match, check = _a.check, msg = _a.msg;
-                    var state_1 = _loop_1(match, check, msg);
-                    if (typeof state_1 === "object")
-                        return state_1.value;
+                try {
+                    for (var staticRules_1 = __values(staticRules), staticRules_1_1 = staticRules_1.next(); !staticRules_1_1.done; staticRules_1_1 = staticRules_1.next()) {
+                        var _b = staticRules_1_1.value, match = _b.match, check = _b.check, msg = _b.msg;
+                        _loop_2(match, check, msg);
+                    }
                 }
-                var lengths = value.map(function (item) { return item.length; });
-                if (lodash.min(lengths) !== lodash.max(lengths)) {
+                catch (e_2_1) { e_2 = { error: e_2_1 }; }
+                finally {
+                    try {
+                        if (staticRules_1_1 && !staticRules_1_1.done && (_a = staticRules_1.return)) _a.call(staticRules_1);
+                    }
+                    finally { if (e_2) throw e_2.error; }
+                }
+                var allEqual = true;
+                var l = value[0].length;
+                for (var i = 1; i < value.length; i++) {
+                    if (value[i].length !== l) {
+                        allEqual = false;
+                        break;
+                    }
+                }
+                if (!allEqual) {
                     result = false;
-                    value.forEach(function (item) { return catcher.log(item.key, 'length unmatched'); });
+                    loop(value.length, function (i) {
+                        var item = value[i];
+                        catcher.log(item.key, 'length unmatched');
+                    });
                 }
-            });
+            };
+            try {
+                for (var _b = __values(this.scope), _c = _b.next(); !_c.done; _c = _b.next()) {
+                    var _d = __read(_c.value, 2), key = _d[0], value = _d[1];
+                    _loop_1(key, value);
+                }
+            }
+            catch (e_1_1) { e_1 = { error: e_1_1 }; }
+            finally {
+                try {
+                    if (_c && !_c.done && (_a = _b.return)) _a.call(_b);
+                }
+                finally { if (e_1) throw e_1.error; }
+            }
             return result;
         },
         fix: function () {
+            var e_3, _a, e_4, _b;
             var strategy = strategies[callers$1.current.strategy] || strategies.shortest;
-            this.cache.forEach(function (value, key) {
-                var _loop_2 = function (match, target, check) {
-                    if (match.test(key)) {
-                        var l_1 = extract(match, key);
-                        fix(value
-                            .filter(function (i) { return i.method === 'fix'; })
-                            .filter(function (i) { return !check(i.target, l_1); }), target(l_1));
-                        return { value: void 0 };
+            try {
+                for (var _c = __values(this.scope), _d = _c.next(); !_d.done; _d = _c.next()) {
+                    var _e = __read(_d.value, 2), key = _e[0], value = _e[1];
+                    var _loop_3 = function (match, target, check) {
+                        if (match.test(key)) {
+                            var l_1 = extract(match, key);
+                            fix(value.filter(function (i) { return i.method === 'fix' && !check(i.target, l_1); }), target(l_1));
+                            return { value: void 0 };
+                        }
+                    };
+                    try {
+                        for (var staticRules_2 = __values(staticRules), staticRules_2_1 = staticRules_2.next(); !staticRules_2_1.done; staticRules_2_1 = staticRules_2.next()) {
+                            var _f = staticRules_2_1.value, match = _f.match, target = _f.target, check = _f.check;
+                            var state_1 = _loop_3(match, target, check);
+                            if (typeof state_1 === "object")
+                                return state_1.value;
+                        }
                     }
-                };
-                for (var _i = 0, staticRules_2 = staticRules; _i < staticRules_2.length; _i++) {
-                    var _a = staticRules_2[_i], match = _a.match, target = _a.target, check = _a.check;
-                    var state_2 = _loop_2(match, target, check);
-                    if (typeof state_2 === "object")
-                        return state_2.value;
-                }
-                fix(value, strategy(value));
-            });
-        },
-        generate: function (key, isProd) {
-            for (var _i = 0, staticRules_3 = staticRules; _i < staticRules_3.length; _i++) {
-                var _a = staticRules_3[_i], match = _a.match, target = _a.target, generate = _a.generate;
-                if (match.test(key)) {
-                    var l = extract(match, key);
-                    return isProd ? target(l) : generate(l);
+                    catch (e_4_1) { e_4 = { error: e_4_1 }; }
+                    finally {
+                        try {
+                            if (staticRules_2_1 && !staticRules_2_1.done && (_b = staticRules_2.return)) _b.call(staticRules_2);
+                        }
+                        finally { if (e_4) throw e_4.error; }
+                    }
+                    fix(value, strategy(value));
                 }
             }
-            if (!lodash.isNumber(this.get(key)))
-                this.set(key, isProd ? 0 : lodash.random(0, 10));
-            return this.get(key);
+            catch (e_3_1) { e_3 = { error: e_3_1 }; }
+            finally {
+                try {
+                    if (_d && !_d.done && (_a = _c.return)) _a.call(_c);
+                }
+                finally { if (e_3) throw e_3.error; }
+            }
+        },
+        generate: function (key, isProd) {
+            var e_5, _a;
+            try {
+                for (var staticRules_3 = __values(staticRules), staticRules_3_1 = staticRules_3.next(); !staticRules_3_1.done; staticRules_3_1 = staticRules_3.next()) {
+                    var _b = staticRules_3_1.value, match = _b.match, target = _b.target, generate = _b.generate;
+                    if (match.test(key)) {
+                        var l = extract(match, key);
+                        return isProd ? target(l) : generate(l);
+                    }
+                }
+            }
+            catch (e_5_1) { e_5 = { error: e_5_1 }; }
+            finally {
+                try {
+                    if (staticRules_3_1 && !staticRules_3_1.done && (_a = staticRules_3.return)) _a.call(staticRules_3);
+                }
+                finally { if (e_5) throw e_5.error; }
+            }
+            if (!isNumber(this.scope.get(key)))
+                this.scope.set(key, isProd ? 0 : random(0, 10));
+            return this.scope.get(key);
         }
     };
     function fix(toBeFixed, len) {
-        toBeFixed.forEach(function (item) {
+        loop(toBeFixed.length, function (i) {
+            var item = toBeFixed[i];
             var arr = item.target, mocker = item.mocker;
             if (arr.length === len)
                 return;
@@ -339,7 +527,7 @@
                     arr.splice(len);
                 }
                 else {
-                    arr.push.apply(arr, lodash.times(len - arr.length, mocker));
+                    arr.push.apply(arr, __spread(times(len - arr.length, mocker)));
                 }
             });
         });
@@ -353,7 +541,7 @@
         function IPALike() {
         }
         IPALike.prototype.check = function (data) { return true; };
-        IPALike.prototype.guarantee = function (data, isDeep, isStrict) { };
+        IPALike.prototype.guarantee = function (data, options, onError) { };
         IPALike.prototype.mock = function (config, isProdEnv) { };
         return IPALike;
     }());
@@ -387,7 +575,7 @@
                 params[_i] = arguments[_i];
             }
             var _a;
-            return (_a = this.getInstance()).check.apply(_a, params);
+            return (_a = this.getInstance()).check.apply(_a, __spread(params));
         };
         IPAProxy.prototype.guarantee = function () {
             var params = [];
@@ -395,7 +583,7 @@
                 params[_i] = arguments[_i];
             }
             var _a;
-            return (_a = this.getInstance()).guarantee.apply(_a, params);
+            return (_a = this.getInstance()).guarantee.apply(_a, __spread(params));
         };
         IPAProxy.prototype.mock = function () {
             var params = [];
@@ -403,7 +591,7 @@
                 params[_i] = arguments[_i];
             }
             var _a;
-            return (_a = this.getInstance()).mock.apply(_a, params);
+            return (_a = this.getInstance()).mock.apply(_a, __spread(params));
         };
         return IPAProxy;
     }(IPALike));
@@ -413,10 +601,6 @@
         guarantee: function (v) { return v; },
         mock: function () { return undefined; },
     };
-
-    var dict = 'ad,aliqua,amet,anim,aute,cillum,commodo,culpa,do,dolor,duis,elit,enim,esse,est,et,ex,fugiat,id,in,ipsum,irure,labore,lorem,magna,minim,mollit,nisi,non,nulla,officia,pariatur,quis,sint,sit,sunt,tempor,ut,velit,veniam'
-        .split(',');
-    var randStr = (function () { return dict[lodash.random(0, dict.length - 1)]; });
 
     var Strat = function (ck, cvt, dft, mk, describe) { return function (_a) {
         var catcher = _a.catcher;
@@ -429,14 +613,14 @@
         });
     }; };
     var functionCompilerMap = new Map()
-        .set(String, Strat(lodash.isString, lodash.toString, '', randStr, 'a string'))
-        .set(Number, Strat(lodash.isNumber, function (v) { return +v || 0; }, 0, function () { return lodash.random(0, 100); }, 'a number'))
-        .set(Boolean, Strat(lodash.isBoolean, function (v) { return !!v; }, false, function () { return !lodash.random(0, 1); }, 'a boolean'))
-        .set(Array, Strat(lodash.isArray, lodash.toArray, [], function () { return []; }, 'an array'))
-        .set(Object, Strat(lodash.isPlainObject, function () { return ({}); }, {}, function () { return ({}); }, 'a plain object'))
-        .set(Function, Strat(lodash.isFunction, function () { return function () { }; }, function () { }, function () { return function () { }; }, 'a function'));
+        .set(String, Strat(isString, toString, '', randStr, 'a string'))
+        .set(Number, Strat(isNumber, function (v) { return +v || 0; }, 0, function () { return random(0, 100); }, 'a number'))
+        .set(Boolean, Strat(isBoolean, function (v) { return !!v; }, false, function () { return !random(0, 1); }, 'a boolean'))
+        .set(Array, Strat(isArray, toArray, [], function () { return []; }, 'an array'))
+        .set(Object, Strat(isPlainObject, function () { return ({}); }, {}, function () { return ({}); }, 'a plain object'))
+        .set(Function, Strat(isFunction, function () { return function () { }; }, function () { }, function () { return function () { }; }, 'a function'));
     var funcComp = {
-        condition: lodash.isFunction,
+        condition: isFunction,
         execute: function (template) {
             if (functionCompilerMap.has(template))
                 return functionCompilerMap.get(template);
@@ -455,11 +639,11 @@
 
     var arrayCompiler = {
         condition: function (template) {
-            return lodash.isArray(template);
+            return isArray(template);
         },
         execute: function (template) {
             var l = template[1];
-            if (l !== undefined && !lodash.isNumber(l) && !lodash.isString(l)) {
+            if (l !== undefined && !isNumber(l) && !isString(l)) {
                 throw new Error('compile failed: the 2nd parameter for array can only be String or Number');
             }
             l = l && l.toString();
@@ -468,7 +652,7 @@
                 var compiled = compile(template[0]);
                 return {
                     check: function (val) {
-                        if (!lodash.isArray(val)) {
+                        if (!isArray(val)) {
                             return catcher.catch('array');
                         }
                         if (l !== undefined) {
@@ -483,13 +667,13 @@
                     guarantee: function (valIn, strict) {
                         var val = valIn;
                         var isFree = false;
-                        if (!catcher.catch('an array', lodash.isArray(valIn))) {
+                        if (!catcher.catch('an array', isArray(valIn))) {
                             val = [];
                             isFree = true;
                         }
                         else {
-                            val.forEach(function (item, idx) {
-                                val[idx] = catcher.wrap(idx, function () { return compiled.guarantee(item, strict); });
+                            loop(val.length, function (i) {
+                                val[i] = catcher.wrap(i, function () { return compiled.guarantee(val[i], strict); });
                             });
                         }
                         if (l !== undefined) {
@@ -504,7 +688,7 @@
                         return val;
                     },
                     mock: function (prod) {
-                        return lodash.times(lengthManager.generate(l, prod), function () { return compiled.mock.call(compiled, prod); });
+                        return times(lengthManager.generate(l, prod), function () { return compiled.mock.call(compiled, prod); });
                     },
                 };
             };
@@ -512,16 +696,16 @@
     };
 
     var booleanCompiler = {
-        condition: lodash.isBoolean,
+        condition: isBoolean,
         execute: function (template) {
             return function (_a) {
                 var catcher = _a.catcher;
                 return ({
-                    check: function (v) { return catcher.catch('boolean', lodash.isBoolean(v)); },
+                    check: function (v) { return catcher.catch('boolean', isBoolean(v)); },
                     guarantee: function (v) {
                         return this.check(v) ? v : template;
                     },
-                    mock: function (prod) { return prod ? template : !lodash.random(0, 1); },
+                    mock: function (prod) { return prod ? template : !random(0, 1); },
                 });
             };
         },
@@ -544,16 +728,16 @@
     };
 
     var numberCompiler = {
-        condition: lodash.isNumber,
+        condition: isNumber,
         execute: function (template) {
             return function (_a) {
                 var catcher = _a.catcher;
                 return ({
-                    check: function (v) { return catcher.catch('a number', lodash.isNumber(v)); },
+                    check: function (v) { return catcher.catch('a number', isNumber(v)); },
                     guarantee: function (v) {
                         return this.check(v) ? v : template;
                     },
-                    mock: function (prod) { return prod ? template : lodash.random(0, 100); },
+                    mock: function (prod) { return prod ? template : random(0, 100); },
                 });
             };
         },
@@ -561,28 +745,52 @@
 
     var objectCompiler = {
         condition: function (template) {
-            return lodash.isPlainObject(template) && !(template instanceof IPALike);
+            return isPlainObject(template) && !(template instanceof IPALike);
         },
         execute: function (template) {
             return function (_a) {
                 var compile = _a.compile, catcher = _a.catcher;
                 var compiled = {};
-                Object.keys(template).forEach(function (key) {
-                    compiled[key] = compile(template[key]);
+                var notRequiredExp = /^(.{1,})\?$/;
+                var stillRequiredExp = /^.{0,}\\\?$/;
+                var isAbsent = function (v) { return v === undefined || v === null; };
+                var loopee = Object.entries(template);
+                loop(loopee.length, function (i) {
+                    var _a = __read(loopee[i], 2), key = _a[0], value = _a[1];
+                    var rule = compile(value);
+                    if (!isString(key) || !notRequiredExp.test(key)) {
+                        compiled[key] = rule;
+                        return;
+                    }
+                    if (stillRequiredExp.test(key)) {
+                        compiled[key.slice(0, -2) + '?'] = rule;
+                        return;
+                    }
+                    compiled[notRequiredExp.exec(key)[1]] = {
+                        check: function (v) { return isAbsent(v) || rule.check.call(rule, v); },
+                        guarantee: function (v, s) { return isAbsent(v) ? v : rule.guarantee.call(rule, v, s); },
+                        mock: rule.mock.bind(rule),
+                    };
                 });
                 return {
                     check: function (val) {
-                        return catcher.catch('a plain object', lodash.isPlainObject(val)) &&
+                        return catcher.catch('a plain object', isPlainObject(val)) &&
                             every(Object.keys(compiled), function (key) { return catcher.wrap(key, function () { return compiled[key].check(val[key]); }); });
                     },
                     guarantee: function (valIn, strict) {
                         var val = valIn;
                         var process = function () {
-                            Object.keys(compiled).forEach(function (key) {
-                                val[key] = catcher.wrap(key, function () { return compiled[key].guarantee(val[key], strict); });
+                            var loopee = Object.keys(compiled);
+                            loop(loopee.length, function (i) {
+                                var key = loopee[i];
+                                var absent = !val.hasOwnProperty(key);
+                                var result = catcher.wrap(key, function () { return compiled[key].guarantee(val[key], strict); });
+                                if (absent && result === undefined)
+                                    return;
+                                val[key] = result;
                             });
                         };
-                        if (!catcher.catch('a plain object', lodash.isPlainObject(valIn))) {
+                        if (!catcher.catch('a plain object', isPlainObject(valIn))) {
                             val = {};
                             catcher.free(process);
                         }
@@ -593,7 +801,9 @@
                     },
                     mock: function (prod) {
                         var val = {};
-                        Object.keys(compiled).forEach(function (key) {
+                        var loopee = Object.keys(compiled);
+                        loop(loopee.length, function (i) {
+                            var key = loopee[i];
                             val[key] = compiled[key].mock(prod);
                         });
                         return val;
@@ -609,15 +819,30 @@
     };
 
     var stringCompiler = {
-        condition: lodash.isString,
+        condition: isString,
         execute: function (template) { return function (_a) {
             var catcher = _a.catcher, cache = _a.cache;
-            var recurserScope = cache.get('$$recurseScope');
-            if (recurserScope && recurserScope.marker === template) {
-                return recurserScope.asset;
+            var e_1, _b;
+            var recurserScope = cache.get(recurserSymbol);
+            if (recurserScope) {
+                try {
+                    for (var recurserScope_1 = __values(recurserScope), recurserScope_1_1 = recurserScope_1.next(); !recurserScope_1_1.done; recurserScope_1_1 = recurserScope_1.next()) {
+                        var item = recurserScope_1_1.value;
+                        if (item.marker === template) {
+                            return item.asset;
+                        }
+                    }
+                }
+                catch (e_1_1) { e_1 = { error: e_1_1 }; }
+                finally {
+                    try {
+                        if (recurserScope_1_1 && !recurserScope_1_1.done && (_b = recurserScope_1.return)) _b.call(recurserScope_1);
+                    }
+                    finally { if (e_1) throw e_1.error; }
+                }
             }
             return {
-                check: function (v) { return catcher.catch('string', lodash.isString(v)); },
+                check: function (v) { return catcher.catch('string', isString(v)); },
                 guarantee: function (v) {
                     return this.check(v) ? v : template;
                 },
@@ -661,9 +886,9 @@
             return ({
                 check: function (v) { return catcher.catch(errorMsg, v instanceof Klass); },
                 guarantee: function (v) {
-                    return this.check(v) ? v : new (Klass.bind.apply(Klass, [void 0].concat(params)))();
+                    return this.check(v) ? v : new (Klass.bind.apply(Klass, __spread([void 0], params)))();
                 },
-                mock: function () { return new (Klass.bind.apply(Klass, [void 0].concat(params)))(); },
+                mock: function () { return new (Klass.bind.apply(Klass, __spread([void 0], params)))(); },
             });
         };
     });
@@ -673,20 +898,22 @@
         var compiled = compile(template);
         return {
             check: function (val) {
-                return catcher.catch('a plain object', lodash.isPlainObject(val)) &&
+                return catcher.catch('a plain object', isPlainObject(val)) &&
                     every(Object.keys(val), function (k) { return catcher.wrap(k, function () { return compiled.check(val[k]); }); });
             },
             guarantee: function (val, strict) {
-                if (!catcher.catch('a plain object', lodash.isPlainObject(val)))
+                if (!catcher.catch('a plain object', isPlainObject(val)))
                     return {};
-                Object.keys(val).forEach(function (key) {
+                var loopee = Object.keys(val);
+                loop(loopee.length, function (i) {
+                    var key = loopee[i];
                     val[key] = catcher.wrap(key, function () { return compiled.guarantee(val[key], strict); });
                 });
                 return val;
             },
             mock: function (prod) {
                 var output = {};
-                lodash.range(0, prod ? 0 : lodash.random(1, 10)).forEach(function () {
+                loop(prod ? 0 : random(1, 10), function () {
                     output[randStr()] = compiled.mock(prod);
                 });
                 return output;
@@ -697,11 +924,11 @@
     var Integer = (function (_a) {
         var catcher = _a.catcher;
         return ({
-            check: function (v) { return catcher.catch('an integer', lodash.isInteger(v)); },
+            check: function (v) { return catcher.catch('an integer', isInteger(v)); },
             guarantee: function (v, strict) {
-                return this.check(v) ? v : strict ? 0 : lodash.toInteger(v);
+                return this.check(v) ? v : strict ? 0 : toInteger(v);
             },
-            mock: function (prod) { return prod ? 0 : lodash.random(0, 100); },
+            mock: function (prod) { return prod ? 0 : random(0, 100); },
         });
     });
 
@@ -710,11 +937,14 @@
         for (var _i = 0; _i < arguments.length; _i++) {
             params[_i] = arguments[_i];
         }
-        if (params.length < 2)
+        var n = params.length;
+        if (n < 2)
             throw new Error('function "or" requires at least 2 parameter');
         return function (_a) {
             var compile = _a.compile, catcher = _a.catcher;
-            var rules = params.map(function (item) { return compile(item); });
+            var rules = times(n, function (i) {
+                return compile(params[i]);
+            });
             return {
                 check: function (val) { return catcher.catch('matched with one of the rules', catcher.free(function () { return rules.some(function (rule) { return rule.check(val); }); })); },
                 guarantee: function (val, strict) {
@@ -735,7 +965,7 @@
         return function (_a) {
             var compile = _a.compile, catcher = _a.catcher;
             return {
-                check: function (val) { return and(catcher.catch('a number', lodash.isNumber(val)), catcher.catch("in range [" + min + ", " + max + "]", val >= min && val <= max)); },
+                check: function (val) { return and(catcher.catch('a number', isNumber(val)), catcher.catch("in range [" + min + ", " + max + "]", val >= min && val <= max)); },
                 guarantee: function (val, strict) {
                     if (this.check(val))
                         return val;
@@ -748,7 +978,7 @@
                         return v;
                     });
                 },
-                mock: function (prod) { return prod ? min : lodash.random(min, max, isFloat); },
+                mock: function (prod) { return prod ? min : random(min, max, isFloat); },
             };
         };
     });
@@ -758,17 +988,19 @@
         var len = template.length;
         return function (_a) {
             var compile = _a.compile, catcher = _a.catcher;
-            var compiled = template.map(function (item) { return compile(item); });
+            var compiled = times(len, function (i) {
+                return compile(template[i]);
+            });
             return {
-                check: function (val) { return catcher.catch('an array', lodash.isArray(val)) && and(catcher.catch("with length of " + len, !strictLength || val.length === len), every(compiled, function (item, i) { return catcher.wrap(i, function () { return item.check(val[i]); }); })); },
+                check: function (val) { return catcher.catch('an array', isArray(val)) && and(catcher.catch("with length of " + len, !strictLength || val.length === len), every(compiled, function (item, i) { return catcher.wrap(i, function () { return item.check(val[i]); }); })); },
                 guarantee: function (valIn, strict) {
                     var val = valIn;
                     var process = function () {
-                        compiled.forEach(function (item, idx) {
-                            val[idx] = catcher.wrap(idx, function () { return item.guarantee(val[idx], strict); });
+                        loop(len, function (i) {
+                            val[i] = catcher.wrap(i, function () { return compiled[i].guarantee(val[i], strict); });
                         });
                     };
-                    if (!catcher.catch('an array', lodash.isArray(valIn))) {
+                    if (!catcher.catch('an array', isArray(valIn))) {
                         val = [];
                         catcher.free(process);
                         return val;
@@ -780,7 +1012,7 @@
                     }
                     return val;
                 },
-                mock: function (prod) { return compiled.map(function (item) { return item.mock(prod); }); },
+                mock: function (prod) { return times(len, function (i) { return compiled[i].mock(prod); }); },
             };
         };
     });
@@ -791,15 +1023,15 @@
             set[_i] = arguments[_i];
         }
         var getRandom = function () {
-            var v = set[lodash.random(0, set.length - 1)];
-            return lodash.cloneDeep(v);
+            var v = set[random(0, set.length - 1)];
+            return cloneDeep(v);
         };
-        var getFirst = function () { return lodash.cloneDeep(set[0]); };
+        var getFirst = function () { return cloneDeep(set[0]); };
         var msg = set.length > 1 ? "from " + set : "" + set[0];
         return function (_a) {
             var catcher = _a.catcher;
             return ({
-                check: function (val) { return catcher.catch(msg, set.findIndex(function (item) { return lodash.isEqual(item, val); }) !== -1); },
+                check: function (val) { return catcher.catch(msg, set.findIndex(function (item) { return isEqual(item, val); }) !== -1); },
                 guarantee: function (val, strict) {
                     return this.check(val) ? val : strict ? set[0] : getRandom();
                 },
@@ -821,20 +1053,21 @@
     }; });
 
     function getDefaultCondition(temp) {
-        if (lodash.isPlainObject(temp))
-            return lodash.isPlainObject;
-        if (!lodash.isArray(temp))
+        if (isPlainObject(temp))
+            return isPlainObject;
+        if (!isArray(temp))
             return function () { return false; };
         var convergeList = [/^0{1,}$/, /^>=0{1,}$/, /^<=?\d{1,}$/]; // 收敛名单
         if (!temp[1] && convergeList.some(function (i) { return i.test(temp[1]); }))
-            return lodash.isArray;
-        return function (v) { return lodash.isArray(v) && v.length > 0; };
+            return isArray;
+        return function (v) { return isArray(v) && v.length > 0; };
     }
     var recurse = (function (subTemplate, options) { return function (_a) {
         var compile = _a.compile, cache = _a.cache, catcher = _a.catcher;
         var _b = options || {}, _c = _b.marker, marker = _c === void 0 ? '$$' : _c, _d = _b.border, border = _d === void 0 ? From(null) : _d, _e = _b.condition, condition = _e === void 0 ? getDefaultCondition(subTemplate) : _e;
         var borderCompiled = compile(border);
         var compiled = null;
+        var counterKey = Symbol('recurserCounter');
         var asset = {
             check: function (v) {
                 return catcher.catch('matched with one of the rules', catcher.free(function () { return borderCompiled.check.call(borderCompiled, v) || compiled.check.call(compiled, v); }));
@@ -845,14 +1078,25 @@
                     return v;
                 return condition(v) ? compiled.guarantee.call(compiled, v) : borderCompiled.guarantee.call(borderCompiled, v);
             },
-            mock: function () { return lodash.random(1) === 0 ? borderCompiled.mock.call(borderCompiled) : compiled.mock.call(compiled); },
+            mock: function (prod) {
+                if (!cache[counterKey]) {
+                    cache[counterKey] = 1;
+                }
+                var count = cache[counterKey];
+                var result = !prod && count < 10 && random(0, count) === 0 ?
+                    compiled.mock.call(compiled) : borderCompiled.mock.call(borderCompiled);
+                cache[counterKey] += 1;
+                return result;
+            },
         };
-        cache.set('$$recurseScope', {
-            marker: marker,
-            asset: asset,
-        });
+        if (!cache.get(recurserSymbol))
+            cache.set(recurserSymbol, []);
+        var stack = cache.get(recurserSymbol);
+        stack.unshift({ marker: marker, asset: asset });
         compiled = compile(subTemplate);
-        cache.delete('$$recurseScope');
+        stack.shift();
+        if (!stack.length)
+            cache.delete(recurserSymbol);
         return compiled;
     }; });
 
@@ -866,34 +1110,38 @@
             _this.core = compile(template);
             return _this;
         }
-        IPA.prototype.check = function (data) {
+        IPA.prototype.check = function (data, onError) {
             callers$1.push(this);
             var output = and(this.core.check(data), lengthManager.check());
+            var errorLog = catcher.getError('check', data);
+            errorLog && onError && onError(catcher.getError('check', data));
             IPA.$emit(this, 'check', data);
             return output;
         };
         /**
          * @param {the inputting data to be guaranteed} data
-         * @param {whether to make a deep copy first} isCopy
-         * @param {whether to use the strict mode} strict
+         * @param {guarantee Options} isCopy
+         * @param {method level errorHandler} onError
          */
-        IPA.prototype.guarantee = function (data, optionsOrIsCopy, strict) {
-            if (optionsOrIsCopy === void 0) { optionsOrIsCopy = true; }
-            if (strict === void 0) { strict = false; }
-            var isCopy = optionsOrIsCopy;
-            var isStrict = strict;
-            if (lodash.isPlainObject(optionsOrIsCopy)) {
-                var options = Object.assign({
-                    copy: true,
-                    strict: false,
-                }, optionsOrIsCopy);
-                isCopy = options.copy;
-                isStrict = options.strict;
+        IPA.prototype.guarantee = function (data, options, onError) {
+            var opt, onErr;
+            if (isPlainObject(options)) {
+                opt = options;
+                onErr = onError;
             }
+            else {
+                onErr = options;
+            }
+            var _a = Object.assign({
+                copy: true,
+                strict: false,
+            }, opt || {}), isCopy = _a.copy, isStrict = _a.strict;
             callers$1.push(this);
-            var copy = isCopy ? lodash.cloneDeep(data) : data;
+            var copy = isCopy ? cloneDeep(data) : data;
             var output = this.core.guarantee(copy, isStrict);
             lengthManager.fix();
+            var errorLog = catcher.getError('check', data);
+            errorLog && onErr && onErr(catcher.getError('check', data));
             IPA.$emit(this, 'guarantee', data);
             return output;
         };
@@ -906,7 +1154,7 @@
             if (prod === void 0) { prod = IPA.isProductionEnv; }
             callers$1.push(this);
             var settings = settingsIn;
-            if (!lodash.isPlainObject(settings)) {
+            if (!isPlainObject(settings)) {
                 if (!IPA.isProductionEnv)
                     throw new Error('mocking setting  a plain object');
                 settings = {};
@@ -951,11 +1199,11 @@
         };
         IPA.$emit = function (instance, method, input) {
             var errorLog = catcher.getError(method, input);
-            if (errorLog) {
-                instance.errorHandler && instance.errorHandler(errorLog);
-                IPA.errorHandler && IPA.errorHandler(errorLog);
-            }
-            [lengthManager, cache, catcher].forEach(function (clearable) { return clearable.clear(); });
+            errorLog && instance.errorHandler && instance.errorHandler(errorLog);
+            errorLog = catcher.getError(method, input);
+            errorLog && IPA.errorHandler && IPA.errorHandler(errorLog);
+            cache.clear();
+            catcher.clear();
             callers$1.pop();
         };
         IPA.asClass = asClass;

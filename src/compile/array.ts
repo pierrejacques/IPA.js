@@ -1,7 +1,6 @@
-import { isArray, isNumber, isString, times } from 'lodash';
+import { isArray, isNumber, isString, times, every, loop } from '../lib/_';
 import lengthManager from '../lib/length-manager';
 import { IPACompiler } from '../interface';
-import { every } from '../lib/logics';
 
 const arrayCompiler: IPACompiler = {
     condition(template) {
@@ -36,10 +35,10 @@ const arrayCompiler: IPACompiler = {
                         val = [];
                         isFree = true;
                     } else {
-                        val.forEach((item, idx) => {
-                            val[idx] = catcher.wrap(
-                                idx,
-                                () => compiled.guarantee(item, strict),
+                        loop(val.length, (i) => {
+                            val[i] = catcher.wrap(
+                                i,
+                                () => compiled.guarantee(val[i], strict),
                             );
                         });
                     }

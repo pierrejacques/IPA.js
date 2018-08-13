@@ -1,6 +1,4 @@
-import { isPlainObject, range, random } from 'lodash';
-import randStr from '../lib/randStr';
-import { every } from '../lib/logics';
+import { isPlainObject, loop, random, randStr, every } from '../lib/_';
 
 export default template => ({ compile, catcher }) => {
     const compiled = compile(template);
@@ -14,14 +12,16 @@ export default template => ({ compile, catcher }) => {
         },
         guarantee(val, strict) {
             if (!catcher.catch('a plain object', isPlainObject(val))) return {};
-            Object.keys(val).forEach((key) => {
+            const loopee = Object.keys(val);
+            loop(loopee.length, (i) => {
+                const key = loopee[i];
                 val[key] = catcher.wrap(key, () => compiled.guarantee(val[key], strict));
             });
             return val;
         },
         mock(prod) {
             const output = {};
-            range(0, prod ? 0 : random(1, 10)).forEach(() => {
+            loop(prod ? 0 : random(1, 10), () => {
                 output[randStr()] = compiled.mock(prod);
             });
             return output;

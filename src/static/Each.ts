@@ -1,10 +1,11 @@
-import { isArray } from 'lodash';
-import { every, and } from '../lib/logics';
+import { isArray, every, and, loop, times } from '../lib/_';
 
 export default (template: Array<any>, strictLength: boolean = true) => {
     const len = template.length;
     return ({ compile, catcher }) => {
-        const compiled = template.map(item => compile(item));
+        const compiled = times(len, (i) => {
+            return compile(template[i]);
+        });
         return {
             check: val => catcher.catch('an array', isArray(val)) && and(
                 catcher.catch(`with length of ${len}`, !strictLength || val.length === len),
@@ -16,10 +17,10 @@ export default (template: Array<any>, strictLength: boolean = true) => {
             guarantee(valIn, strict) {
                 let val = valIn;
                 const process = () => {
-                    compiled.forEach((item, idx) => {
-                        val[idx] = catcher.wrap(
-                            idx,
-                            () => item.guarantee(val[idx], strict)
+                    loop(len, (i) => {
+                        val[i] = catcher.wrap(
+                            i,
+                            () => compiled[i].guarantee(val[i], strict)
                         );
                     });
                 }
@@ -35,7 +36,7 @@ export default (template: Array<any>, strictLength: boolean = true) => {
                 }
                 return val;
             },
-            mock: prod => compiled.map(item => item.mock(prod)),
+            mock: prod => times(len, (i) => compiled[i].mock(prod)),
         };
     };
 };

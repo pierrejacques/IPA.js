@@ -25,8 +25,20 @@ module.exports = [
             guarantee: [],
             strict: [],
         }, {
-            name: 'inputting: convertable',
-            inputs: [{ a: '1', b: '2' }, new Set(['1', '2']), '12'],
+            name: 'inputting: convertable 1',
+            input: { a: '1', b: '2' },
+            check: false,
+            guarantee: ['1', '2'],
+            strict: [],
+        }, {
+            name: 'inputting: convertable 2',
+            input: new Set(['1', '2']),
+            check: false,
+            guarantee: ['1', '2'],
+            strict: [],
+        }, {
+            name: 'inputting: convertable 3',
+            input: '12',
             check: false,
             guarantee: ['1', '2'],
             strict: [],

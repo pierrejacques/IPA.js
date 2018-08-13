@@ -1,4 +1,5 @@
-import { random, isPlainObject, isArray } from 'lodash';
+import { random, isPlainObject, isArray } from '../lib/_';
+import { recurserSymbol } from '../lib/symbols';
 import From from "./From";
 
 function getDefaultCondition (temp) {
@@ -11,11 +12,11 @@ function getDefaultCondition (temp) {
 
 export default (
         subTemplate: any,
-        options: { 
-            marker: string;
-            border: any;
-            condition(input: any): boolean;
-        }
+        options?: { 
+            marker?: string;
+            border?: any;
+            condition?(input: any): boolean;
+        },
     ) => ({ compile, cache, catcher }) => {
     const {
         marker = '$$',
@@ -24,6 +25,7 @@ export default (
     } = options || {};
     const borderCompiled = compile(border);
     let compiled = null;
+    const counterKey = Symbol('recurserCounter');
     const asset = {
         check: v => {
             return catcher.catch(
@@ -37,13 +39,22 @@ export default (
             if (catcher.free(() => this.check(v))) return v;
             return condition(v) ? compiled.guarantee.call(compiled, v) : borderCompiled.guarantee.call(borderCompiled, v);
         },
-        mock: () => random(1) === 0 ? borderCompiled.mock.call(borderCompiled) : compiled.mock.call(compiled),
+        mock: (prod) => {
+            if (!cache[counterKey]) {
+                cache[counterKey] = 1;
+            }
+            const count = cache[counterKey];
+            const result = !prod && count < 10 && random(0, count) === 0 ? 
+                compiled.mock.call(compiled) : borderCompiled.mock.call(borderCompiled);
+            cache[counterKey] += 1;
+            return result;
+        },
     };
-    cache.set('$$recurseScope', {
-        marker,
-        asset,
-    });
-    compiled = compile(subTemplate)
-    cache.delete('$$recurseScope');
+    if (!cache.get(recurserSymbol)) cache.set(recurserSymbol, []);
+    const stack = cache.get(recurserSymbol);
+    stack.unshift({ marker, asset });
+    compiled = compile(subTemplate);
+    stack.shift();
+    if (!stack.length) cache.delete(recurserSymbol);
     return compiled;
 }

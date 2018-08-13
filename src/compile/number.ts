@@ -1,4 +1,4 @@
-import { isNumber, random } from 'lodash';
+import { isNumber, random } from '../lib/_';
 import { IPACompiler } from '../interface';
 
 const numberCompiler: IPACompiler = {
