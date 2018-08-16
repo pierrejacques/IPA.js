@@ -81,7 +81,7 @@ class IPA extends IPALike {
     check(data, onError?: IPAErrorSubscriber) {
         callers.push(this);
         const output = and(this.core.check(data), lengthManager.check());
-        const errorLog = catcher.getError('check', data); 
+        const errorLog = catcher.getError('check', data);
         errorLog && onError && onError(catcher.getError('check', data));
         clear(this, 'check', data);
         return output;

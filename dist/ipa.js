@@ -185,9 +185,11 @@
         },
     };
 
+    var STACK_CHUNK_SIZE = 10;
     var exceptions = {};
     var stack = [];
     var isFree = false;
+    var pointer = 0;
     function match(key, deepKey) {
         var result = key.indexOf(deepKey);
         var len = deepKey.length;
@@ -213,14 +215,20 @@
             if (callers$1.root === callers$1.current) {
                 exceptions = {};
                 stack = [];
+                pointer = -1;
             }
         },
         pop: function () {
-            stack.pop();
+            pointer--;
         },
         push: function (key) {
-            var keyStr = typeof key === 'string' ? "." + key : "[" + key + "]";
-            stack.push(keyStr);
+            pointer++;
+            if (stack.length <= pointer) {
+                for (var i = 0; i < STACK_CHUNK_SIZE; i++) {
+                    stack.push(null);
+                }
+            }
+            stack[pointer] = typeof key === 'string' ? "." + key : "[" + key + "]";
         },
         catch: function (msg, result) {
             if (result === void 0) { result = false; }
@@ -258,7 +266,9 @@
             return Object.keys(exceptions).length ? new IPAError(method, exceptions, input) : null;
         },
         get currentKey() {
-            return stack.join('');
+            if (pointer < 0)
+                return '';
+            return stack.slice(0, pointer + 1).join('');
         },
     };
 
@@ -650,7 +660,11 @@
                                 method: 'check',
                             });
                         }
-                        return every(val, function (item, index) { return catcher.wrap(index, function () { return compiled.check(item); }); });
+                        var result = true;
+                        // result = every(val, (item) => typeof item !== 'number'); // 9.5ms
+                        // result = every(val, (item) => compiled.check(item)); // TODO: 1230ms
+                        result = every(val, function (item, index) { return catcher.wrap(index, function () { return compiled.check(item); }); }); // TODO: 1690ms
+                        return result;
                     },
                     guarantee: function (valIn, strict) {
                         var val = valIn;

@@ -1,9 +1,11 @@
 import { IPAErrorCatcher, IPAExceptions, IPAErrorLog } from "../interface";
 import callers from './callers';
 
+const STACK_CHUNK_SIZE = 10;
 let exceptions: IPAExceptions = {};
 let stack: Array<string> = [];
 let isFree: boolean = false;
+let pointer: number = 0;
 
 function match(key: string, deepKey: string): boolean {
     const result = key.indexOf(deepKey);
@@ -35,16 +37,22 @@ const catcher: IPAErrorCatcher = {
         if (callers.root === callers.current) {
             exceptions = {};
             stack = [];
+            pointer = -1;
         }
     },
 
     pop() {
-        stack.pop();
+        pointer--;
     },
 
     push(key: any) {
-        const keyStr = typeof key === 'string' ? `.${key}` : `[${key}]`;
-        stack.push(keyStr);
+        pointer++;
+        if (stack.length <= pointer) {
+            for (let i = 0; i < STACK_CHUNK_SIZE; i++) {
+                stack.push(null);
+            }
+        }
+        stack[pointer] = typeof key === 'string' ? `.${key}` : `[${key}]`;
     },
 
     catch(msg: string, result: boolean = false) {
@@ -88,7 +96,8 @@ const catcher: IPAErrorCatcher = {
     },
 
     get currentKey() {
-        return stack.join('');    
+        if (pointer < 0) return '';
+        return stack.slice(0, pointer + 1).join('');
     },
 }
 

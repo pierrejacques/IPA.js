@@ -31,7 +31,7 @@ const context: IPAContext = {
     catcher,
 };
 
-const compile: IPACompileFunction = (template)=> {
+const compile: IPACompileFunction = (template) => {
     const compiler = compilers.find(item => item.condition(template));
     if (!compiler) throw new Error(`compile error: failed to recognize pattern ${JSON.stringify(template)}`);
     return compiler.execute(template)(context);

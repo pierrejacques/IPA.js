@@ -26,7 +26,11 @@ const arrayCompiler: IPACompiler = {
                             method: 'check',
                         });
                     }
-                    return every(val, (item, index) => catcher.wrap(index, () => compiled.check(item)));
+                    let result = true;
+                    // result = every(val, (item) => typeof item !== 'number'); // 9.5ms
+                    // result = every(val, (item) => compiled.check(item)); // TODO: 1230ms
+                    result = every(val, (item, index) => catcher.wrap(index, () => compiled.check(item))); // TODO: 1690ms
+                    return result;
                 },
                 guarantee(valIn, strict) {
                     let val = valIn;
