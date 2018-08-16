@@ -17,7 +17,7 @@ export default (template: Array<any>, strictLength: boolean = true) => {
             guarantee(valIn, strict) {
                 let val = valIn;
                 const process = () => {
-                    loop(len, (i) => {
+                    loop(template, (item, i) => {
                         val[i] = catcher.wrap(
                             i,
                             () => compiled[i].guarantee(val[i], strict)

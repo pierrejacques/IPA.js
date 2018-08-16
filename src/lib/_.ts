@@ -32,17 +32,15 @@ export const random = (lower: number, upper: number, floating: boolean = false):
 
 // loop
 
-export const loop = (n: number, cb: Function) => {
-    let i = 0;
-    while (i < n) {
-        cb(i);
-        i++;
+export const loop = (arr: Array<any>, cb: Function) => {
+    for (let i = 0, n = arr.length; i < n; i++) {
+        cb(arr[i], i);
     }
 };
 
 export const times = (n: number, iteratee: (index?: number) => any): Array<any> => {
     const arr = Array(n).fill(null);
-    loop(n, (i) => {
+    loop(arr, (_, i) => {
         arr[i] = iteratee(i);
     });
     return arr;
@@ -75,16 +73,16 @@ export const randStr = () => dict[random(0, dict.length - 1)];
 // logics
 export const and = (...bools: Array<boolean>): boolean => {
     let flag = true;
-    loop(bools.length, (i) => {
-        if (!bools[i]) flag = false;
+    loop(bools, (item) => {
+        if (!item) flag = false;
     });
     return flag;
 };
 
 export const every = (arr: Array<any>, handler: (item: any, index: number) => boolean ): boolean => {
     let flag = true;
-    loop(arr.length, (i) => {
-        if (!handler(arr[i], i)) flag = false;
+    loop(arr, (item, i) => {
+        if (!handler(item, i)) flag = false;
     });
     return flag;
 }

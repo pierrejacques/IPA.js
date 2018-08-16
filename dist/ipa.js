@@ -99,16 +99,14 @@
             Math.random() * (upper - lower) + lower : Math.floor(Math.random() * (upper - lower + 1)) + lower;
     };
     // loop
-    var loop = function (n, cb) {
-        var i = 0;
-        while (i < n) {
-            cb(i);
-            i++;
+    var loop = function (arr, cb) {
+        for (var i = 0, n = arr.length; i < n; i++) {
+            cb(arr[i], i);
         }
     };
     var times = function (n, iteratee) {
         var arr = Array(n).fill(null);
-        loop(n, function (i) {
+        loop(arr, function (_, i) {
             arr[i] = iteratee(i);
         });
         return arr;
@@ -156,16 +154,16 @@
             bools[_i] = arguments[_i];
         }
         var flag = true;
-        loop(bools.length, function (i) {
-            if (!bools[i])
+        loop(bools, function (item) {
+            if (!item)
                 flag = false;
         });
         return flag;
     };
     var every = function (arr, handler) {
         var flag = true;
-        loop(arr.length, function (i) {
-            if (!handler(arr[i], i))
+        loop(arr, function (item, i) {
+            if (!handler(item, i))
                 flag = false;
         });
         return flag;
@@ -298,8 +296,8 @@
             var freqs = {};
             var maxFreq = 0;
             var maxLen = null;
-            loop(val.length, function (i) {
-                var length = val[i].target.length;
+            loop(val, function (item) {
+                var length = item.target.length;
                 if (freqs[length] === undefined) {
                     freqs[length] = 0;
                 }
@@ -313,8 +311,8 @@
         },
         shortest: function (val) {
             var min = Infinity;
-            loop(val.length, function (i) {
-                var l = val[i].target.length;
+            loop(val, function (item) {
+                var l = item.target.length;
                 if (l < min)
                     min = l;
             });
@@ -322,8 +320,8 @@
         },
         longest: function (val) {
             var max = -Infinity;
-            loop(val.length, function (i) {
-                var l = val[i].target.length;
+            loop(val, function (item) {
+                var l = item.target.length;
                 if (l > max)
                     max = l;
             });
@@ -331,11 +329,10 @@
         },
         average: function (val) {
             var s = 0;
-            var n = val.length;
-            loop(n, function (i) {
-                s += val[i].target.length;
+            loop(val, function (item) {
+                s += item.target.length;
             });
-            return Math.ceil(s / n);
+            return Math.ceil(s / val.length);
         },
     };
     var staticRules = [{
@@ -384,68 +381,60 @@
         },
         digest: function (settings) {
             var _this = this;
-            var loopee = Object.keys(settings);
-            loop(loopee.length, function (i) {
-                var key = loopee[i];
+            loop(Object.keys(settings), function (key) {
                 _this.scope.set(key, settings[key]);
             });
         },
         check: function () {
-            var e_1, _a;
+            var e_1, _a, e_2, _b;
             var result = true;
-            var _loop_1 = function (key, value) {
-                var e_2, _a;
-                var _loop_2 = function (match, check, msg) {
-                    if (match.test(key)) {
-                        var len_1 = extract(match, key);
-                        loop(value.length, function (i) {
-                            var item = value[i];
-                            if (item.method === 'check' && !check(item, len_1)) {
-                                catcher.log(item.key, "length should be " + msg + " " + len_1);
-                                result = false;
-                            }
+            try {
+                for (var _c = __values(this.scope), _d = _c.next(); !_d.done; _d = _c.next()) {
+                    var _e = __read(_d.value, 2), key = _e[0], value = _e[1];
+                    var _loop_1 = function (match, check, msg) {
+                        if (match.test(key)) {
+                            var len_1 = extract(match, key);
+                            loop(value, function (item) {
+                                if (item.method === 'check' && !check(item, len_1)) {
+                                    catcher.log(item.key, "length should be " + msg + " " + len_1);
+                                    result = false;
+                                }
+                            });
+                        }
+                    };
+                    try {
+                        for (var staticRules_1 = __values(staticRules), staticRules_1_1 = staticRules_1.next(); !staticRules_1_1.done; staticRules_1_1 = staticRules_1.next()) {
+                            var _f = staticRules_1_1.value, match = _f.match, check = _f.check, msg = _f.msg;
+                            _loop_1(match, check, msg);
+                        }
+                    }
+                    catch (e_2_1) { e_2 = { error: e_2_1 }; }
+                    finally {
+                        try {
+                            if (staticRules_1_1 && !staticRules_1_1.done && (_b = staticRules_1.return)) _b.call(staticRules_1);
+                        }
+                        finally { if (e_2) throw e_2.error; }
+                    }
+                    var allEqual = true;
+                    var l = value[0].length;
+                    for (var i = 1; i < value.length; i++) {
+                        if (value[i].length !== l) {
+                            allEqual = false;
+                            break;
+                        }
+                    }
+                    if (!allEqual) {
+                        result = false;
+                        loop(value, function (item) {
+                            catcher.log(item.key, 'length unmatched');
                         });
                     }
-                };
-                try {
-                    for (var staticRules_1 = __values(staticRules), staticRules_1_1 = staticRules_1.next(); !staticRules_1_1.done; staticRules_1_1 = staticRules_1.next()) {
-                        var _b = staticRules_1_1.value, match = _b.match, check = _b.check, msg = _b.msg;
-                        _loop_2(match, check, msg);
-                    }
-                }
-                catch (e_2_1) { e_2 = { error: e_2_1 }; }
-                finally {
-                    try {
-                        if (staticRules_1_1 && !staticRules_1_1.done && (_a = staticRules_1.return)) _a.call(staticRules_1);
-                    }
-                    finally { if (e_2) throw e_2.error; }
-                }
-                var allEqual = true;
-                var l = value[0].length;
-                for (var i = 1; i < value.length; i++) {
-                    if (value[i].length !== l) {
-                        allEqual = false;
-                        break;
-                    }
-                }
-                if (!allEqual) {
-                    result = false;
-                    loop(value.length, function (i) {
-                        var item = value[i];
-                        catcher.log(item.key, 'length unmatched');
-                    });
-                }
-            };
-            try {
-                for (var _b = __values(this.scope), _c = _b.next(); !_c.done; _c = _b.next()) {
-                    var _d = __read(_c.value, 2), key = _d[0], value = _d[1];
-                    _loop_1(key, value);
                 }
             }
             catch (e_1_1) { e_1 = { error: e_1_1 }; }
             finally {
                 try {
-                    if (_c && !_c.done && (_a = _b.return)) _a.call(_b);
+                    if (_d && !_d.done && (_a = _c.return)) _a.call(_c);
                 }
                 finally { if (e_1) throw e_1.error; }
             }
@@ -457,7 +446,7 @@
             try {
                 for (var _c = __values(this.scope), _d = _c.next(); !_d.done; _d = _c.next()) {
                     var _e = __read(_d.value, 2), key = _e[0], value = _e[1];
-                    var _loop_3 = function (match, target, check) {
+                    var _loop_2 = function (match, target, check) {
                         if (match.test(key)) {
                             var l_1 = extract(match, key);
                             fix(value.filter(function (i) { return i.method === 'fix' && !check(i.target, l_1); }), target(l_1));
@@ -467,7 +456,7 @@
                     try {
                         for (var staticRules_2 = __values(staticRules), staticRules_2_1 = staticRules_2.next(); !staticRules_2_1.done; staticRules_2_1 = staticRules_2.next()) {
                             var _f = staticRules_2_1.value, match = _f.match, target = _f.target, check = _f.check;
-                            var state_1 = _loop_3(match, target, check);
+                            var state_1 = _loop_2(match, target, check);
                             if (typeof state_1 === "object")
                                 return state_1.value;
                         }
@@ -514,8 +503,7 @@
         }
     };
     function fix(toBeFixed, len) {
-        loop(toBeFixed.length, function (i) {
-            var item = toBeFixed[i];
+        loop(toBeFixed, function (item) {
             var arr = item.target, mocker = item.mocker;
             if (arr.length === len)
                 return;
@@ -672,8 +660,8 @@
                             isFree = true;
                         }
                         else {
-                            loop(val.length, function (i) {
-                                val[i] = catcher.wrap(i, function () { return compiled.guarantee(val[i], strict); });
+                            loop(val, function (item, i) {
+                                val[i] = catcher.wrap(i, function () { return compiled.guarantee(item, strict); });
                             });
                         }
                         if (l !== undefined) {
@@ -754,9 +742,8 @@
                 var notRequiredExp = /^(.{1,})\?$/;
                 var stillRequiredExp = /^.{0,}\\\?$/;
                 var isAbsent = function (v) { return v === undefined || v === null; };
-                var loopee = Object.entries(template);
-                loop(loopee.length, function (i) {
-                    var _a = __read(loopee[i], 2), key = _a[0], value = _a[1];
+                loop(Object.entries(template), function (_a) {
+                    var _b = __read(_a, 2), key = _b[0], value = _b[1];
                     var rule = compile(value);
                     if (!isString(key) || !notRequiredExp.test(key)) {
                         compiled[key] = rule;
@@ -780,9 +767,7 @@
                     guarantee: function (valIn, strict) {
                         var val = valIn;
                         var process = function () {
-                            var loopee = Object.keys(compiled);
-                            loop(loopee.length, function (i) {
-                                var key = loopee[i];
+                            loop(Object.keys(compiled), function (key) {
                                 var absent = !val.hasOwnProperty(key);
                                 var result = catcher.wrap(key, function () { return compiled[key].guarantee(val[key], strict); });
                                 if (absent && result === undefined)
@@ -801,9 +786,7 @@
                     },
                     mock: function (prod) {
                         var val = {};
-                        var loopee = Object.keys(compiled);
-                        loop(loopee.length, function (i) {
-                            var key = loopee[i];
+                        loop(Object.keys(compiled), function (key) {
                             val[key] = compiled[key].mock(prod);
                         });
                         return val;
@@ -905,16 +888,15 @@
                 if (!catcher.catch('a plain object', isPlainObject(val)))
                     return {};
                 var loopee = Object.keys(val);
-                loop(loopee.length, function (i) {
-                    var key = loopee[i];
+                loop(loopee, function (key) {
                     val[key] = catcher.wrap(key, function () { return compiled.guarantee(val[key], strict); });
                 });
                 return val;
             },
             mock: function (prod) {
                 var output = {};
-                loop(prod ? 0 : random(1, 10), function () {
-                    output[randStr()] = compiled.mock(prod);
+                loop(times(prod ? 0 : random(1, 10), randStr), function (key) {
+                    output[key] = compiled.mock(prod);
                 });
                 return output;
             },
@@ -996,7 +978,7 @@
                 guarantee: function (valIn, strict) {
                     var val = valIn;
                     var process = function () {
-                        loop(len, function (i) {
+                        loop(template, function (item, i) {
                             val[i] = catcher.wrap(i, function () { return compiled[i].guarantee(val[i], strict); });
                         });
                     };
@@ -1100,6 +1082,17 @@
         return compiled;
     }; });
 
+    var errorHandler = null;
+    var instances = new Map();
+    var clear = function (instance, method, input) {
+        var errorLog = catcher.getError(method, input);
+        errorLog && instance.errorHandler && instance.errorHandler(errorLog);
+        errorLog = catcher.getError(method, input);
+        errorLog && errorHandler && errorHandler(errorLog);
+        cache.clear();
+        catcher.clear();
+        callers$1.pop();
+    };
     var IPA = /** @class */ (function (_super) {
         __extends(IPA, _super);
         function IPA(template) {
@@ -1115,7 +1108,7 @@
             var output = and(this.core.check(data), lengthManager.check());
             var errorLog = catcher.getError('check', data);
             errorLog && onError && onError(catcher.getError('check', data));
-            IPA.$emit(this, 'check', data);
+            clear(this, 'check', data);
             return output;
         };
         /**
@@ -1142,7 +1135,7 @@
             lengthManager.fix();
             var errorLog = catcher.getError('check', data);
             errorLog && onErr && onErr(catcher.getError('check', data));
-            IPA.$emit(this, 'guarantee', data);
+            clear(this, 'guarantee', data);
             return output;
         };
         /**
@@ -1161,50 +1154,36 @@
             }
             lengthManager.digest(settings);
             var output = this.core.mock(prod);
-            IPA.$emit();
+            clear();
             return output;
         };
         IPA.prototype.onError = function (f) {
             this.errorHandler = f;
             return this;
         };
-        IPA.errorHandler = null;
         IPA.isProductionEnv = false;
-        IPA.instances = new Map();
-        IPA.inject = function (name, template) {
-            if (IPA.instances.has(name) && !IPA.isProductionEnv) {
-                throw new Error('in inject: reassign to global IPA instance is not arrowed');
-            }
-            IPA.instances.set(name, new IPA(template));
+        IPA.define = function (name, template) {
+            if (instances.has(name))
+                return false;
+            var instance = new IPA(template);
+            instances.set(name, instance);
+            return true;
         };
-        IPA.getInstance = function (name) {
+        IPA.Type = function (name) {
             var i = null;
             return new IPAProxy(function () {
                 if (i)
                     return i;
-                i = IPA.instances.get(name);
-                if (i === undefined)
-                    throw new Error('in getInstance: IPA instance called before injected');
-                return i;
+                i = instances.get(name);
+                return i || new IPA(undefined);
             });
         };
         IPA.compile = compile;
-        IPA.install = function (v) {
-            v.prototype.$ipa = IPA.getInstance;
-            v.prototype.$brew = compile;
-        };
+        IPA.cache = cache;
+        IPA.cacther = catcher;
         IPA.onError = function (f) {
-            IPA.errorHandler = f;
+            errorHandler = f;
             return IPA;
-        };
-        IPA.$emit = function (instance, method, input) {
-            var errorLog = catcher.getError(method, input);
-            errorLog && instance.errorHandler && instance.errorHandler(errorLog);
-            errorLog = catcher.getError(method, input);
-            errorLog && IPA.errorHandler && IPA.errorHandler(errorLog);
-            cache.clear();
-            catcher.clear();
-            callers$1.pop();
         };
         IPA.asClass = asClass;
         IPA.assemble = assemble;
@@ -1215,8 +1194,15 @@
         IPA.or = or;
         IPA.Range = Range;
         IPA.recurse = recurse;
+        IPA.toString = function () { return 'IPA runtime type validator'; };
         return IPA;
     }(IPALike));
+    Reflect.ownKeys(IPA).forEach(function (key) {
+        if (['name', 'length', 'prototype'].indexOf(key) !== -1 && isFunction(IPA[key])) {
+            IPA[key].name = key;
+            IPA[key].toString = function () { return "IPA static method: " + key; };
+        }
+    });
 
     return IPA;
 

@@ -35,10 +35,10 @@ const arrayCompiler: IPACompiler = {
                         val = [];
                         isFree = true;
                     } else {
-                        loop(val.length, (i) => {
+                        loop(val, (item, i) => {
                             val[i] = catcher.wrap(
                                 i,
-                                () => compiled.guarantee(val[i], strict),
+                                () => compiled.guarantee(item, strict),
                             );
                         });
                     }

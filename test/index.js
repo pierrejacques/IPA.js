@@ -77,3 +77,22 @@ describe(`
         ...require('./static/recurse')(IPA),
     ]);
 });
+
+describe(`
+===== | FUNCTIONAL | =====
+
+`, () => {
+    describe('defined & Type Proxy', () => {
+        it('should be callable before defined', () => {
+            const testProxy = IPA.Type('testType');
+            IPA.define('testType', {
+                prop: Number,
+            });
+            expect(testProxy.check({ prop: 1 })).to.be.equal(true);
+            expect(testProxy.guarantee({ prop: 1 })).to.deep.equal({ prop: 1 });
+            expect(testProxy.check({ prop: '1' })).to.be.equal(false);
+            expect(testProxy.guarantee({ prop: '1' })).to.deep.equal({ prop: 1 });
+            expect(testProxy.check(testProxy.mock())).to.be.equal(true);
+        });
+    });
+});

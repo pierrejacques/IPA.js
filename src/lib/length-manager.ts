@@ -9,8 +9,8 @@ const strategies = {
         const freqs = {};
         let maxFreq = 0;
         let maxLen = null;
-        loop(val.length, (i) => {
-            const length = val[i].target.length;
+        loop(val, (item) => {
+            const length = item.target.length;
             if (freqs[length] === undefined) {
                 freqs[length] = 0;
             }
@@ -24,27 +24,26 @@ const strategies = {
     },
     shortest(val) {
         let min = Infinity;
-        loop(val.length, (i) => {
-            const l = val[i].target.length;
+        loop(val, (item) => {
+            const l = item.target.length;
             if (l < min) min = l;
         });
         return min;
     },
     longest(val) {
         let max = -Infinity;
-        loop(val.length, (i) => {
-            const l = val[i].target.length;
+        loop(val, (item) => {
+            const l = item.target.length;
             if (l > max) max = l;
         });
         return max;
     },
     average(val) {
         let s = 0;
-        const n = val.length;
-        loop(n, (i) => {
-            s += val[i].target.length;
+        loop(val, (item) => {
+            s += item.target.length;
         });
-        return Math.ceil(s / n);
+        return Math.ceil(s / val.length);
     },
 };
 
@@ -96,9 +95,7 @@ const lengthManager = {
     },
 
     digest(settings) {
-        const loopee = Object.keys(settings);
-        loop(loopee.length, (i) => {
-            const key = loopee[i];
+        loop(Object.keys(settings), (key) => {
             this.scope.set(key, settings[key]);
         });
     },
@@ -109,8 +106,7 @@ const lengthManager = {
             for (const { match, check, msg } of staticRules) {
                 if (match.test(key)) {
                     const len = extract(match, key);
-                    loop(value.length, (i) => {
-                        const item = value[i];
+                    loop(value, (item) => {
                         if (item.method === 'check' && !check(item, len)) {
                             catcher.log(item.key, `length should be ${msg} ${len}`);
                             result = false;
@@ -128,8 +124,7 @@ const lengthManager = {
             }
             if (!allEqual) {
                 result = false;
-                loop(value.length, (i) => {
-                    const item = value[i];
+                loop(value, (item) => {
                     catcher.log(item.key, 'length unmatched');
                 });
             }
@@ -167,8 +162,7 @@ const lengthManager = {
 }
 
 function fix (toBeFixed: Array<any>, len: number) {
-    loop(toBeFixed.length, (i) => {
-        const item = toBeFixed[i];
+    loop(toBeFixed, (item) => {
         const { target: arr, mocker } = item;
         if (arr.length === len) return;
         if (!item.isFree) {

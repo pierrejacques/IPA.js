@@ -12,9 +12,7 @@ const objectCompiler: IPACompiler = {
             const notRequiredExp = /^(.{1,})\?$/;
             const stillRequiredExp = /^.{0,}\\\?$/;
             const isAbsent = v => v === undefined || v === null;
-            const loopee = Object.entries(template);
-            loop(loopee.length, (i) => {
-                const [key, value] = loopee[i];
+            loop(Object.entries(template), ([key, value]) => {
                 const rule = compile(value);
                 if (!isString(key) || !notRequiredExp.test(key)) {
                     compiled[key] = rule; 
@@ -41,9 +39,7 @@ const objectCompiler: IPACompiler = {
                 guarantee(valIn, strict) {
                     let val = valIn;
                     const process = () => {
-                        const loopee = Object.keys(compiled);
-                        loop(loopee.length, (i) => {
-                            const key = loopee[i];
+                        loop(Object.keys(compiled), (key) => {
                             const absent = !val.hasOwnProperty(key);
                             const result = catcher.wrap(key, () => compiled[key].guarantee(val[key], strict));
                             if (absent && result === undefined) return;
@@ -60,9 +56,7 @@ const objectCompiler: IPACompiler = {
                 },
                 mock(prod) {
                     const val = {};
-                    const loopee = Object.keys(compiled);
-                    loop(loopee.length, (i) => {
-                        const key = loopee[i];
+                    loop(Object.keys(compiled), (key) => {
                         val[key] = compiled[key].mock(prod);
                     });
                     return val;

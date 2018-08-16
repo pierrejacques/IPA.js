@@ -1,6 +1,6 @@
-import { IPACore, IPAStrategy, IPACompileFunction, IPAErrorSubscriber, IPAGuaranteeOptions } from './interface';
+import { IPACore, IPAStrategy, IPACompileFunction, IPAErrorSubscriber, IPAGuaranteeOptions, IPACache, IPAErrorCatcher } from './interface';
 
-import { cloneDeep, isPlainObject, and } from './lib/_';
+import { cloneDeep, isPlainObject, isFunction, and } from './lib/_';
 import callers from './lib/callers';
 import catcher from './lib/catcher';
 import cache from './lib/cache';
@@ -19,45 +19,42 @@ import {
     recurse,
 } from './static';
 
-export default class IPA extends IPALike {
-    private static errorHandler: IPAErrorSubscriber = null;
-    public static isProductionEnv: boolean = false;
-    private static instances: Map<any, IPA> = new Map();
+let errorHandler: IPAErrorSubscriber = null;
+const instances: Map<any, IPA> = new Map();
+const clear = (instance?: IPA, method?: string, input?: any) => {
+    let errorLog = catcher.getError(method, input);
+    errorLog && instance.errorHandler && instance.errorHandler(errorLog);
+    errorLog = catcher.getError(method, input);
+    errorLog && errorHandler && errorHandler(errorLog);
+    cache.clear();
+    catcher.clear();
+    callers.pop();
+};
 
-    public static inject = (name: any, template: any): void => {
-        if (IPA.instances.has(name) && !IPA.isProductionEnv) {
-            throw new Error('in inject: reassign to global IPA instance is not arrowed');
-        }
-        IPA.instances.set(name, new IPA(template));
+class IPA extends IPALike {
+    public static isProductionEnv: boolean = false;
+    public static define = (name: any, template: any): boolean => {
+        if (instances.has(name)) return false;
+        const instance = new IPA(template);
+        instances.set(name, instance);
+        return true;
     };
-    public static getInstance = (name: any): IPALike => {
+    public static Type = (name: any): IPALike => {
         let i = null;
         return new IPAProxy(() => {
             if (i) return i;
-            i = IPA.instances.get(name);
-            if (i === undefined) throw new Error('in getInstance: IPA instance called before injected');
-            return i;
+            i = instances.get(name);
+            return i || new IPA(undefined);
         });
     };
+
     public static compile: IPACompileFunction = compile;
-    public static install = (v: Function): void => {
-        v.prototype.$ipa = IPA.getInstance;
-        v.prototype.$brew = compile;
-    };
+    public static cache: IPACache = cache;
+    public static cacther: IPAErrorCatcher = catcher;
     
     public static onError = (f: IPAErrorSubscriber) => {
-        IPA.errorHandler = f;
+        errorHandler = f;
         return IPA;
-    };
-
-    private static $emit = (instance?: IPA, method?: string, input?: any) => {
-        let errorLog = catcher.getError(method, input);
-        errorLog && instance.errorHandler && instance.errorHandler(errorLog);
-        errorLog = catcher.getError(method, input);
-        errorLog && IPA.errorHandler && IPA.errorHandler(errorLog);
-        cache.clear();
-        catcher.clear();
-        callers.pop();
     };
 
     public static asClass = asClass;
@@ -70,7 +67,9 @@ export default class IPA extends IPALike {
     public static Range = Range;
     public static recurse = recurse;
 
-    private errorHandler: IPAErrorSubscriber = null;
+    public static toString = (): string => 'IPA runtime type validator';
+
+    public errorHandler: IPAErrorSubscriber = null;
     public core: IPACore = null;
     public strategy: IPAStrategy = IPAStrategy.Shortest;
 
@@ -84,7 +83,7 @@ export default class IPA extends IPALike {
         const output = and(this.core.check(data), lengthManager.check());
         const errorLog = catcher.getError('check', data); 
         errorLog && onError && onError(catcher.getError('check', data));
-        IPA.$emit(this, 'check', data);
+        clear(this, 'check', data);
         return output;
     }
 
@@ -112,7 +111,7 @@ export default class IPA extends IPALike {
         lengthManager.fix();
         const errorLog = catcher.getError('check', data); 
         errorLog && onErr && onErr(catcher.getError('check', data));
-        IPA.$emit(this, 'guarantee', data);
+        clear(this, 'guarantee', data);
         return output;
     }
 
@@ -129,7 +128,7 @@ export default class IPA extends IPALike {
         }
         lengthManager.digest(settings);
         const output = this.core.mock(prod);
-        IPA.$emit();
+        clear();
         return output;
     }
 
@@ -138,3 +137,12 @@ export default class IPA extends IPALike {
         return this;
     }
 }
+
+Reflect.ownKeys(IPA).forEach((key: string) => {
+    if (['name', 'length', 'prototype'].indexOf(key) !== -1 && isFunction(IPA[key])) {
+        IPA[key].name = key;
+        IPA[key].toString = () => `IPA static method: ${key}`;
+    }
+});
+
+export default IPA;
