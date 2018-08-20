@@ -668,9 +668,7 @@
                             });
                         }
                         var result = true;
-                        // result = every(val, (item) => typeof item !== 'number'); // 9.5ms
-                        // result = every(val, (item) => compiled.check(item)); // TODO: 1230ms
-                        result = every(val, function (item, index) { return catcher.wrap(index, function () { return compiled.check(item); }); }); // TODO: 1690ms
+                        result = every(val, function (item, index) { return catcher.wrap(index, function () { return compiled.check(item); }); });
                         return result;
                     },
                     guarantee: function (valIn, strict) {
