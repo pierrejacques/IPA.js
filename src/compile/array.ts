@@ -27,9 +27,7 @@ const arrayCompiler: IPACompiler = {
                         });
                     }
                     let result = true;
-                    // result = every(val, (item) => typeof item !== 'number'); // 9.5ms
-                    // result = every(val, (item) => compiled.check(item)); // TODO: 1230ms
-                    result = every(val, (item, index) => catcher.wrap(index, () => compiled.check(item))); // TODO: 1690ms
+                    result = every(val, (item, index) => catcher.wrap(index, () => compiled.check(item)));
                     return result;
                 },
                 guarantee(valIn, strict) {
