@@ -103,6 +103,7 @@ const lengthManager = {
     check() {
         let result = true;
         for (const [key, value] of this.scope) {
+            let hasMatched = false;
             for (const { match, check, msg } of staticRules) {
                 if (match.test(key)) {
                     const len = extract(match, key);
@@ -112,8 +113,11 @@ const lengthManager = {
                             result = false;
                         }
                     });
+                    hasMatched = true;
+                    break;
                 }
             }
+            if (hasMatched) continue;
             let allEqual = true;
             let l = value[0].length;
             for (let i = 1; i < value.length; i ++) {

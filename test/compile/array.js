@@ -142,6 +142,26 @@ module.exports = [
         }],
     },
     {
+        desc: 'When template = { a: [undefined, ">0"], b: [undefined, ">0"]}',
+        template: { 
+            a: [undefined, ">0"],
+            b: [undefined, ">0"],
+        },
+        situations: [{
+            name: 'inputting: right object',
+            input: { a: [1], b: ['1', '2'] },
+            check: true,
+            guarantee: { a: [1], b: ['1', '2'] },
+            strict: { a: [1], b: ['1', '2'] },
+        }, {
+            name: 'inputting: one wrong',
+            input: { a: [], b: [1] },
+            check: false,
+            guarantee: { a: [undefined], b: [1] },
+            strict: { a: [undefined], b: [1] },
+        }],
+    },
+    {
         desc: 'When template = {a:[Number, "l"], b:[String, "l"]}',
         template: {a:[Number, "l"], b:[String, "l"]},
         situations: [{

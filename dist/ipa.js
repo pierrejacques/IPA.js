@@ -401,6 +401,7 @@
             try {
                 for (var _c = __values(this.scope), _d = _c.next(); !_d.done; _d = _c.next()) {
                     var _e = __read(_d.value, 2), key = _e[0], value = _e[1];
+                    var hasMatched = false;
                     var _loop_1 = function (match, check, msg) {
                         if (match.test(key)) {
                             var len_1 = extract(match, key);
@@ -410,12 +411,16 @@
                                     result = false;
                                 }
                             });
+                            hasMatched = true;
+                            return "break";
                         }
                     };
                     try {
                         for (var staticRules_1 = __values(staticRules), staticRules_1_1 = staticRules_1.next(); !staticRules_1_1.done; staticRules_1_1 = staticRules_1.next()) {
                             var _f = staticRules_1_1.value, match = _f.match, check = _f.check, msg = _f.msg;
-                            _loop_1(match, check, msg);
+                            var state_1 = _loop_1(match, check, msg);
+                            if (state_1 === "break")
+                                break;
                         }
                     }
                     catch (e_2_1) { e_2 = { error: e_2_1 }; }
@@ -425,6 +430,8 @@
                         }
                         finally { if (e_2) throw e_2.error; }
                     }
+                    if (hasMatched)
+                        continue;
                     var allEqual = true;
                     var l = value[0].length;
                     for (var i = 1; i < value.length; i++) {
@@ -466,9 +473,9 @@
                     try {
                         for (var staticRules_2 = __values(staticRules), staticRules_2_1 = staticRules_2.next(); !staticRules_2_1.done; staticRules_2_1 = staticRules_2.next()) {
                             var _f = staticRules_2_1.value, match = _f.match, target = _f.target, check = _f.check;
-                            var state_1 = _loop_2(match, target, check);
-                            if (typeof state_1 === "object")
-                                return state_1.value;
+                            var state_2 = _loop_2(match, target, check);
+                            if (typeof state_2 === "object")
+                                return state_2.value;
                         }
                     }
                     catch (e_4_1) { e_4 = { error: e_4_1 }; }
