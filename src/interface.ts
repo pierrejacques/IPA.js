@@ -1,3 +1,5 @@
+import { IPALike } from "./lib/peer-classes";
+
 export enum IPAStrategy {
     Shortest = 'shortest',
     Longest = 'longest',
@@ -75,4 +77,8 @@ export interface IPACache {
     clear(): boolean;
     set(key: any, value: any): boolean;
     get(key: any): any;
+}
+
+export interface IPAExtender {
+    (ipa?): void;
 }

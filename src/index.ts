@@ -1,4 +1,4 @@
-import { IPACore, IPAStrategy, IPACompileFunction, IPAErrorSubscriber, IPAGuaranteeOptions, IPACache, IPAErrorCatcher } from './interface';
+import { IPACore, IPAStrategy, IPACompileFunction, IPAErrorSubscriber, IPAGuaranteeOptions, IPACache, IPAErrorCatcher, IPAExtender } from './interface';
 
 import { cloneDeep, isPlainObject, isFunction, and } from './lib/_';
 import callers from './lib/callers';
@@ -32,7 +32,11 @@ const clear = (instance?: IPA, method?: string, input?: any) => {
 };
 
 class IPA extends IPALike {
+    // environment
+
     public static isProductionEnv: boolean = false;
+
+    // global types
     public static define = (name: any, template: any): boolean => {
         if (instances.has(name)) return false;
         const instance = new IPA(template);
@@ -48,15 +52,18 @@ class IPA extends IPALike {
         });
     };
 
+    // functional
     public static compile: IPACompileFunction = compile;
     public static cache: IPACache = cache;
     public static cacther: IPAErrorCatcher = catcher;
     
+    // global errorHandler
     public static onError = (f: IPAErrorSubscriber) => {
         errorHandler = f;
         return IPA;
     };
 
+    // extensions
     public static asClass = asClass;
     public static assemble = assemble;
     public static Dict = Dict;
@@ -66,9 +73,14 @@ class IPA extends IPALike {
     public static or = or;
     public static Range = Range;
     public static recurse = recurse;
+    public static use = (extender: IPAExtender) => {
+        extender(IPA);
+    }
 
+    // appearence
     public static toString = (): string => 'IPA runtime type validator';
 
+    // instance errorHandler
     public errorHandler: IPAErrorSubscriber = null;
     public core: IPACore = null;
     public strategy: IPAStrategy = IPAStrategy.Shortest;
